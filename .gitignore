@@ -3,6 +3,13 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Scons-generated files
+# From the NVDA addon template
+addon/doc/*.css
+addon/doc/en/
+*_docHandler.py
+*.html
+*.ini
+*.mo
+*.pot
 *.nvda-addon
 .sconsign.dblite
