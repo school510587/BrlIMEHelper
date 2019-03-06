@@ -711,8 +711,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     log.debug('Sending "%s"' % (cmd,))
                     self.send_keys(cmd)
             except:
-                log.info('Undefined input gesture of "%s"'%(self.bpmf_cumulative_str,))
-                raise
+                log.warning('Undefined input gesture of "%s"' % (self.bpmf_cumulative_str,))
                 winsound.MessageBeep()
             self.bpmf_cumulative_str = ""
 
