@@ -566,6 +566,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         # Don't process vkCode if it is previously modified.
         if (vkCode, extended) in self._modifiedKeys:
             return self._oldKeyDown(vkCode, scanCode, extended, injected)
+        # Don't process any numpad key.
+        if vkCode & 0xF0 == 0x60:
+            self._modifiedKeys.add((vkCode, extended))
+            return self._oldKeyDown(vkCode, scanCode, extended, injected)
         # If any modifier key is down and vkCode is not previously trapped,
         # vkCode is now modified, and its message is passed to NVDA.
         if self._trappedNVDAModifiers:
