@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: UTF-8 -*-
 # Copyright (C) 2019 Bo-Cheng Jhan <school510587@yahoo.com.tw>
 # This file is covered by the GNU General Public License.
 # See the file LICENSE for more details.
