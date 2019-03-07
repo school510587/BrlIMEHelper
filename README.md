@@ -1,2 +1,0 @@
-# BrlIMEHelper
-Braille IME Helper
