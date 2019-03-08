@@ -6,6 +6,7 @@ Convenience of Chinese input remains a hard problem for braille users who are no
 
 ## Prerequisite
 Before installation, check the following environment settings:
+
 - The addon requires NVDA 2017.3 or later, but description of this instruction refers mainly to Windows 10 and the latest version of NVDA.
 - 微軟注音 must be your default IME, and the composition mode is default to alphanumeric. The factory default mode is usually native, and you can find the option in 微軟注音 configuration of "Regional and Language Settings" to change it.
 - Your 微軟注音 must use the standard bopomofo keyboard layout. It is the factory default, you can also find this option in 微軟注音 configuration.
@@ -16,25 +17,25 @@ Before installation, check the following environment settings:
 - If you would like to simulate braille keyboard by a computer keyboard, check that it supports NKRO (N-key rollover).
 
 ## Features
-- Through the braille keyboard, the user can manipulate 微軟注音, and input Chinese characters, punctuations, and math symbols according to braille rules learned.
-- Simulating braille keyboard by a computer keyboard, which enable users to input characters according to braille rules without a braille keyboard.
-- On change of IME input composition mode, Braille IME Helper must cooperate with the IME to change the way of braille handling. When the addon handles braille in alphanumeric mode, the effect is determined by NVDA's braille input table.
+1. Through the braille keyboard, the user can manipulate 微軟注音, and input Chinese characters, punctuations, and math symbols according to braille rules learned.
+2. Simulating braille keyboard by a computer keyboard, which enable users to input characters according to braille rules without a braille keyboard.
+3. On change of IME input composition mode, Braille IME Helper must cooperate with the IME to change the way of braille handling. When the addon handles braille in alphanumeric mode, the effect is determined by NVDA's braille input table.
 
 ## Manipulation by a braille keyboard
 - Please remember the following hotkeys:
- * Dots 4, 5, 6 + Space: Toggle between alphanumeric and native modes. The effect is the same as pressing Shift on a computer keyboard.
- * Dot 1 + Space: Review the braille buffer, i.e., what you just enter in native mode before finish of composition. (Example: 135 126 is insufficient for composition, but this function shows that you have entered ㄅㄛ.)
- * Dots 2, 4, 5 + Space: Clear braille buffer on typo to re-enter the correct content.
+    * Dots 4, 5, 6 + Space: Toggle between alphanumeric and native modes. The effect is the same as pressing Shift on a computer keyboard.
+    * Dot 1 + Space: Review the braille buffer, i.e., what you just enter in native mode before finish of composition. (Example: 135 126 is insufficient for composition, but this function shows that you have entered ㄅㄛ.)
+    * Dots 2, 4, 5 + Space: Clear braille buffer on typo to re-enter the correct content.
 - The original NVDA behavior of dot 7, dot 8, and dot 7 + dot 8 is preserved in both modes.
 - The addon do not influence other buttons on a braille display, such as buttons for scrolling and positioning.
 
 ## Manipulation by a computer keyboard
 - NVDA+X enables/disables the feature of simulating braille keyboard by a computer keyboard.
 - Keys on a computer keyboard is categorized into several classes:
- * Braille keys: There are 9 keys, i.e. F, D, S, J, K, L, A, semicolon, and space bar, corresponding to dot 1 through 8 and braille space, respectively.
- * Modifier keys: Ctrl, Alt, Shift, Win, and NVDA keys. The addon does not intercept modifier keys and any key pressed with any modifier key held down.
- * Reserved keys: Keys with specific functions in general cases, such as Backspace, Tab, Enter, Esc, and the entire numpad. The addon does not intercept reserved keys. Note: Main 0 to 9 keys also belong to this class, so that users can input numbers and specify candidate words.
- * Other keys: Non-braille ASCII keys will be disabled by the addon.
+    1. Braille keys: There are 9 keys, i.e. F, D, S, J, K, L, A, semicolon, and space bar, corresponding to dot 1 through 8 and braille space, respectively.
+    2. Modifier keys: Ctrl, Alt, Shift, Win, and NVDA keys. The addon does not intercept modifier keys and any key pressed with any modifier key held down.
+    3. Reserved keys: Keys with specific functions in general cases, such as Backspace, Tab, Enter, Esc, and the entire numpad. The addon does not intercept reserved keys. Note: Main 0 to 9 keys also belong to this class, so that users can input numbers and specify candidate words.
+    4. Other keys: Non-braille ASCII keys will be disabled by the addon.
 - Any gesture presented in "Manipulation by a braille keyboard" section can be performed using braille keys listed above.
 - Gesture consisting of both braille keys and non-braille keys on the main keyboard results in warning sound and no action.
 
@@ -43,14 +44,14 @@ Before installation, check the following environment settings:
 
 ## Issues and ways of development
 - Known bugs:
- * If the foreground window changes during braille composition, braille buffer will keep its content. The correct behavior is to clear braille buffer.
- * When "Show messages indefinitely" option is enabled, the message does not disappear as the content of composition changes.
+    * If the foreground window changes during braille composition, braille buffer will keep its content. The correct behavior is to clear braille buffer.
+    * When "Show messages indefinitely" option is enabled, the message does not disappear as the content of composition changes.
 - Possible improvements in the future:
- * Allow users to customize the default state of the addon.
- * Allow users to customize position of simulated braille buttons on a computer keyboard.
- * Allow users to customize dot patterns of symbols, and/or to load dot patterns from braille translation tables.
- * Allow the addon to work with other IMEs.
- * Allow the addon to work with other bopomofo keyboard layouts.
+    * Allow users to customize the default state of the addon.
+    * Allow users to customize position of simulated braille buttons on a computer keyboard.
+    * Allow users to customize dot patterns of symbols, and/or to load dot patterns from braille translation tables.
+    * Allow the addon to work with other IMEs.
+    * Allow the addon to work with other bopomofo keyboard layouts.
 
 ## History of changes
 
