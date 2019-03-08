@@ -661,18 +661,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return 1
         return 0 # ENG
 
-    def script_viewState(self, gesture):
-        mode, msgs = self.inferBRLmode(), []
-        if mode & 2: msgs.append("assumed")
-        msgs.append(("ENG", "CHI")[mode & 1])
-        ui.message(" ".join(msgs))
-
     # Translators: Describes a command.
     script_toggleInput.__doc__ = _("Toggles braille input from the PC keyboard.")
 
     def script_BRLdots(self, gesture):
-        mode, key = self.inferBRLmode(), {}
-        log.debug("BRLkeys: mode = %d" % (mode,))
+        mode, mode_msgs, key = self.inferBRLmode(), [], {}
+        if mode & 2: mode_msgs.append("assumed")
+        mode_msgs.append(("ENG", "CHI")[mode & 1])
+        log.debug("BRLkeys: Mode is " + (" ".join(mode_msgs)))
         if mode & 1: # CHI
             current_braille = "".join(["%d"%(i+1,) for i in range(8) if gesture.dots & (1 << i)])
             if gesture.space: current_braille = "0" + current_braille
@@ -733,7 +729,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     __gestures = {
         "kb:NVDA+x": "toggleInput",
-        "kb:NVDA+w": "viewState",
         "bk:dots": "BRLdots",
         "bk:space+dots": "BRLfnkeys",
     }
