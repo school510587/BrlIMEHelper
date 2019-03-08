@@ -15,6 +15,7 @@
 - 建議停用 NVDA 設定中「輸入法組字」的「讀出輸入的組字字元」，在迅速打字時運行比較順暢。
 - 建議將「輸入轉譯表」設為「英文（美國）八點（電腦）」，使 NVDA 行為比較符合台灣使用者的操作習慣。
 - 如果您想要用電腦鍵盤來模擬點字鍵盤，必須先確認它支援 NKRO (N-key rollover)。（譯註：許多遊戲的操作也需要此特性來配合，因此選擇鍵盤時請留意它是否能用來「打遊戲」。）
+  參見： [What PC keyboards allow for 6-key braille data entry?](https://www.duxburysystems.com/faq2.asp?faq=32&fbclid=IwAR0zdRHClvT5gikN_RqAEX_phxEp51HZX9dtDGUkWU5gTprmvBUPyBs5cFk)
 
 ## 功能
 1. 透過點字鍵盤，使用者可以直接操作微軟注音輸入法，用所學的點字規則輸入國字與標點符號、數學符號等。

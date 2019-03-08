@@ -15,6 +15,7 @@ Before installation, check the following environment settings:
 - It is suggested to disable "Report changes to the reading string" option of NVDA's input composition settings to enjoy better experience during quick typing.
 - It is suggested to set the braille input table to "English (U.S.) 8 dot computer braille", so that NVDA's behavior is closer to the habit of Taiwanese users.
 - If you would like to simulate braille keyboard by a computer keyboard, check that it supports NKRO (N-key rollover).
+  See also: [What PC keyboards allow for 6-key braille data entry?](https://www.duxburysystems.com/faq2.asp?faq=32&fbclid=IwAR0zdRHClvT5gikN_RqAEX_phxEp51HZX9dtDGUkWU5gTprmvBUPyBs5cFk)
 
 ## Features
 1. Through the braille keyboard, the user can manipulate 微軟注音, and input Chinese characters, punctuations, and math symbols according to braille rules learned.
