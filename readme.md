@@ -11,7 +11,7 @@ Before installation, check the following environment settings:
 - 微軟注音 must be your default IME, and the composition mode is default to alphanumeric. The factory default mode is usually native, and you can find the option in 微軟注音 configuration of "Regional and Language Settings" to change it.
 - Your 微軟注音 must use the standard bopomofo keyboard layout. It is the factory default, you can also find this option in 微軟注音 configuration.
 - Your 微軟注音 must set the function of the left Shift to toggling composition modes. This is the factory default, and you can find this option in advanced 微軟注音 configuration.
-- Please prevent Braille IME Helper from running with other applications or addons related to braille input, such as pcKbBrl addon and braille chewing.
+- Please prevent Braille IME Helper from running with other applications or addons related to braille input, such as [PC Keyboard Braille Input for NVDA](https://addons.nvda-project.org/addons/pcKeyboardBrailleInput.en.html) addon and [Braille Chewing](https://github.com/EasyIME/PIME "PIME").
 - It is suggested to disable "Report changes to the reading string" option of NVDA's input composition settings to enjoy better experience during quick typing.
 - It is suggested to set the braille input table to "English (U.S.) 8 dot computer braille", so that NVDA's behavior is closer to the habit of Taiwanese users.
 - If you would like to simulate braille keyboard by a computer keyboard, check that it supports NKRO (N-key rollover).
