@@ -18,15 +18,18 @@ Before installation, check the following environment settings:
   See also: [What PC keyboards allow for 6-key braille data entry?](https://www.duxburysystems.com/faq2.asp?faq=32&fbclid=IwAR0zdRHClvT5gikN_RqAEX_phxEp51HZX9dtDGUkWU5gTprmvBUPyBs5cFk)
 
 ## Features
-1. Through the braille keyboard, the user can manipulate 微軟注音, and input Chinese characters, punctuations, and math symbols according to braille rules learned.
-2. Simulating braille keyboard by a computer keyboard, which enable users to input characters according to braille rules without a braille keyboard.
-3. On change of IME input composition mode, Braille IME Helper must cooperate with the IME to change the way of braille handling. When the addon handles braille in alphanumeric mode, the effect is determined by NVDA's braille input table.
+1. Chinese input (including punctuations and math symbols) through the braille keyboard.
+2. Simulating braille keyboard by a computer keyboard.
+3. Allowing system and NVDA keyboard shortcuts.
+4. Different braille composition modes for different windows.
+5. Allowing password input on a web browser by the braille keyboard.
 
 ## Manipulation by a braille keyboard
 - Please remember the following hotkeys:
     * Dots 4, 5, 6 + Space: Toggle between alphanumeric and native modes. The effect is the same as pressing Shift on a computer keyboard.
     * Dot 1 + Space: Review the braille buffer, i.e., what you just enter in native mode before finish of composition. (Example: 135 126 is insufficient for composition, but this function shows that you have entered ㄅㄛ.)
     * Dots 2, 4, 5 + Space: Clear braille buffer on typo to re-enter the correct content.
+- In alphanumeric mode, the effect is determined by NVDA's braille input table.
 - The original NVDA behavior of dot 7, dot 8, and dot 7 + dot 8 is preserved in both modes.
 - The addon do not influence other buttons on a braille display, such as buttons for scrolling and positioning.
 
