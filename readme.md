@@ -1,5 +1,5 @@
-# Braille IME Helper
-Version 0.0
+﻿# Braille IME Helper
+Version 0.1
 
 ## Introduction
 Braille IME Helper (BrlIMEHelper) enables users to input Chinese characters directly through the braille keyboard on a braille display. When no braille keyboard is available, the addon can also simulate it using a computer keyboard. With conversion from braille input to IME operations by the addon, users familiar to braille rules can input Chinese characters without learning other input methods and keyboard layouts. So far, the addon is an implementation based on [bopomofo braille](https://en.wikipedia.org/wiki/Taiwanese_Braille) and 微軟注音 IME commonly used in Taiwan, but its concept can be extended to other braille systems and IMEs in the future.
@@ -34,6 +34,7 @@ Before installation, check the following environment settings:
         + NVDA+X: Enable/Disable the feature of simulating braille keyboard by a computer keyboard.
         + F, D, S, J, K, L, A, semicolon: Dot 1 through 8.
         + 0 through 9: Reserved for number input and candidate word selection.
+        + NVDA+Shift+X: Enable/Disable debug logging.
 - Remarks
     1. In alphanumeric mode, the effect is determined by NVDA's braille input table.
     2. The original NVDA behavior of dot 7, dot 8, and dot 7 + dot 8 is preserved in both modes.
@@ -41,7 +42,6 @@ Before installation, check the following environment settings:
 
 ## Issues and ways of development
 - Known bugs:
-    * If the foreground window changes during braille composition, braille buffer will keep its content. The correct behavior is to clear braille buffer.
     * When "Show messages indefinitely" option is enabled, the message does not disappear as the content of composition changes.
 - Possible improvements in the future:
     * Allow users to customize the default state of the addon.
@@ -57,3 +57,8 @@ Before installation, check the following environment settings:
 
 ### Version 0.0
 * The initial version.
+
+### Version 0.1
+* Refactor the documentation, so that it becomes more readable by users.
+* Reset the braille buffer when the foreground window changes.
+* Add NVDA+Shift+X shortcut to enable/disable debug logging.
