@@ -8,13 +8,13 @@ from ctypes import *
 from ctypes.wintypes import *
 from threading import Thread
 import string
-import sys
 import winsound
 try: unichr
 except NameError: unichr = chr
 from keyboardHandler import KeyboardInputGesture, getInputHkl, isNVDAModifierKey
 from logHandler import log
 from winUser import *
+from winVersion import winVersion
 import addonHandler
 import brailleInput
 import globalCommands
@@ -510,7 +510,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.scanner.start()
         _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputConversionModeUpdate", hack_nvdaControllerInternal_inputConversionModeUpdate)
         _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputLangChangeNotify", hack_nvdaControllerInternal_inputLangChangeNotify)
-        if sys.getwindowsversion().major < 6: # WinXP
+        if winVersion.major < 6: # WinXP
             del self.symb2gesture["UNICODE_SUFFIX"]
 
     def terminate(self):
@@ -653,7 +653,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         global thread_states
         pid, tid = getWindowThreadProcessID(getForegroundWindow())
         kl = getKeyboardLayout(tid)
-        if sys.getwindowsversion().major < 6 and kl == 0x04040404: # WinXP
+        if winVersion.major < 6 and kl == 0x04040404: # WinXP
             return 0
         elif pid not in thread_states or thread_states[pid]["mode"] is None:
             return 2
