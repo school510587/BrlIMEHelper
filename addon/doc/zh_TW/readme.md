@@ -51,6 +51,7 @@
 
 ## 貢獻者
 - Bo-Cheng Jhan <school510587@yahoo.com.tw>
+- 黃偉豪 <hurt.nzsmr@gmail.com>
 
 ## 修改歷程
 

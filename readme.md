@@ -51,6 +51,7 @@ Before installation, check the following environment settings:
 
 ## Contributors
 - Bo-Cheng Jhan <school510587@yahoo.com.tw>
+- 黃偉豪 <hurt.nzsmr@gmail.com>
 
 ## History of changes
 
