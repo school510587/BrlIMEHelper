@@ -1,4 +1,4 @@
-﻿# Braille IME Helper
+# Braille IME Helper
 Version 0.1
 
 ## Introduction
@@ -34,7 +34,6 @@ Before installation, check the following environment settings:
         + NVDA+X: Enable/Disable the feature of simulating braille keyboard by a computer keyboard.
         + F, D, S, J, K, L, A, semicolon: Dot 1 through 8.
         + 0 through 9: Reserved for number input and candidate word selection.
-        + NVDA+Shift+X: Enable/Disable debug logging.
 - Remarks
     1. In alphanumeric mode, the effect is determined by NVDA's braille input table.
     2. The original NVDA behavior of dot 7, dot 8, and dot 7 + dot 8 is preserved in both modes.
@@ -61,4 +60,3 @@ Before installation, check the following environment settings:
 ### Version 0.1
 * Refactor the documentation, so that it becomes more readable by users.
 * Reset the braille buffer when the foreground window changes.
-* Add NVDA+Shift+X shortcut to enable/disable debug logging.
