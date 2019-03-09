@@ -502,6 +502,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def __init__(self):
         super(GlobalPlugin, self).__init__()
+        self.debug_enabled = False
         self.kbbrl_enabled = False
         self.brl_state = brl_buf_state()
         self.bpmf_cumulative_str = ""
@@ -519,6 +520,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.running = False
         self.scanner.join()
         self.disable()
+
+    # This addon must give the user rights of privacy.
+    def debug_log(self, msg):
+        if self.debug_enabled:
+            log.debug(msg)
 
     def initKBBRL(self): # Members for keyboard BRL simulation.
         self.ignore_injected_keys = ([], [])
@@ -550,12 +556,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.kbbrl_enabled = False
 
     def _keyDown(self, vkCode, scanCode, extended, injected):
-        log.debug("keydown: vk = 0x%02X%s" % (vkCode, ", injected" if injected else ""))
+        self.debug_log("keydown: vk = 0x%02X%s" % (vkCode, ", injected" if injected else ""))
         # Fix: Ctrl+X followed by X.
         try: # Check for keys that must be ignored.
             if self.ignore_injected_keys[0][0] != (vkCode, scanCode, bool(extended)):
                 raise ValueError
-            log.debug("keydown: pass injected key 0x%02X" % (vkCode,))
+            self.debug_log("keydown: pass injected key 0x%02X" % (vkCode,))
             del self.ignore_injected_keys[0][0]
             return self._oldKeyDown(vkCode, scanCode, extended, injected)
         except: pass
@@ -580,7 +586,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if HIWORD(charCode) != 0:
             return self._oldKeyDown(vkCode, scanCode, extended, injected)
         ch = unichr(LOWORD(charCode))
-        log.debug('char code: %d' % (charCode,))
+        self.debug_log('char code: %d' % (charCode,))
         try:
             dot = 1 << self.BRL_KEYS.index(ch)
         except: # not found
@@ -592,19 +598,19 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if dot:
             if not self._gesture:
                 self._gesture = brailleInput.BrailleInputGesture()
-            log.debug("keydown: dots|space = {0:09b}".format(dot))
+            self.debug_log("keydown: dots|space = {0:09b}".format(dot))
             if dot == 1:
                 self._gesture.space = True
             self._gesture.dots |= dot >> 1
-        else: log.debug("keydown: num = %s" % (ch,))
+        else: self.debug_log("keydown: num = %s" % (ch,))
         return False
 
     def _keyUp(self, vkCode, scanCode, extended, injected):
-        log.debug("keyup: vk = 0x%02X%s" % (vkCode, ", injected" if injected else ""))
+        self.debug_log("keyup: vk = 0x%02X%s" % (vkCode, ", injected" if injected else ""))
         try:
             if self.ignore_injected_keys[1][0] != (vkCode, scanCode, bool(extended)):
                 raise ValueError
-            log.debug("keyup: pass injected key 0x%02X" % (vkCode,))
+            self.debug_log("keyup: pass injected key 0x%02X" % (vkCode,))
             del self.ignore_injected_keys[1][0]
             return self._oldKeyUp(vkCode, scanCode, extended, injected)
         except: pass
@@ -618,7 +624,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             k_brl, k_sel = set(self.BRL_KEYS) & self.touched_chars, self.SEL_KEYS & self.touched_chars
             try: # Select an action to perform, either BRL or SEL.
                 if k_brl == self.touched_chars:
-                    log.debug("keyup: send dot {0:08b} {1}".format(self._gesture.dots, self._gesture.space))
+                    self.debug_log("keyup: send dot {0:08b} {1}".format(self._gesture.dots, self._gesture.space))
                     inputCore.manager.executeGesture(self._gesture)
                 elif len(k_sel) == 1 and k_sel == self.touched_chars:
                     (ch,) = k_sel
@@ -638,6 +644,15 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 self.ignore_injected_keys[0].append((kbd_gesture.vkCode, kbd_gesture.scanCode, kbd_gesture.isExtended))
                 self.ignore_injected_keys[1].append(self.ignore_injected_keys[0][-1])
             kbd_gesture.send()
+
+    def script_toggleDebug(self, gesture):
+        self.debug_enabled = not self.debug_enabled
+        if self.debug_enabled:
+            # Translators: Reported when debug logging is enabled.
+            ui.message(_("啟用：保留偵錯記錄"))
+        else:
+            # Translators: Reported when debug logging is disabled.
+            ui.message(_("停用：保留偵錯記錄"))
 
     def script_toggleInput(self, gesture):
         if self.kbbrl_enabled:
@@ -668,29 +683,29 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         mode, mode_msgs, key = self.inferBRLmode(), [], {}
         if mode & 2: mode_msgs.append("assumed")
         mode_msgs.append(("ENG", "CHI")[mode & 1])
-        log.debug("BRLkeys: Mode is " + (" ".join(mode_msgs)))
+        self.debug_log("BRLkeys: Mode is " + (" ".join(mode_msgs)))
         if mode & 1: # CHI
             current_braille = "".join(["%d"%(i+1,) for i in range(8) if gesture.dots & (1 << i)])
             if gesture.space: current_braille = "0" + current_braille
             key = self.brl_state.append_brl(current_braille)
         if not key: # ENG mode, or input is rejected by internal brl state.
             if gesture.dots == 0b01000000:
-                log.debug("BRLkeys: dot7 default")
+                self.debug_log("BRLkeys: dot7 default")
                 scriptHandler.queueScript(globalCommands.commands.script_braille_eraseLastCell, gesture)
             elif gesture.dots == 0b10000000:
-                log.debug("BRLkeys: dot8 default")
+                self.debug_log("BRLkeys: dot8 default")
                 scriptHandler.queueScript(globalCommands.commands.script_braille_enter, gesture)
             elif gesture.dots == 0b11000000:
-                log.debug("BRLkeys: dot7+dot8 default")
+                self.debug_log("BRLkeys: dot7+dot8 default")
                 scriptHandler.queueScript(globalCommands.commands.script_braille_translate, gesture)
             elif mode & 1:
-                log.debug("BRLkeys: input rejected")
+                self.debug_log("BRLkeys: input rejected")
                 winsound.MessageBeep()
             else:
-                log.debug("BRLkeys: dots default")
+                self.debug_log("BRLkeys: dots default")
                 scriptHandler.queueScript(globalCommands.commands.script_braille_dots, gesture)
             return
-        log.debug('"{bpmf}" <= (VK_BACK={VK_BACK}, bopomofo="{bopomofo}")'.format(bpmf=self.bpmf_cumulative_str, **key))
+        self.debug_log('"{bpmf}" <= (VK_BACK={VK_BACK}, bopomofo="{bopomofo}")'.format(bpmf=self.bpmf_cumulative_str, **key))
         if key["VK_BACK"] > 0:
             self.bpmf_cumulative_str = self.bpmf_cumulative_str[:-key["VK_BACK"]]
         if len(key["bopomofo"]) > 0:
@@ -708,7 +723,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                         key_name_str = "|".join(key_name_str) # Insert "|" between characters.
                     cmd_list.append(key_name_str)
                 for cmd in cmd_list:
-                    log.debug('Sending "%s"' % (cmd,))
+                    self.debug_log('Sending "%s"' % (cmd,))
                     self.send_keys(cmd)
             except:
                 log.warning('Undefined input gesture of "%s"' % (self.bpmf_cumulative_str,))
@@ -724,10 +739,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self.brl_state.reset()
             self.bpmf_cumulative_str = ""
         elif gesture.dots == 0b00111000: # bk:dot4+dot5+dot6
-            log.debug("456+space")
+            self.debug_log("456+space")
             self.send_keys("Shift")
 
     __gestures = {
+        "kb:NVDA+Shift+x": "toggleDebug",
         "kb:NVDA+x": "toggleInput",
         "bk:dots": "BRLdots",
         "bk:space+dots": "BRLfnkeys",
