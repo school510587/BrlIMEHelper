@@ -6,6 +6,7 @@
 from __future__ import unicode_literals
 from ctypes import *
 from ctypes.wintypes import *
+from serial.win32 import INVALID_HANDLE_VALUE
 from threading import Thread
 import string
 import winsound
@@ -506,6 +507,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.kbbrl_enabled = False
         self.brl_state = brl_buf_state()
         self.bpmf_cumulative_str = ""
+        self.last_foreground = INVALID_HANDLE_VALUE
         self.running = True
         self.scanner = Thread(target=scan_thread_ids, args=(self,))
         self.scanner.start()
@@ -644,6 +646,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 self.ignore_injected_keys[0].append((kbd_gesture.vkCode, kbd_gesture.scanCode, kbd_gesture.isExtended))
                 self.ignore_injected_keys[1].append(self.ignore_injected_keys[0][-1])
             kbd_gesture.send()
+
+    def event_gainFocus(self, obj, nextHandler):
+        fg = getForegroundWindow()
+        if fg != self.last_foreground:
+            self.brl_state.reset()
+            self.bpmf_cumulative_str = ""
+            self.last_foreground = fg
+        nextHandler()
 
     def script_toggleDebug(self, gesture):
         self.debug_enabled = not self.debug_enabled
