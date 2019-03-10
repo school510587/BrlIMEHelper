@@ -6,8 +6,10 @@
 from __future__ import unicode_literals
 from ctypes import *
 from ctypes.wintypes import *
+from functools import partial
 from serial.win32 import INVALID_HANDLE_VALUE
 from threading import Thread
+from types import MethodType
 import string
 import winsound
 try: unichr
@@ -534,6 +536,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if self.kbbrl_enabled:
             return
         self.initKBBRL()
+        def hack_kb_send(addon, *args):
+            log.info("hack kb send")
+            return addon.real_kb_send(*args)
+        self.real_kb_send = KeyboardInputGesture.send
+        try:
+            KeyboardInputGesture.send = MethodType(partial(hack_kb_send, self), None, KeyboardInputGesture)
+        except TypeError: # Python 3: Unbound method no longer exists.
+            KeyboardInputGesture.send = MethodType(partial(hack_kb_send, self), None, KeyboardInputGesture)
         # Monkey patch keyboard handling callbacks.
         # This is pretty evil, but we need low level keyboard handling.
         self._oldKeyDown = winInputHook.keyDownCallback
@@ -547,6 +557,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return False
         winInputHook.keyDownCallback = self._oldKeyDown
         winInputHook.keyUpCallback = self._oldKeyUp
+        KeyboardInputGesture.send = self.real_kb_send
         self._gesture = None
         self._trappedKeys = None
         self.kbbrl_enabled = False
