@@ -621,7 +621,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             try: # Select an action to perform, either BRL or SEL.
                 if k_brl == self.touched_chars:
                     log.debug("keyup: send dot {0:08b} {1}".format(self._gesture.dots, self._gesture.space))
-                    inputCore.manager.executeGesture(self._gesture)
+                    inputCore.manager.emulateGesture(self._gesture)
                 elif len(k_sel) == 1 and k_sel == self.touched_chars:
                     (ch,) = k_sel
                     self.send_keys(ch)
@@ -639,7 +639,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             if not kbd_gesture.isModifier and not kbd_gesture.modifiers and self.kbbrl_enabled:
                 self.ignore_injected_keys[0].append((kbd_gesture.vkCode, kbd_gesture.scanCode, kbd_gesture.isExtended))
                 self.ignore_injected_keys[1].append(self.ignore_injected_keys[0][-1])
-            kbd_gesture.send()
+            inputCore.manager.emulateGesture(kbd_gesture)
 
     def event_gainFocus(self, obj, nextHandler):
         fg = getForegroundWindow()
