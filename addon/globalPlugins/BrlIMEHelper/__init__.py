@@ -538,6 +538,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.initKBBRL()
         def hack_kb_send(addon, *args):
             log.info("hack kb send")
+            if not args[0].isModifier and not args[0].modifiers and addon.kbbrl_enabled:
+                addon.ignore_injected_keys[0].append((args[0].vkCode, args[0].scanCode, args[0].isExtended))
+                addon.ignore_injected_keys[1].append(addon.ignore_injected_keys[0][-1])
             return addon.real_kb_send(*args)
         self.real_kb_send = KeyboardInputGesture.send
         try:
@@ -647,9 +650,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         for k in key_name_str.split("|"):
             if not k: continue
             kbd_gesture = KeyboardInputGesture.fromName(k)
-            if not kbd_gesture.isModifier and not kbd_gesture.modifiers and self.kbbrl_enabled:
-                self.ignore_injected_keys[0].append((kbd_gesture.vkCode, kbd_gesture.scanCode, kbd_gesture.isExtended))
-                self.ignore_injected_keys[1].append(self.ignore_injected_keys[0][-1])
             inputCore.manager.emulateGesture(kbd_gesture)
 
     def event_gainFocus(self, obj, nextHandler):
