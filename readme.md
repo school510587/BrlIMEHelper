@@ -61,3 +61,7 @@ Before installation, check the following environment settings:
 ### Version 0.1
 * Refactor the documentation, so that it becomes more readable by users.
 * Reset the braille buffer when the foreground window changes.
+
+### Version 0.2
+* Fixed the wrong behavior of simulation of dot 7 (A) in explorer.
+* Split __init__.py into two files.
