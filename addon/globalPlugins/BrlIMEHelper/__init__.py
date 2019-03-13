@@ -537,7 +537,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return
         self.initKBBRL()
         def hack_kb_send(addon, *args):
-            log.info("hack kb send")
+            log.debug("Running monkeyed KeyboardInputGesture.send")
             if not args[0].isModifier and not args[0].modifiers and addon.kbbrl_enabled:
                 addon.ignore_injected_keys[0].append((args[0].vkCode, args[0].scanCode, args[0].isExtended))
                 addon.ignore_injected_keys[1].append(addon.ignore_injected_keys[0][-1])
