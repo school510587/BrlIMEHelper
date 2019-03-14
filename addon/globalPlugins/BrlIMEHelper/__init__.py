@@ -28,7 +28,7 @@ import scriptHandler
 import winInputHook
 import ui
 
-# addonHandler.initTranslation()
+addonHandler.initTranslation()
 
 from NVDAHelper import localLib
 from NVDAHelper import nvdaControllerInternal_inputConversionModeUpdate
@@ -316,11 +316,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if self.kbbrl_enabled:
             self.disable()
             # Translators: Reported when braille input from the PC keyboard is disabled.
-            ui.message(_("停用：一般鍵盤模擬點字鍵盤"))
+            ui.message(_("Disabled: Simulating braille keyboard by a computer keyboard."))
         else:
             self.enable()
             # Translators: Reported when braille input from the PC keyboard is enabled.
-            ui.message(_("啟用：一般鍵盤模擬點字鍵盤"))
+            ui.message(_("Enabled: Simulating braille keyboard by a computer keyboard."))
 
     def inferBRLmode(self):
         global thread_states
