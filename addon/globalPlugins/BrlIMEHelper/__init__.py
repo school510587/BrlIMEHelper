@@ -10,6 +10,7 @@ from functools import partial
 from serial.win32 import INVALID_HANDLE_VALUE
 from threading import Thread
 from types import MethodType
+import os
 import string
 import winsound
 try: unichr
@@ -158,8 +159,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def __init__(self):
         super(GlobalPlugin, self).__init__()
         self.kbbrl_enabled = False
-        self.brl_state = brl_buf_state()
-        self.bpmf_cumulative_str = ""
+        self.brl_state = brl_buf_state(os.path.join(os.path.dirname(__file__), "bopomofo.json"))
         self.last_foreground = INVALID_HANDLE_VALUE
         self.running = True
         self.scanner = Thread(target=scan_thread_ids, args=(self,))
@@ -307,8 +307,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def event_gainFocus(self, obj, nextHandler):
         fg = getForegroundWindow()
         if fg != self.last_foreground:
-            self.brl_state.reset()
-            self.bpmf_cumulative_str = ""
+            self.brl_str = ""
             self.last_foreground = fg
         nextHandler()
 
@@ -338,15 +337,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     script_toggleInput.__doc__ = _("Toggles braille input from the PC keyboard.")
 
     def script_BRLdots(self, gesture):
-        mode, mode_msgs, key = self.inferBRLmode(), [], {}
+        mode, mode_msgs, new_brl = self.inferBRLmode(), [], ""
         if mode & 2: mode_msgs.append("assumed")
         mode_msgs.append(("ENG", "CHI")[mode & 1])
         log.debug("BRLkeys: Mode is " + (" ".join(mode_msgs)))
         if mode & 1: # CHI
             current_braille = "".join(["%d"%(i+1,) for i in range(8) if gesture.dots & (1 << i)])
             if gesture.space: current_braille = "0" + current_braille
-            key = self.brl_state.append_brl(current_braille)
-        if not key: # ENG mode, or input is rejected by internal brl state.
+            new_brl = self.brl_str + unichr(0x2800 | gesture.dots)
+        try:
+            bpmf_str = self.brl_state.brl_check(new_brl)
+        except NotImplementedError: # ENG mode, or input is rejected by brl parser.
             if gesture.dots == 0b01000000:
                 log.debug("BRLkeys: dot7 default")
                 scriptHandler.queueScript(globalCommands.commands.script_braille_eraseLastCell, gesture)
@@ -361,20 +362,19 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 winsound.MessageBeep()
             else:
                 log.debug("BRLkeys: dots default")
+                self.brl_str = ""
                 scriptHandler.queueScript(globalCommands.commands.script_braille_dots, gesture)
             return
-        log.debug('"{bpmf}" <= (VK_BACK={VK_BACK}, bopomofo="{bopomofo}")'.format(bpmf=self.bpmf_cumulative_str, **key))
-        if key["VK_BACK"] > 0:
-            self.bpmf_cumulative_str = self.bpmf_cumulative_str[:-key["VK_BACK"]]
-        if len(key["bopomofo"]) > 0:
-            if key["VK_BACK"] < 0:
-                self.bpmf_cumulative_str = key["bopomofo"]
-            else:
-                self.bpmf_cumulative_str += key["bopomofo"]
-        if not self.brl_state.brl_check(): # Composition completed.
+        except:
+            log.error("BRLkeys: Unexpected error.", exc_info=True)
+            self.brl_str = ""
+            winsound.MessageBeep()
+            return
+        log.debug('BRLkeys: Done composition "{0}"'.format(bpmf_str))
+        if bpmf_str: # Composition completed with non-empty output.
             try:
                 cmd_list = []
-                for c in self.bpmf_cumulative_str:
+                for c in bpmf_str:
                     key_name_str = self.symb2gesture.get(c, bopomofo_to_keys.get(c))
                     if key_name_str is None: # Lookup failure.
                         key_name_str = "%s%04x%s" % (self.symb2gesture["UNICODE_PREFIX"], ord(c), self.symb2gesture.get("UNICODE_SUFFIX", ""))
@@ -384,18 +384,19 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     log.debug('Sending "%s"' % (cmd,))
                     self.send_keys(cmd)
             except:
-                log.warning('Undefined input gesture of "%s"' % (self.bpmf_cumulative_str,))
+                log.warning('Undefined input gesture of "%s"' % (bpmf_str,))
                 winsound.MessageBeep()
-            self.bpmf_cumulative_str = ""
+            self.brl_str = ""
+        else:
+            self.brl_str = new_brl
 
     def script_BRLfnkeys(self, gesture):
         if gesture.dots == 0b00000001: # bk:dot1
-            hint = self.brl_state.hint_msg()
+            hint = self.brl_state.hint_msg(self.brl_str, "")
             if hint: queueHandler.queueFunction(queueHandler.eventQueue, ui.message, hint)
             else: winsound.MessageBeep()
         elif gesture.dots == 0b00011010: # bk:dot2+dot4+dot5
-            self.brl_state.reset()
-            self.bpmf_cumulative_str = ""
+            self.brl_str = ""
         elif gesture.dots == 0b00111000: # bk:dot4+dot5+dot6
             log.debug("456+space")
             self.send_keys("Shift")
