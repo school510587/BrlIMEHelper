@@ -291,7 +291,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 elif len(k_sel) == 1 and k_sel == self.touched_chars:
                     (ch,) = k_sel
                     self.send_keys(ch)
-                else: winsound.MessageBeep()
+                else: winsound.MessageBeep(winsound.MB_ICONEXCLAMATION)
             except inputCore.NoInputGestureAction:
                 pass
             self._gesture = None
@@ -359,7 +359,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 scriptHandler.queueScript(globalCommands.commands.script_braille_translate, gesture)
             elif mode & 1:
                 log.debug("BRLkeys: input rejected")
-                winsound.MessageBeep()
+                winsound.MessageBeep(winsound.MB_ICONEXCLAMATION)
             else:
                 log.debug("BRLkeys: dots default")
                 self.brl_str = ""
@@ -368,7 +368,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         except:
             log.error("BRLkeys: Unexpected error.", exc_info=True)
             self.brl_str = ""
-            winsound.MessageBeep()
+            winsound.MessageBeep(winsound.MB_ICONHAND)
             return
         log.debug('BRLkeys: Done composition "{0}"'.format(bpmf_str))
         if bpmf_str: # Composition completed with non-empty output.
@@ -385,7 +385,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     self.send_keys(cmd)
             except:
                 log.warning('Undefined input gesture of "%s"' % (bpmf_str,))
-                winsound.MessageBeep()
+                winsound.MessageBeep(winsound.MB_ICONEXCLAMATION)
             self.brl_str = ""
         else:
             self.brl_str = new_brl
