@@ -65,3 +65,8 @@ Before installation, check the following environment settings:
 ### Version 0.2
 * Fixed the wrong behavior of simulation of dot 7 (A) in explorer.
 * Split __init__.py into two files.
+
+### Version 0.3
+* Enable localization of messages.
+* implement new braille parsing scheme.
+* Add "addon_lastTestedNVDAVersion" information.
