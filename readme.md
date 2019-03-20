@@ -71,3 +71,4 @@ Before installation, check the following environment settings:
 * implement new braille parsing scheme.
 * Add "addon_lastTestedNVDAVersion" information.
 * Add rules to ensure input of a single bopomofo symbol.
+* Correct several input dot patterns of math symbols.
