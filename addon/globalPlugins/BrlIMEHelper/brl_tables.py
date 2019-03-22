@@ -14,14 +14,20 @@ char_pattern = re.compile("({char})|\\[(({char})(-({char}))?)+\\]".format(char=c
 
 class brl_buf_state:
 
-    def __init__(self, json_path):
+    def __init__(self, json_path, error_logger=lambda m: None):
         with codecs.open(json_path, encoding="UTF-8") as json_file:
             bpmf_json = json_file.read()
             self.bpmf_rule_dict = JSONDecoder(object_pairs_hook=OrderedDict).decode(bpmf_json)
             self.bpmf_pattern_list = []
             for id in self.bpmf_rule_dict: # The key is identifier of the rule.
                 if type(self.bpmf_rule_dict[id]) is OrderedDict:
-                    self.bpmf_rule_dict[id] = [(re.compile(t[0], re.U), t[1]) for t in self.bpmf_rule_dict[id].items()]
+                    self.bpmf_rule_dict[id] = list(self.bpmf_rule_dict[id].items())
+                    for i in range(len(self.bpmf_rule_dict[id])):
+                        condition, action = self.bpmf_rule_dict[id][i]
+                        try:
+                            self.bpmf_rule_dict[id][i] = (re.compile(condition, re.U), action)
+                        except: # Compilation failed.
+                            error_logger('{0}: "{1}" cannot compile.'.format(json_path, id))
                 l = list(char_pattern.finditer(id))
                 if not l or not (l[0].start() == 0 and all(l[j-1].end() == l[j].start() for j in range(1, len(l))) and l[-1].end() == len(id)):
                     continue # It does not contain braille composition information.

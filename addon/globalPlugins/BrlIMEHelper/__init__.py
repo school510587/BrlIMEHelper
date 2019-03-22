@@ -159,7 +159,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def __init__(self):
         super(GlobalPlugin, self).__init__()
         self.kbbrl_enabled = False
-        self.brl_state = brl_buf_state(os.path.join(os.path.dirname(__file__), "bopomofo.json"))
+        self.brl_state = brl_buf_state(os.path.join(os.path.dirname(__file__), "bopomofo.json"), lambda m: log.error(m, exc_info=True))
         self.last_foreground = INVALID_HANDLE_VALUE
         self.running = True
         self.scanner = Thread(target=scan_thread_ids, args=(self,))
