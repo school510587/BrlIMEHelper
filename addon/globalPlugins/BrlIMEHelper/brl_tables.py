@@ -10,7 +10,7 @@ import codecs
 import re
 
 char_exp = "[\u2800-\u28FF]|\\\\u28[0-9A-F]{2}"
-char_pattern = re.compile("({char})|\\[(({char})(-({char}))?)+\\]".format(char=char_exp), re.I | re.U)
+char_pattern = re.compile("({char})|\\[\\^?(({char})(-({char}))?)+\\]".format(char=char_exp), re.I | re.U)
 
 class brl_buf_state:
 
