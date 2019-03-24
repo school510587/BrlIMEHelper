@@ -41,32 +41,36 @@ class brl_buf_state:
     def brl_check(self, brl):
         if not brl: # Empty input must be rejected.
             raise NotImplementedError
-        m = None # The first found match.
+        satisfied_patterns = []
         for p in self.bpmf_pattern_list:
             m = [p[0].match(brl), p[1]]
             if m[0] and m[0].start(0) == 0 and m[0].end(0) == len(brl):
-                break # Full match.
-            m = None
-        if not m: # No match is found.
+                satisfied_patterns.append(m) # Full match.
+        if not satisfied_patterns: # No match is found.
             raise NotImplementedError
-        if m[0].groups() and not m[0].groups()[-1]: # An intermediate state.
-            return None
-        answer, id_list = "", self.bpmf_rule_dict[m[1]]
-        if type(id_list) is not list: # A single ID without enclosing brackets.
-            id_list = [id_list]
-        for i in range(len(id_list)):
-            res = id_list[i]
-            try:
-                p2c_list = self.bpmf_rule_dict[id_list[i]] # KeyError if not found.
-                for p2c in p2c_list:
-                    for x in p2c[0].finditer(brl):
-                        if x.start(0) == i: # At the correct position.
-                            res = p2c[1]
-                            raise KeyError # Exit loops.
-            except KeyError:
-                pass
-            answer += res
-        return answer
+        state = ["", False]
+        for m in satisfied_patterns:
+            if m[0].groups() and not m[0].groups()[-1]:
+                state[1] = True # An intermediate state.
+                continue
+            if state[0]:
+                continue # Only the first complete match is adopted.
+            id_list = self.bpmf_rule_dict[m[1]]
+            if type(id_list) is not list: # A single ID without enclosing brackets.
+                id_list = [id_list]
+            for i in range(len(id_list)):
+                res = id_list[i]
+                try:
+                    p2c_list = self.bpmf_rule_dict[id_list[i]] # KeyError if not found.
+                    for p2c in p2c_list:
+                        for x in p2c[0].finditer(brl):
+                            if x.start(0) == i: # At the correct position.
+                                res = p2c[1]
+                                raise KeyError # Exit loops.
+                except KeyError:
+                    pass
+                state[0] += res
+        return state
 
     def hint_msg(self, brl, default_message=None):
         if not brl and default_message is not None:

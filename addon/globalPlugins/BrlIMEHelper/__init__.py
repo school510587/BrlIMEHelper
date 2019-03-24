@@ -346,7 +346,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             if gesture.space: current_braille = "0" + current_braille
             new_brl = self.brl_str + unichr(0x2800 | gesture.dots)
         try:
-            bpmf_str = self.brl_state.brl_check(new_brl)
+            state = self.brl_state.brl_check(new_brl)
         except NotImplementedError: # ENG mode, or input is rejected by brl parser.
             if gesture.dots == 0b01000000:
                 log.debug("BRLkeys: dot7 default")
@@ -370,11 +370,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self.brl_str = ""
             winsound.MessageBeep(winsound.MB_ICONHAND)
             return
-        log.debug('BRLkeys: Done composition "{0}"'.format(bpmf_str))
-        if bpmf_str: # Composition completed with non-empty output.
+        log.debug('BRLkeys: Done composition "{0}"'.format(state[0]))
+        if state[0]: # Composition completed with non-empty output.
             try:
                 cmd_list = []
-                for c in bpmf_str:
+                for c in state[0]:
                     key_name_str = self.symb2gesture.get(c, bopomofo_to_keys.get(c))
                     if key_name_str is None: # Lookup failure.
                         key_name_str = "%s%04x%s" % (self.symb2gesture["UNICODE_PREFIX"], ord(c), self.symb2gesture.get("UNICODE_SUFFIX", ""))
@@ -384,7 +384,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     log.debug('Sending "%s"' % (cmd,))
                     self.send_keys(cmd)
             except:
-                log.warning('Undefined input gesture of "%s"' % (bpmf_str,))
+                log.warning('Undefined input gesture of "%s"' % (state[0],))
                 winsound.MessageBeep(winsound.MB_ICONEXCLAMATION)
             self.brl_str = ""
         else:
