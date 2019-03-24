@@ -304,6 +304,22 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             kbd_gesture = KeyboardInputGesture.fromName(k)
             inputCore.manager.emulateGesture(kbd_gesture)
 
+    def send_input_commands(self, string):
+        try:
+            cmd_list = []
+            for c in string:
+                key_name_str = self.symb2gesture.get(c, bopomofo_to_keys.get(c))
+                if key_name_str is None: # Lookup failure.
+                    key_name_str = "%s%04x%s" % (self.symb2gesture["UNICODE_PREFIX"], ord(c), self.symb2gesture.get("UNICODE_SUFFIX", ""))
+                    key_name_str = "|".join(key_name_str) # Insert "|" between characters.
+                cmd_list.append(key_name_str)
+            for cmd in cmd_list:
+                log.debug('Sending "%s"' % (cmd,))
+                self.send_keys(cmd)
+        except:
+            log.warning('Undefined input gesture of "%s"' % (string,))
+            winsound.MessageBeep(winsound.MB_ICONEXCLAMATION)
+
     def event_gainFocus(self, obj, nextHandler):
         fg = getForegroundWindow()
         if fg != self.last_foreground:
@@ -372,20 +388,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return
         log.debug('BRLkeys: Done composition "{0}"'.format(state[0]))
         if state[0]: # Composition completed with non-empty output.
-            try:
-                cmd_list = []
-                for c in state[0]:
-                    key_name_str = self.symb2gesture.get(c, bopomofo_to_keys.get(c))
-                    if key_name_str is None: # Lookup failure.
-                        key_name_str = "%s%04x%s" % (self.symb2gesture["UNICODE_PREFIX"], ord(c), self.symb2gesture.get("UNICODE_SUFFIX", ""))
-                        key_name_str = "|".join(key_name_str) # Insert "|" between characters.
-                    cmd_list.append(key_name_str)
-                for cmd in cmd_list:
-                    log.debug('Sending "%s"' % (cmd,))
-                    self.send_keys(cmd)
-            except:
-                log.warning('Undefined input gesture of "%s"' % (state[0],))
-                winsound.MessageBeep(winsound.MB_ICONEXCLAMATION)
+            self.send_input_commands(state[0])
             self.brl_str = ""
         else:
             self.brl_str = new_brl
