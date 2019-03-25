@@ -358,8 +358,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         mode_msgs.append(("ENG", "CHI")[mode & 1])
         log.debug("BRLkeys: Mode is " + (" ".join(mode_msgs)))
         if mode & 1: # CHI
-            current_braille = "".join(["%d"%(i+1,) for i in range(8) if gesture.dots & (1 << i)])
-            if gesture.space: current_braille = "0" + current_braille
             new_brl = self.brl_str + unichr(0x2800 | gesture.dots)
         try:
             state = self.brl_state.brl_check(new_brl)
