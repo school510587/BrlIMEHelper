@@ -386,7 +386,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return
         log.debug('BRLkeys: Done composition "{0}"'.format(state[0]))
         if state[0]: # Composition completed with non-empty output.
-            self.send_input_commands(state[0])
+            queueHandler.queueFunction(queueHandler.eventQueue, self.send_input_commands, state[0])
             self.brl_str = ""
         else:
             self.brl_str = new_brl
