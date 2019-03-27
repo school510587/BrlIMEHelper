@@ -73,3 +73,8 @@ Before installation, check the following environment settings:
 * Add "addon_lastTestedNVDAVersion" information.
 * Add rules to ensure input of a single bopomofo symbol.
 * Correct several input dot patterns of math symbols.
+
+### Version 0.4
+* implement compatibility of braille pattern prefixes by delayed input sending.
+* Try to substitute the most recent braille input on braille input rejection.
+* Change the braille pattern of ∠ into ⠫⠪ (1246-246), i.e. the prefix of ←.
