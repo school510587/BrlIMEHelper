@@ -32,11 +32,6 @@ class brl_buf_state:
                 if not l or not (l[0].start() == 0 and all(l[j-1].end() == l[j].start() for j in range(1, len(l))) and l[-1].end() == len(id)):
                     continue # It does not contain braille composition information.
                 self.bpmf_pattern_list.append((re.compile("(".join(p.group(0) for p in l) + ")?" * (len(l) - 1)), id))
-        self._brl_buf = ""
-
-    def append_brl(self, brl_char):
-        self._brl_buf += brl_char
-        return self._brl_buf
 
     def brl_check(self, brl):
         if not brl: # Empty input must be rejected.
