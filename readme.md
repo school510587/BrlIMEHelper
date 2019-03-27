@@ -43,6 +43,7 @@ Before installation, check the following environment settings:
 - Known bugs:
     * When "Show messages indefinitely" option is enabled, the message does not disappear as the content of composition changes.
 - Possible improvements in the future:
+    * In browse mode, single letter navigation should always work.
     * Allow users to customize the default state of the addon.
     * Allow users to customize position of simulated braille buttons on a computer keyboard.
     * Allow users to customize dot patterns of symbols, and/or to load dot patterns from braille translation tables.
