@@ -8,7 +8,7 @@ from ctypes import *
 from ctypes.wintypes import *
 from functools import partial
 from serial.win32 import INVALID_HANDLE_VALUE
-from threading import Thread
+from threading import Thread, Timer
 from types import MethodType
 import os
 import string
@@ -164,6 +164,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.running = True
         self.scanner = Thread(target=scan_thread_ids, args=(self,))
         self.scanner.start()
+        self.timer = [None, ""] # A 2-tuple [timer object, string].
         _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputConversionModeUpdate", hack_nvdaControllerInternal_inputConversionModeUpdate)
         _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputLangChangeNotify", hack_nvdaControllerInternal_inputLangChangeNotify)
         if winVersion.major < 6: # WinXP
@@ -172,6 +173,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def terminate(self):
         _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputConversionModeUpdate", nvdaControllerInternal_inputConversionModeUpdate)
         _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputLangChangeNotify", nvdaControllerInternal_inputLangChangeNotify)
+        if self.timer[0]:
+            self.timer[0].cancel()
+            self.timer[0].join()
         self.running = False
         self.scanner.join()
         self.disable()
@@ -320,9 +324,19 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             log.warning('Undefined input gesture of "%s"' % (string,))
             winsound.MessageBeep(winsound.MB_ICONEXCLAMATION)
 
+    def send_input_and_clear(self, string):
+        queueHandler.queueFunction(queueHandler.eventQueue, self.send_input_commands, string)
+        self.timer[0] = None
+        self.timer[1] = ""
+        self.brl_str = ""
+
     def event_gainFocus(self, obj, nextHandler):
         fg = getForegroundWindow()
         if fg != self.last_foreground:
+            if self.timer[0]:
+                self.timer[0].cancel()
+                self.timer[0] = None
+            self.timer[1] = ""
             self.brl_str = ""
             self.last_foreground = fg
         nextHandler()
@@ -352,15 +366,38 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     # Translators: Describes a command.
     script_toggleInput.__doc__ = _("Toggles braille input from the PC keyboard.")
 
+    def brl_composition(self, ubrl, mode):
+        try: # Normal input progress.
+            if not (mode & 1):
+                raise NotImplementedError
+            brl_input = self.brl_str + ubrl
+            state = self.brl_state.brl_check(brl_input)
+            self.timer[1] = "" # Purge the pending input.
+            self.brl_str = brl_input
+        except NotImplementedError: # ENG mode, or input is rejected by brl parser.
+            if self.timer[1]:
+                self.send_input_and_clear(self.timer[1])
+                if not (mode & 1): # No braille composition in ENG mode.
+                    raise
+                brl_input = ubrl # Retry after sending the pending input.
+            else: # No pending braille input, and no retry.
+                raise
+            state = self.brl_state.brl_check(brl_input)
+            self.brl_str = brl_input
+        return state
+
     def script_BRLdots(self, gesture):
         mode, mode_msgs, new_brl = self.inferBRLmode(), [], ""
         if mode & 2: mode_msgs.append("assumed")
         mode_msgs.append(("ENG", "CHI")[mode & 1])
         log.debug("BRLkeys: Mode is " + (" ".join(mode_msgs)))
         if mode & 1: # CHI
-            new_brl = self.brl_str + unichr(0x2800 | gesture.dots)
+            if self.timer[0] is not None:
+                self.timer[0].cancel()
+                self.timer[0].join()
+                self.timer[0] = None
         try:
-            state = self.brl_state.brl_check(new_brl)
+            state = self.brl_composition(unichr(0x2800 | gesture.dots), mode)
         except NotImplementedError: # ENG mode, or input is rejected by brl parser.
             if gesture.dots == 0b01000000:
                 log.debug("BRLkeys: dot7 default")
@@ -386,10 +423,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return
         log.debug('BRLkeys: Done composition "{0}"'.format(state[0]))
         if state[0]: # Composition completed with non-empty output.
-            queueHandler.queueFunction(queueHandler.eventQueue, self.send_input_commands, state[0])
-            self.brl_str = ""
-        else:
-            self.brl_str = new_brl
+            if state[1]: # The co-exist intermediate state.
+                self.timer = [Timer(0.25, self.send_input_and_clear, (state[0],)), state[0]]
+                self.timer[0].start()
+            else:
+                self.send_input_and_clear(state[0])
 
     def script_BRLfnkeys(self, gesture):
         if gesture.dots == 0b00000001: # bk:dot1
@@ -397,6 +435,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             if hint: queueHandler.queueFunction(queueHandler.eventQueue, ui.message, hint)
             else: winsound.MessageBeep()
         elif gesture.dots == 0b00011010: # bk:dot2+dot4+dot5
+            if self.timer[0]:
+                self.timer[0].cancel()
+                self.timer[0].join()
             self.brl_str = ""
         elif gesture.dots == 0b00111000: # bk:dot4+dot5+dot6
             log.debug("456+space")
