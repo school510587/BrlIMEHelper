@@ -380,6 +380,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 if not (mode & 1): # No braille composition in ENG mode.
                     raise
                 brl_input = ubrl # Retry after sending the pending input.
+            elif len(self.brl_str) >= len(ubrl) and self.brl_str != ubrl:
+                brl_input = self.brl_str[:-len(ubrl)] + ubrl # Retry substitution of the most recent braille input.
             else: # No pending braille input, and no retry.
                 raise
             state = self.brl_state.brl_check(brl_input)
