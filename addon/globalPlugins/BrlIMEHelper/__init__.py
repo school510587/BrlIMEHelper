@@ -440,6 +440,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             if self.timer[0]:
                 self.timer[0].cancel()
                 self.timer[0].join()
+            self.timer[1] = ""
             self.brl_str = ""
         elif gesture.dots == 0b00111000: # bk:dot4+dot5+dot6
             log.debug("456+space")
