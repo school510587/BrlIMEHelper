@@ -173,12 +173,20 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def terminate(self):
         _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputConversionModeUpdate", nvdaControllerInternal_inputConversionModeUpdate)
         _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputLangChangeNotify", nvdaControllerInternal_inputLangChangeNotify)
-        if self.timer[0]:
-            self.timer[0].cancel()
-            self.timer[0].join()
+        self.clear()
         self.running = False
         self.scanner.join()
         self.disable()
+
+    def clear(self, brl_buffer=True, join_timer=True):
+        if self.timer[0]:
+            self.timer[0].cancel()
+            if join_timer:
+                self.timer[0].join()
+            self.timer[0] = None
+        if brl_buffer:
+            self.timer[1] = ""
+            self.brl_str = ""
 
     def initKBBRL(self): # Members for keyboard BRL simulation.
         self.ignore_injected_keys = ([], [])
@@ -333,11 +341,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def event_gainFocus(self, obj, nextHandler):
         fg = getForegroundWindow()
         if fg != self.last_foreground:
-            if self.timer[0]:
-                self.timer[0].cancel()
-                self.timer[0] = None
-            self.timer[1] = ""
-            self.brl_str = ""
+            self.clear(join_timer=False)
             self.last_foreground = fg
         nextHandler()
 
@@ -394,10 +398,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         mode_msgs.append(("ENG", "CHI")[mode & 1])
         log.debug("BRLkeys: Mode is " + (" ".join(mode_msgs)))
         if mode & 1: # CHI
-            if self.timer[0] is not None:
-                self.timer[0].cancel()
-                self.timer[0].join()
-                self.timer[0] = None
+            self.clear(brl_buffer=False)
         try:
             state = self.brl_composition(unichr(0x2800 | gesture.dots), mode)
         except NotImplementedError: # ENG mode, or input is rejected by brl parser.
@@ -415,12 +416,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 winsound.MessageBeep(winsound.MB_ICONEXCLAMATION)
             else:
                 log.debug("BRLkeys: dots default")
-                self.brl_str = ""
+                self.clear()
                 scriptHandler.queueScript(globalCommands.commands.script_braille_dots, gesture)
             return
         except:
             log.error("BRLkeys: Unexpected error.", exc_info=True)
-            self.brl_str = ""
+            self.clear()
             winsound.MessageBeep(winsound.MB_ICONHAND)
             return
         log.debug('BRLkeys: Done composition "{0}"'.format(state[0]))
@@ -437,11 +438,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             if hint: queueHandler.queueFunction(queueHandler.eventQueue, ui.message, hint)
             else: winsound.MessageBeep()
         elif gesture.dots == 0b00011010: # bk:dot2+dot4+dot5
-            if self.timer[0]:
-                self.timer[0].cancel()
-                self.timer[0].join()
-            self.timer[1] = ""
-            self.brl_str = ""
+            self.clear()
         elif gesture.dots == 0b00111000: # bk:dot4+dot5+dot6
             log.debug("456+space")
             self.send_keys("Shift")
