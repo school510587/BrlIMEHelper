@@ -17,9 +17,11 @@ try: unichr
 except NameError: unichr = chr
 from keyboardHandler import KeyboardInputGesture, getInputHkl, isNVDAModifierKey
 from logHandler import log
+from treeInterceptorHandler import DocumentTreeInterceptor
 from winUser import *
 from winVersion import winVersion
 import addonHandler
+import api
 import brailleInput
 import globalCommands
 import globalPluginHandler
@@ -250,9 +252,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if vkCode & 0xF0 == 0x60:
             self._modifiedKeys.add((vkCode, extended))
             return self._oldKeyDown(vkCode, scanCode, extended, injected)
-        # If any modifier key is down and vkCode is not previously trapped,
-        # vkCode is now modified, and its message is passed to NVDA.
-        if self._trappedNVDAModifiers:
+        # In some cases, a key not previously trapped must be passed
+        # directly to NVDA:
+        # (1) Any modifier key is held down.
+        # (2) NVDA is in browse mode.
+        obj = api.getFocusObject()
+        if self._trappedNVDAModifiers or isinstance(obj.treeInterceptor, DocumentTreeInterceptor) and not obj.treeInterceptor.passThrough:
             if (vkCode, extended) not in self._trappedKeys:
                 self._modifiedKeys.add((vkCode, extended))
                 return self._oldKeyDown(vkCode, scanCode, extended, injected)
