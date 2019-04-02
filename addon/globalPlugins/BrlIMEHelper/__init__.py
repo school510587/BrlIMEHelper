@@ -123,7 +123,7 @@ bopomofo_to_keys = { # 標準注音鍵盤
 }
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
-    scriptCategory = globalCommands.SCRCAT_BRAILLE
+    SCRCAT_BrlIMEHelper = _("Braille IME Helper")
 
     # ACC_KEYS is the universe of all processed characters. BRL_KEYS and
     # SEL_KEYS must be its two disjoint subsets. Note that BRL_KEYS must
@@ -359,6 +359,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self.enable()
             # Translators: Reported when braille input from the PC keyboard is enabled.
             ui.message(_("Enabled: Simulating braille keyboard by a computer keyboard."))
+    # Translators: Describes the toggling braille input from a computer keyboard command.
+    script_toggleInput.__doc__ = _("Toggles braille input from a computer keyboard.")
+    script_toggleInput.category = SCRCAT_BrlIMEHelper
 
     def inferBRLmode(self):
         global thread_states
@@ -371,9 +374,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         elif thread_states[pid]["mode"] & 1 and LOWORD(kl) == 0x0404:
             return 1
         return 0 # ENG
-
-    # Translators: Describes a command.
-    script_toggleInput.__doc__ = _("Toggles braille input from the PC keyboard.")
 
     def brl_composition(self, ubrl, mode):
         try: # Normal input progress.
@@ -436,6 +436,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 self.timer[0].start()
             else:
                 self.send_input_and_clear(state[0])
+    # Translators: Describes the braille composition command.
+    script_BRLdots.__doc__ = _("Handles braille composition.")
+    script_BRLdots.category = SCRCAT_BrlIMEHelper
 
     def script_BRLfnkeys(self, gesture):
         if gesture.dots == 0b00000001: # bk:dot1
@@ -447,6 +450,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         elif gesture.dots == 0b00111000: # bk:dot4+dot5+dot6
             log.debug("456+space")
             self.send_keys("Shift")
+    # Translators: Describes the braille function keys command.
+    script_BRLfnkeys.__doc__ = _("Handles braille function keys.")
+    script_BRLfnkeys.category = SCRCAT_BrlIMEHelper
 
     __gestures = {
         "kb:NVDA+x": "toggleInput",
