@@ -78,3 +78,8 @@ Before installation, check the following environment settings:
 * implement compatibility of braille pattern prefixes by delayed input sending.
 * Try to substitute the most recent braille input on braille input rejection.
 * Change the braille pattern of ∠ into ⠫⠪ (1246-246), i.e. the prefix of ←.
+
+### Version 0.5
+* Code refactoring.
+* Stop simulating braille keyboard by a computer keyboard in browse mode.
+* Assign proper documentation and category to each script.
