@@ -15,6 +15,7 @@ import string
 import winsound
 try: unichr
 except NameError: unichr = chr
+from characterProcessing import SYMLVL_ALL
 from keyboardHandler import KeyboardInputGesture, getInputHkl, isNVDAModifierKey
 from logHandler import log
 from treeInterceptorHandler import DocumentTreeInterceptor
@@ -22,12 +23,14 @@ from winUser import *
 from winVersion import winVersion
 import addonHandler
 import api
+import braille
 import brailleInput
 import globalCommands
 import globalPluginHandler
 import inputCore
 import queueHandler
 import scriptHandler
+import speech
 import winInputHook
 import ui
 
@@ -404,8 +407,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         log.debug("BRLkeys: Mode is " + (" ".join(mode_msgs)))
         if mode & 1: # CHI
             self.clear(brl_buffer=False)
+        ubrl = unichr(0x2800 | gesture.dots)
         try:
-            state = self.brl_composition(unichr(0x2800 | gesture.dots), mode)
+            state = self.brl_composition(ubrl, mode)
         except NotImplementedError: # ENG mode, or input is rejected by brl parser.
             if gesture.dots == 0b01000000:
                 log.debug("BRLkeys: dot7 default")
@@ -436,6 +440,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 self.timer[0].start()
             else:
                 self.send_input_and_clear(state[0])
+        else:
+            speech.speakText(ubrl, symbolLevel=SYMLVL_ALL)
+            braille.handler.message(self.brl_state.hint_msg(self.brl_str, ""))
     # Translators: Describes the braille composition command.
     script_BRLdots.__doc__ = _("Handles braille composition.")
     script_BRLdots.category = SCRCAT_BrlIMEHelper
