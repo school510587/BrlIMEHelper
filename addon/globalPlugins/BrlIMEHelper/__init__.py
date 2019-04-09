@@ -160,13 +160,15 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def __init__(self):
         super(GlobalPlugin, self).__init__()
-        self.kbbrl_enabled = False
         self.brl_state = brl_buf_state(os.path.join(os.path.dirname(__file__), "bopomofo.json"), lambda m: log.error(m, exc_info=True))
         self.last_foreground = INVALID_HANDLE_VALUE
         self.running = True
         self.scanner = Thread(target=scan_thread_ids, args=(self,))
         self.scanner.start()
         self.timer = [None, ""] # A 2-tuple [timer object, string].
+        self.config_r = {
+            "kbbrl_enabled": False,
+        }
         _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputConversionModeUpdate", hack_nvdaControllerInternal_inputConversionModeUpdate)
         _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputLangChangeNotify", hack_nvdaControllerInternal_inputLangChangeNotify)
         if winVersion.major < 6: # WinXP
@@ -199,12 +201,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self._gesture = None
 
     def enable(self):
-        if self.kbbrl_enabled:
+        if self.config_r["kbbrl_enabled"]:
             return
         self.initKBBRL()
         def hack_kb_send(addon, *args):
             log.debug("Running monkeyed KeyboardInputGesture.send")
-            if not args[0].isModifier and not args[0].modifiers and addon.kbbrl_enabled:
+            if not args[0].isModifier and not args[0].modifiers and addon.config_r["kbbrl_enabled"]:
                 addon.ignore_injected_keys[0].append((args[0].vkCode, args[0].scanCode, args[0].isExtended))
                 addon.ignore_injected_keys[1].append(addon.ignore_injected_keys[0][-1])
             return addon.real_kb_send(*args)
@@ -219,17 +221,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         winInputHook.keyDownCallback = self._keyDown
         self._oldKeyUp = winInputHook.keyUpCallback
         winInputHook.keyUpCallback = self._keyUp
-        self.kbbrl_enabled = True
+        self.config_r["kbbrl_enabled"] = True
 
     def disable(self):
-        if not self.kbbrl_enabled:
+        if not self.config_r["kbbrl_enabled"]:
             return False
         winInputHook.keyDownCallback = self._oldKeyDown
         winInputHook.keyUpCallback = self._oldKeyUp
         KeyboardInputGesture.send = self.real_kb_send
         self._gesture = None
         self._trappedKeys = None
-        self.kbbrl_enabled = False
+        self.config_r["kbbrl_enabled"] = False
 
     def _keyDown(self, vkCode, scanCode, extended, injected):
         log.debug("keydown: vk = 0x%02X%s" % (vkCode, ", injected" if injected else ""))
@@ -351,7 +353,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         nextHandler()
 
     def script_toggleInput(self, gesture):
-        if self.kbbrl_enabled:
+        if self.config_r["kbbrl_enabled"]:
             self.disable()
             # Translators: Reported when braille input from the PC keyboard is disabled.
             ui.message(_("Disabled: Simulating braille keyboard by a computer keyboard."))
