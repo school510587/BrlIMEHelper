@@ -274,7 +274,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             if ch not in self.ACC_KEYS:
                 return self._oldKeyDown(vkCode, scanCode, extended, injected)
             dot = 0
-        self._trappedKeys.add(vkCode)
+        self._trappedKeys.add((vkCode, extended))
         self.touched_chars.add(ch)
         if dot:
             if not self._gesture:
@@ -296,7 +296,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return self._oldKeyUp(vkCode, scanCode, extended, injected)
         except: pass
         try:
-            self._trappedKeys.remove(vkCode)
+            self._trappedKeys.remove((vkCode, extended))
         except KeyError:
             self._trappedNVDAModifiers.discard((vkCode, extended))
             self._modifiedKeys.discard((vkCode, extended))
