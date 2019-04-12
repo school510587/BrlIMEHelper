@@ -168,6 +168,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.timer = [None, ""] # A 2-tuple [timer object, string].
         self.config_r = {
             "kbbrl_enabled": False,
+            "no_ASCII_kbbrl": False,
         }
         _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputConversionModeUpdate", hack_nvdaControllerInternal_inputConversionModeUpdate)
         _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputLangChangeNotify", hack_nvdaControllerInternal_inputLangChangeNotify)
@@ -302,16 +303,20 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self._modifiedKeys.discard((vkCode, extended))
             return self._oldKeyUp(vkCode, scanCode, extended, injected)
         if not self._trappedKeys: # A session ends.
-            touched_chars = set(t[2] for t in self.touched_keys)
-            k_brl, k_sel = set(self.BRL_KEYS) & touched_chars, self.SEL_KEYS & touched_chars
             try: # Select an action to perform, either BRL or SEL.
-                if k_brl == touched_chars:
-                    log.debug("keyup: send dot {0:08b} {1}".format(self._gesture.dots, self._gesture.space))
-                    inputCore.manager.emulateGesture(self._gesture)
-                elif len(k_sel) == 1 and k_sel == touched_chars:
-                    (ch,) = k_sel
-                    self.send_keys(ch)
-                else: winsound.MessageBeep(winsound.MB_ICONEXCLAMATION)
+                if self.config_r["no_ASCII_kbbrl"] and not(self.inferBRLmode() & 1) and not(self._gesture and self._gesture.dots and self._gesture.space):
+                    self.send_keys(self.touched_keys)
+                else:
+                    touched_chars = set(t[2] for t in self.touched_keys)
+                    k_brl, k_sel = set(self.BRL_KEYS) & touched_chars, self.SEL_KEYS & touched_chars
+                    if k_brl == touched_chars:
+                        log.debug("keyup: send dot {0:08b} {1}".format(self._gesture.dots, self._gesture.space))
+                        inputCore.manager.emulateGesture(self._gesture)
+                    elif len(k_sel) == 1 and k_sel == touched_chars:
+                        (ch,) = k_sel
+                        self.send_keys(ch)
+                    else:
+                        winsound.MessageBeep(winsound.MB_ICONEXCLAMATION)
             except inputCore.NoInputGestureAction:
                 pass
             self._gesture = None
@@ -372,6 +377,19 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     # Translators: Describes the toggling braille input from a computer keyboard command.
     script_toggleInput.__doc__ = _("Toggles braille input from a computer keyboard.")
     script_toggleInput.category = SCRCAT_BrlIMEHelper
+
+    def script_toggle_no_ASCII_kbbrl(self, gesture):
+        self.config_r["no_ASCII_kbbrl"] = not self.config_r["no_ASCII_kbbrl"]
+        if self.config_r["no_ASCII_kbbrl"]:
+            # Translators: Reported when non-braille alphanumeric input during braille keyboard simulation is enabled.
+            ui.message(_("Enabled: Don't simulate braille input in IME alphanumeric mode."))
+        else:
+            # Translators: Reported when non-braille alphanumeric input during braille keyboard simulation is disabled.
+            ui.message(_("Disabled: Don't simulate braille input in IME alphanumeric mode."))
+    # Translators: Describes the option for toggling non-braille alphanumeric input.
+    # This means braille input simulation is disabled in alphanumeric IME mode.
+    script_toggle_no_ASCII_kbbrl.__doc__ = _("Toggles non-braille alphanumeric input during braille keyboard simulation.")
+    script_toggle_no_ASCII_kbbrl.category = SCRCAT_BrlIMEHelper
 
     def inferBRLmode(self):
         global thread_states
@@ -455,6 +473,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             hint = self.brl_state.hint_msg(self.brl_str, "")
             if hint: queueHandler.queueFunction(queueHandler.eventQueue, ui.message, hint)
             else: winsound.MessageBeep()
+        elif gesture.dots == 0b00000111: # bk:dot1+dot2+dot3
+            scriptHandler.queueScript(self.script_toggle_no_ASCII_kbbrl, gesture)
         elif gesture.dots == 0b00011010: # bk:dot2+dot4+dot5
             self.clear()
         elif gesture.dots == 0b00111000: # bk:dot4+dot5+dot6
