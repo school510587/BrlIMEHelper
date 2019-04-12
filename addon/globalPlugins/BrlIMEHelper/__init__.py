@@ -318,10 +318,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             del self.touched_keys[:]
         return False
 
-    def send_keys(self, key_name_str):
-        for k in key_name_str.split("|"):
+    def send_keys(self, keys):
+        if not isinstance(keys, list):
+            keys = keys.split("|")
+        for k in keys:
             if not k: continue
-            kbd_gesture = KeyboardInputGesture.fromName(k)
+            if isinstance(k, int):
+                kbd_gesture = KeyboardInputGesture([], k, 1, False)
+            elif isinstance(k, tuple):
+                kbd_gesture = KeyboardInputGesture([], k[0], 1, k[1])
+            else:
+                kbd_gesture = KeyboardInputGesture.fromName(k)
             inputCore.manager.emulateGesture(kbd_gesture)
 
     def send_input_commands(self, string):
