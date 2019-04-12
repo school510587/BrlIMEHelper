@@ -194,7 +194,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def initKBBRL(self): # Members for keyboard BRL simulation.
         self.ignore_injected_keys = ([], [])
-        self.touched_chars = set()
+        self.touched_keys = []
         self._modifiedKeys = set()
         self._trappedKeys = set()
         self._trappedNVDAModifiers = set()
@@ -275,7 +275,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 return self._oldKeyDown(vkCode, scanCode, extended, injected)
             dot = 0
         self._trappedKeys.add((vkCode, extended))
-        self.touched_chars.add(ch)
+        self.touched_keys.append((vkCode, extended, ch))
         if dot:
             if not self._gesture:
                 self._gesture = brailleInput.BrailleInputGesture()
@@ -302,19 +302,20 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self._modifiedKeys.discard((vkCode, extended))
             return self._oldKeyUp(vkCode, scanCode, extended, injected)
         if not self._trappedKeys: # A session ends.
-            k_brl, k_sel = set(self.BRL_KEYS) & self.touched_chars, self.SEL_KEYS & self.touched_chars
+            touched_chars = set(t[2] for t in self.touched_keys)
+            k_brl, k_sel = set(self.BRL_KEYS) & touched_chars, self.SEL_KEYS & touched_chars
             try: # Select an action to perform, either BRL or SEL.
-                if k_brl == self.touched_chars:
+                if k_brl == touched_chars:
                     log.debug("keyup: send dot {0:08b} {1}".format(self._gesture.dots, self._gesture.space))
                     inputCore.manager.emulateGesture(self._gesture)
-                elif len(k_sel) == 1 and k_sel == self.touched_chars:
+                elif len(k_sel) == 1 and k_sel == touched_chars:
                     (ch,) = k_sel
                     self.send_keys(ch)
                 else: winsound.MessageBeep(winsound.MB_ICONEXCLAMATION)
             except inputCore.NoInputGestureAction:
                 pass
             self._gesture = None
-            self.touched_chars.clear()
+            del self.touched_keys[:]
         return False
 
     def send_keys(self, key_name_str):
