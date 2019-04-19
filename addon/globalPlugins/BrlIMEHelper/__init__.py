@@ -15,7 +15,7 @@ import string
 import winsound
 try: unichr
 except NameError: unichr = chr
-from keyboardHandler import KeyboardInputGesture, getInputHkl, isNVDAModifierKey
+from keyboardHandler import KeyboardInputGesture, getInputHkl, isNVDAModifierKey, currentModifiers
 from logHandler import log
 from treeInterceptorHandler import DocumentTreeInterceptor
 from winUser import *
@@ -260,7 +260,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         # (1) Any modifier key is held down.
         # (2) NVDA is in browse mode.
         obj = api.getFocusObject()
-        if self._trappedNVDAModifiers or isinstance(obj.treeInterceptor, DocumentTreeInterceptor) and not obj.treeInterceptor.passThrough:
+        if currentModifiers or self._trappedNVDAModifiers or isinstance(obj.treeInterceptor, DocumentTreeInterceptor) and not obj.treeInterceptor.passThrough:
             if (vkCode, extended) not in self._trappedKeys:
                 self._modifiedKeys.add((vkCode, extended))
                 return self._oldKeyDown(vkCode, scanCode, extended, injected)
