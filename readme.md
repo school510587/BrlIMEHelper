@@ -83,3 +83,8 @@ Before installation, check the following environment settings:
 * Code refactoring.
 * Stop simulating braille keyboard by a computer keyboard in browse mode.
 * Assign proper documentation and category to each script.
+
+### Version 0.6
+* Implement a toggle to enable/disable braille input simulation in IME alphanumeric mode.
+* Handle bopomofo.json path in str type.
+* Do not simulate braille input if some modifier key is still held down on loading BrlIMEHelper keyboard hooks.
