@@ -4,6 +4,7 @@
 # See the file LICENSE for more details.
 
 from __future__ import unicode_literals
+from collections import OrderedDict
 from ctypes import *
 from ctypes.wintypes import *
 from functools import partial
@@ -195,7 +196,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def initKBBRL(self): # Members for keyboard BRL simulation.
         self.ignore_injected_keys = ([], [])
-        self.touched_keys = []
+        self.touched_keys = OrderedDict()
         self._modifiedKeys = set()
         self._trappedKeys = set()
         self._trappedNVDAModifiers = set()
@@ -276,7 +277,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 return self._oldKeyDown(vkCode, scanCode, extended, injected)
             dot = 0
         self._trappedKeys.add((vkCode, extended))
-        self.touched_keys.append((vkCode, extended, ch))
+        if (vkCode, extended) not in self.touched_keys:
+            self.touched_keys[(vkCode, extended)] = ch
         if dot:
             if not self._gesture:
                 self._gesture = brailleInput.BrailleInputGesture()
@@ -307,7 +309,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 if self.config_r["no_ASCII_kbbrl"] and not(self.inferBRLmode() & 1) and not(self._gesture and self._gesture.dots and self._gesture.space):
                     self.send_keys(self.touched_keys)
                 else:
-                    touched_chars = set(t[2] for t in self.touched_keys)
+                    touched_chars = set(self.touched_keys.values())
                     k_brl, k_sel = set(self.BRL_KEYS) & touched_chars, self.SEL_KEYS & touched_chars
                     if k_brl == touched_chars:
                         log.debug("keyup: send dot {0:08b} {1}".format(self._gesture.dots, self._gesture.space))
@@ -320,12 +322,15 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             except inputCore.NoInputGestureAction:
                 pass
             self._gesture = None
-            del self.touched_keys[:]
+            self.touched_keys.clear()
         return False
 
     def send_keys(self, keys):
-        if not isinstance(keys, list):
-            keys = keys.split("|")
+        try:
+            if isinstance(keys, str) or isinstance(keys, unicode):
+                keys = keys.split("|")
+        except NameError: # Python 3 does not have unicode class.
+            pass
         for k in keys:
             if not k: continue
             if isinstance(k, int):
