@@ -89,3 +89,8 @@ Before installation, check the following environment settings:
 * Implement a toggle to enable/disable braille input simulation in IME alphanumeric mode.
 * Handle bopomofo.json path in str type.
 * Do not simulate braille input if some modifier key is still held down on loading BrlIMEHelper keyboard hooks.
+
+### Version 0.7
+* Add dot pattern variants of some symbols.
+* Let braille shortcuts be manageable by NVDA input gesture manager.
+* Adjust some coding style of command scripts.
