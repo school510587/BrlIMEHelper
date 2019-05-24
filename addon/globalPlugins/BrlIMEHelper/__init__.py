@@ -473,24 +473,33 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     script_BRLdots.__doc__ = _("Handles braille composition.")
     script_BRLdots.category = SCRCAT_BrlIMEHelper
 
-    def script_BRLfnkeys(self, gesture):
-        if gesture.dots == 0b00000001: # bk:dot1
-            hint = self.brl_state.hint_msg(self.brl_str, "")
-            if hint: queueHandler.queueFunction(queueHandler.eventQueue, ui.message, hint)
-            else: winsound.MessageBeep()
-        elif gesture.dots == 0b00000111: # bk:dot1+dot2+dot3
-            scriptHandler.queueScript(self.script_toggle_no_ASCII_kbbrl, gesture)
-        elif gesture.dots == 0b00011010: # bk:dot2+dot4+dot5
-            self.clear()
-        elif gesture.dots == 0b00111000: # bk:dot4+dot5+dot6
-            log.debug("456+space")
-            self.send_keys("Shift")
-    # Translators: Describes the braille function keys command.
-    script_BRLfnkeys.__doc__ = _("Handles braille function keys.")
-    script_BRLfnkeys.category = SCRCAT_BrlIMEHelper
+    def script_clearBRLbuffer(self, gesture):
+        self.clear()
+    # Translators: Describes the braille buffer clear command.
+    script_clearBRLbuffer.__doc__ = _("Clear braille buffer.")
+    script_clearBRLbuffer.category = SCRCAT_BrlIMEHelper
+
+    def script_switchIMEmode(self, gesture):
+        self.send_keys("Shift")
+    # Translators: Describes the IME mode toggle command.
+    script_switchIMEmode.__doc__ = _("Toggles IME mode.")
+    script_switchIMEmode.category = SCRCAT_BrlIMEHelper
+
+    def script_viewBRLbuffer(self, gesture):
+        hint = self.brl_state.hint_msg(self.brl_str, "")
+        if hint:
+            queueHandler.queueFunction(queueHandler.eventQueue, ui.message, hint)
+        else:
+            winsound.MessageBeep()
+    # Translators: Describes the braille buffer view command.
+    script_viewBRLbuffer.__doc__ = _("View braille buffer.")
+    script_viewBRLbuffer.category = SCRCAT_BrlIMEHelper
 
     __gestures = {
         "kb:NVDA+x": "toggleInput",
         "bk:dots": "BRLdots",
-        "bk:space+dots": "BRLfnkeys",
+        "bk:dot2+dot4+dot5+space": "clearBRLbuffer",
+        "bk:dot1+dot2+dot3+space": "toggle_no_ASCII_kbbrl",
+        "bk:dot4+dot5+dot6+space": "switchIMEmode",
+        "bk:dot1+space": "viewBRLbuffer",
     }
