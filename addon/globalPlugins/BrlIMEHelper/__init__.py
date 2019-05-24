@@ -370,32 +370,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self.last_foreground = fg
         nextHandler()
 
-    def script_toggleInput(self, gesture):
-        if self.config_r["kbbrl_enabled"]:
-            self.disable()
-            # Translators: Reported when braille input from the PC keyboard is disabled.
-            ui.message(_("Disabled: Simulating braille keyboard by a computer keyboard."))
-        else:
-            self.enable()
-            # Translators: Reported when braille input from the PC keyboard is enabled.
-            ui.message(_("Enabled: Simulating braille keyboard by a computer keyboard."))
-    # Translators: Describes the toggling braille input from a computer keyboard command.
-    script_toggleInput.__doc__ = _("Toggles braille input from a computer keyboard.")
-    script_toggleInput.category = SCRCAT_BrlIMEHelper
-
-    def script_toggle_no_ASCII_kbbrl(self, gesture):
-        self.config_r["no_ASCII_kbbrl"] = not self.config_r["no_ASCII_kbbrl"]
-        if self.config_r["no_ASCII_kbbrl"]:
-            # Translators: Reported when non-braille alphanumeric input during braille keyboard simulation is enabled.
-            ui.message(_("Enabled: Don't simulate braille input in IME alphanumeric mode."))
-        else:
-            # Translators: Reported when non-braille alphanumeric input during braille keyboard simulation is disabled.
-            ui.message(_("Disabled: Don't simulate braille input in IME alphanumeric mode."))
-    # Translators: Describes the option for toggling non-braille alphanumeric input.
-    # This means braille input simulation is disabled in alphanumeric IME mode.
-    script_toggle_no_ASCII_kbbrl.__doc__ = _("Toggles non-braille alphanumeric input during braille keyboard simulation.")
-    script_toggle_no_ASCII_kbbrl.category = SCRCAT_BrlIMEHelper
-
     def inferBRLmode(self):
         global thread_states
         pid, tid = getWindowThreadProcessID(getForegroundWindow())
@@ -429,6 +403,32 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             state = self.brl_state.brl_check(brl_input)
             self.brl_str = brl_input
         return state
+
+    def script_toggleBRLsimulation(self, gesture):
+        if self.config_r["kbbrl_enabled"]:
+            self.disable()
+            # Translators: Reported when braille input from the PC keyboard is disabled.
+            ui.message(_("Disabled: Simulating braille keyboard by a computer keyboard."))
+        else:
+            self.enable()
+            # Translators: Reported when braille input from the PC keyboard is enabled.
+            ui.message(_("Enabled: Simulating braille keyboard by a computer keyboard."))
+    # Translators: Name of a command to toggle braille input from a computer keyboard.
+    script_toggleBRLsimulation.__doc__ = _("Toggles braille input from a computer keyboard.")
+    script_toggleBRLsimulation.category = SCRCAT_BrlIMEHelper
+
+    def script_toggleAlphaModeBRLsimulation(self, gesture):
+        self.config_r["no_ASCII_kbbrl"] = not self.config_r["no_ASCII_kbbrl"]
+        if self.config_r["no_ASCII_kbbrl"]:
+            # Translators: Reported when non-braille alphanumeric input during braille keyboard simulation is enabled.
+            ui.message(_("Enabled: Don't simulate braille input in IME alphanumeric mode."))
+        else:
+            # Translators: Reported when non-braille alphanumeric input during braille keyboard simulation is disabled.
+            ui.message(_("Disabled: Don't simulate braille input in IME alphanumeric mode."))
+    # Translators: Name of a command to toggle braille simulation during alphanumeric input.
+    # This means braille input simulation is disabled in alphanumeric IME mode.
+    script_toggleAlphaModeBRLsimulation.__doc__ = _("Toggles non-braille alphanumeric input during braille keyboard simulation.")
+    script_toggleAlphaModeBRLsimulation.category = SCRCAT_BrlIMEHelper
 
     def script_BRLdots(self, gesture):
         mode, mode_msgs, new_brl = self.inferBRLmode(), [], ""
@@ -469,20 +469,20 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 self.timer[0].start()
             else:
                 self.send_input_and_clear(state[0])
-    # Translators: Describes the braille composition command.
+    # Translators: Name of a command to perform braille composition.
     script_BRLdots.__doc__ = _("Handles braille composition.")
     script_BRLdots.category = SCRCAT_BrlIMEHelper
 
     def script_clearBRLbuffer(self, gesture):
         self.clear()
-    # Translators: Describes the braille buffer clear command.
+    # Translators: Name of a command to clear braille buffer.
     script_clearBRLbuffer.__doc__ = _("Clear braille buffer.")
     script_clearBRLbuffer.category = SCRCAT_BrlIMEHelper
 
     def script_switchIMEmode(self, gesture):
         self.send_keys("Shift")
-    # Translators: Describes the IME mode toggle command.
-    script_switchIMEmode.__doc__ = _("Toggles IME mode.")
+    # Translators: Name of a command to switch IME mode.
+    script_switchIMEmode.__doc__ = _("Switches IME mode.")
     script_switchIMEmode.category = SCRCAT_BrlIMEHelper
 
     def script_viewBRLbuffer(self, gesture):
@@ -491,15 +491,15 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             queueHandler.queueFunction(queueHandler.eventQueue, ui.message, hint)
         else:
             winsound.MessageBeep()
-    # Translators: Describes the braille buffer view command.
+    # Translators: Name of a command to view braille buffer.
     script_viewBRLbuffer.__doc__ = _("View braille buffer.")
     script_viewBRLbuffer.category = SCRCAT_BrlIMEHelper
 
     __gestures = {
-        "kb:NVDA+x": "toggleInput",
+        "kb:NVDA+x": "toggleBRLsimulation",
         "bk:dots": "BRLdots",
         "bk:dot2+dot4+dot5+space": "clearBRLbuffer",
-        "bk:dot1+dot2+dot3+space": "toggle_no_ASCII_kbbrl",
+        "bk:dot1+dot2+dot3+space": "toggleAlphaModeBRLsimulation",
         "bk:dot4+dot5+dot6+space": "switchIMEmode",
         "bk:dot1+space": "viewBRLbuffer",
     }
