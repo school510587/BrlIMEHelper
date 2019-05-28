@@ -39,6 +39,7 @@ Before installation, check the following environment settings:
     1. In alphanumeric mode, the effect is determined by NVDA's braille input table.
     2. The original NVDA behavior of dot 7, dot 8, and dot 7 + dot 8 is preserved in both modes.
     3. The addon do not influence other buttons on a braille display, such as buttons for scrolling and positioning.
+    4. Users may manage all above shortcuts via NVDA input gestures dialog.
 
 ## Issues and ways of development
 - Known bugs:
