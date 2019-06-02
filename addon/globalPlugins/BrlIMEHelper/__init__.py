@@ -260,8 +260,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         # directly to NVDA:
         # (1) Any modifier key is held down.
         # (2) NVDA is in browse mode.
-        obj = api.getFocusObject()
-        if currentModifiers or self._trappedNVDAModifiers or isinstance(obj.treeInterceptor, DocumentTreeInterceptor) and not obj.treeInterceptor.passThrough:
+        def on_browse_mode():
+            try:
+                obj = api.getFocusObject()
+                return (isinstance(obj.treeInterceptor, DocumentTreeInterceptor) and not obj.treeInterceptor.passThrough)
+            except:
+                pass
+            return False
+        if currentModifiers or self._trappedNVDAModifiers or on_browse_mode():
             if (vkCode, extended) not in self._trappedKeys:
                 self._modifiedKeys.add((vkCode, extended))
                 return self._oldKeyDown(vkCode, scanCode, extended, injected)
