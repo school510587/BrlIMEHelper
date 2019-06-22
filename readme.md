@@ -56,6 +56,9 @@ Before installation, check the following environment settings:
 - Bo-Cheng Jhan <school510587@yahoo.com.tw>
 - 黃偉豪 <hurt.nzsmr@gmail.com>
 
+## Acknowledgement
+- BrlIMEHelper has been sponsored by [Taiwan Visually Impaired People Association](https://www.facebook.com/tavip1030102/) <vipastaiwan@gmail.com> from 2019/07/01 to 2019/12/31, hereby express our sincere appreciation.
+
 ## History of changes
 
 ### Version 0.0

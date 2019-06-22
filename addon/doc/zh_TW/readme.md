@@ -56,6 +56,9 @@
 - Bo-Cheng Jhan <school510587@yahoo.com.tw>
 - 黃偉豪 <hurt.nzsmr@gmail.com>
 
+## 致謝
+- 「點字輸入法助手」於 2019/07/01 至 2019/12/31 受到[社團法人臺灣視障協會](https://www.facebook.com/tavip1030102/) <vipastaiwan@gmail.com> 支持開發，特此深表感謝。
+
 ## 修改歷程
 
 ### 0.0 版
