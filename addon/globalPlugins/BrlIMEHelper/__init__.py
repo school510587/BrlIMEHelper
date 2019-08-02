@@ -8,9 +8,14 @@ from collections import OrderedDict
 from ctypes import *
 from ctypes.wintypes import *
 from functools import partial
+try:
+    from functools import partialmethod
+    monkey_method = lambda m, cls: partialmethod(m)
+except: # Python 2 does not have partialmethod.
+    from types import MethodType
+    monkey_method = lambda m, cls: MethodType(m, None, cls)
 from serial.win32 import INVALID_HANDLE_VALUE
 from threading import Thread, Timer
-from types import MethodType
 import os
 import string
 import winsound
@@ -213,10 +218,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 addon.ignore_injected_keys[1].append(addon.ignore_injected_keys[0][-1])
             return addon.real_kb_send(*args)
         self.real_kb_send = KeyboardInputGesture.send
-        try:
-            KeyboardInputGesture.send = MethodType(partial(hack_kb_send, self), None, KeyboardInputGesture)
-        except TypeError: # Python 3: Unbound method no longer exists.
-            KeyboardInputGesture.send = MethodType(partial(hack_kb_send, self), None, KeyboardInputGesture)
+        KeyboardInputGesture.send = monkey_method(partial(hack_kb_send, self), KeyboardInputGesture)
         # Monkey patch keyboard handling callbacks.
         # This is pretty evil, but we need low level keyboard handling.
         self._oldKeyDown = winInputHook.keyDownCallback
