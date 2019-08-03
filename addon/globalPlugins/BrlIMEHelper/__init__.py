@@ -37,7 +37,10 @@ import scriptHandler
 import winInputHook
 import ui
 
-addonHandler.initTranslation()
+try:
+    addonHandler.initTranslation()
+except:
+    log.warning("Exception occurred when loading translation.", exc_info=True)
 
 from NVDAHelper import localLib
 from NVDAHelper import nvdaControllerInternal_inputConversionModeUpdate
