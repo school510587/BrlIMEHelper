@@ -9,7 +9,7 @@ _ = lambda x : x
 # Add-on information variables
 addon_info = {
     # for previously unpublished addons, please follow the community guidelines at:
-    # https://bitbucket.org/nvdaaddonteam/todo/raw/master/guideLines.txt
+    # https://bitbucket.org/nvdaaddonteam/todo/raw/master/guidelines.txt
     # add-on Name, internal for nvda
     "addon_name" : "BrlIMEHelper",
     # Add-on summary, usually the user visible name of the addon.
@@ -18,7 +18,7 @@ addon_info = {
     # Add-on description
     # Translators: Long description to be shown for this add-on on add-on information from add-ons manager
     "addon_description" : _("""Converts braille input into IME operations."""),
-    # version
+    # Version
     "addon_version" : "0.7",
     # Author(s)
     "addon_author" : u"Bo-Cheng Jhan <school510587@yahoo.com.tw>",
@@ -26,7 +26,7 @@ addon_info = {
     "addon_url" : "https://github.com/school510587/BrlIMEHelper",
     # Documentation file name
     "addon_docFileName" : "readme.html",
-    # Minimum NVDA version supported (e.g. "2018.3.0")
+    # Minimum NVDA version supported (e.g. "2018.3.0", minor version is optional)
     "addon_minimumNVDAVersion" : "2017.3",
     # Last NVDA version supported/tested (e.g. "2018.4.0", ideally more recent than minimum version)
     "addon_lastTestedNVDAVersion" : "2019.3",
