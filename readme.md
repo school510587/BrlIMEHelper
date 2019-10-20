@@ -1,5 +1,5 @@
 # Braille IME Helper
-Version 0.7
+Version 1.0
 
 ## Introduction
 Braille IME Helper (BrlIMEHelper) enables users to input Chinese characters directly through the braille keyboard on a braille display. When no braille keyboard is available, the addon can also simulate it using a computer keyboard. With conversion from braille input to IME operations by the addon, users familiar to braille rules can input Chinese characters without learning other input methods and keyboard layouts. So far, the addon is an implementation based on [bopomofo braille](https://en.wikipedia.org/wiki/Taiwanese_Braille) and 微軟注音 IME commonly used in Taiwan, but its concept can be extended to other braille systems and IMEs in the future.
@@ -98,3 +98,7 @@ Before installation, check the following environment settings:
 * Add dot pattern variants of some symbols.
 * Let braille shortcuts be manageable by NVDA input gesture manager.
 * Adjust some coding style of command scripts.
+
+### Version 1.0
+* Support NVDA 2019.3 based on Python 3.
+* Implement a dialog for user configurations.
