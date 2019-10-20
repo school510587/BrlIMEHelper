@@ -60,6 +60,12 @@ def read():
     else:
         runtime_conf = OrderedDict((k, t.default_value) for k, t in profile.items())
 
+def set(key, value):
+    global runtime_conf
+    if runtime_conf is None:
+        read()
+    runtime_conf[key] = value
+
 def write():
     if "BrlIMEHelper" not in config.conf:
         config.conf["BrlIMEHelper"] = {}
