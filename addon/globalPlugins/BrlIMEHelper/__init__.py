@@ -193,7 +193,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         # Translators: Menu item of BrlIMEHelper settings.
         self.menuitem4Settings = self.menu.Append(wx.ID_ANY, _("&Settings..."))
         gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.onSettings, self.menuitem4Settings)
-        # Translators: Menu item of showing About window for BrlIMEHelper.
+        # Translators: Menu item to show the About window.
         self.menuitem4About = self.menu.Append(wx.ID_ANY, _("&About..."))
         gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.onAbout, self.menuitem4About)
         self.BrlIMEHelper_item = gui.mainFrame.sysTrayIcon.toolsMenu.AppendSubMenu(self.menu,
