@@ -193,6 +193,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         # Translators: Menu item of BrlIMEHelper settings.
         self.menuitem4Settings = self.menu.Append(wx.ID_ANY, _("&Settings..."))
         gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.onSettings, self.menuitem4Settings)
+        # Translators: Menu item of showing About window for BrlIMEHelper.
+        self.menuitem4About = self.menu.Append(wx.ID_ANY, _("&About..."))
+        gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.onAbout, self.menuitem4About)
         self.BrlIMEHelper_item = gui.mainFrame.sysTrayIcon.toolsMenu.AppendSubMenu(self.menu,
             # Translators: Item of BrlIMEHelper configuration in NVDA tools menu.
             _("Braille IME Helper"),
@@ -434,6 +437,16 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             state = self.brl_state.brl_check(brl_input)
             self.brl_str = brl_input
         return state
+
+    def onAbout(self, evt):
+        # Translators: The About message.
+        gui.messageBox(_("""Braille IME Helper (BrlIMEHelper)
+Copyright (C) 2019 Bo-Cheng Jhan and other contributors
+BrlIMEHelper is covered by the GNU General Public License (Version 3). You are free to share or change this software in any way you like as long as it is accompanied by the license and you make all source code available to anyone who wants it. This applies to both original and modified copies of this software, plus any derivative works.
+BrlIMEHelper is currently sponsored by "Taiwan Visually Impaired People Association" (vipastaiwan@gmail.com), hereby express my sincere appreciation.
+If you feel this add-on is helpful, please don't hesitate to give support to "Taiwan Visually Impaired People Association" and authors."""),
+            # Translators: Title of the About window.
+            _("About BrlIMEHelper"), wx.OK)
 
     def onSettings(self, evt):
         from .dialogs import BrlIMEHelperSettingsDialog
