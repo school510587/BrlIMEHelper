@@ -19,6 +19,7 @@ from threading import Thread, Timer
 import os
 import string
 import winsound
+import wx
 try: unichr
 except NameError: unichr = chr
 from keyboardHandler import KeyboardInputGesture, getInputHkl, isNVDAModifierKey, currentModifiers
@@ -31,6 +32,7 @@ import api
 import brailleInput
 import globalCommands
 import globalPluginHandler
+import gui
 import inputCore
 import queueHandler
 import scriptHandler
@@ -187,8 +189,21 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             del self.symb2gesture["UNICODE_SUFFIX"]
         if configure.get("AUTO_BRL_KEY"):
             self.enable()
+        self.menu = wx.Menu()
+        # Translators: Menu item of BrlIMEHelper settings.
+        self.menuitem4Settings = self.menu.Append(wx.ID_ANY, _("&Settings..."))
+        gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.onSettings, self.menuitem4Settings)
+        self.BrlIMEHelper_item = gui.mainFrame.sysTrayIcon.toolsMenu.AppendSubMenu(self.menu,
+            # Translators: Item of BrlIMEHelper configuration in NVDA tools menu.
+            _("Braille IME Helper"),
+            # Translators: Tooltip of BrlIMEHelper configuration item in NVDA tools menu.
+            _("Configure Braille IME Helper"))
 
     def terminate(self):
+        try:
+            gui.mainFrame.sysTrayIcon.toolsMenu.RemoveItem(self.BrlIMEHelper_item)
+        except:
+            pass
         _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputConversionModeUpdate", nvdaControllerInternal_inputConversionModeUpdate)
         _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputLangChangeNotify", nvdaControllerInternal_inputLangChangeNotify)
         self.clear()
@@ -419,6 +434,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             state = self.brl_state.brl_check(brl_input)
             self.brl_str = brl_input
         return state
+
+    def onSettings(self, evt):
+        from .dialogs import BrlIMEHelperSettingsDialog
+        gui.mainFrame._popupSettingsDialog(BrlIMEHelperSettingsDialog)
 
     def script_toggleBRLsimulation(self, gesture):
         if self.config_r["kbbrl_enabled"]:
