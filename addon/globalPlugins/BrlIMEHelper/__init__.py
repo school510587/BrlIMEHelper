@@ -62,7 +62,7 @@ def hack_nvdaControllerInternal_inputConversionModeUpdate(oldFlags, newFlags, lc
 def hack_nvdaControllerInternal_inputLangChangeNotify(threadID, hkl, layoutString):
     global thread_states
     pid = getWindowThreadProcessID(getForegroundWindow())[0]
-    new_record = dict(zip(("mode", "layout"), (0, layoutString)))
+    new_record = dict(zip(("mode", "layout"), (None, layoutString)))
     if pid in thread_states: new_record["mode"] = thread_states[pid]["mode"]
     thread_states[pid] = new_record
     log.debug('Logged IME language change: pid={pid}, layout="{layout}", mode={mode}'.format(pid=pid, **thread_states[pid]))
