@@ -85,6 +85,7 @@ def scan_thread_ids(addon_inst):
         sleep(0.01)
 
 from .brl_tables import *
+from . import configure
 
 bopomofo_to_keys = { # 標準注音鍵盤
         "ㄅ": "1",
@@ -175,14 +176,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.scanner = Thread(target=scan_thread_ids, args=(self,))
         self.scanner.start()
         self.timer = [None, ""] # A 2-tuple [timer object, string].
+        configure.read()
         self.config_r = {
             "kbbrl_enabled": False,
-            "no_ASCII_kbbrl": False,
+            "no_ASCII_kbbrl": configure.get("DEFAULT_NO_ALPHANUMERIC_BRL_KEY"),
         }
         _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputConversionModeUpdate", hack_nvdaControllerInternal_inputConversionModeUpdate)
         _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputLangChangeNotify", hack_nvdaControllerInternal_inputLangChangeNotify)
         if winVersion.major < 6: # WinXP
             del self.symb2gesture["UNICODE_SUFFIX"]
+        if configure.get("AUTO_BRL_KEY"):
+            self.enable()
 
     def terminate(self):
         _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputConversionModeUpdate", nvdaControllerInternal_inputConversionModeUpdate)
@@ -191,6 +195,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.running = False
         self.scanner.join()
         self.disable()
+        configure.write()
 
     def clear(self, brl_buffer=True, join_timer=True):
         if self.timer[0]:
