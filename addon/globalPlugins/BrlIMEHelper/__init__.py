@@ -87,6 +87,7 @@ def scan_thread_ids(addon_inst):
         sleep(0.01)
 
 from .brl_tables import *
+from .sounds import *
 from . import configure
 
 bopomofo_to_keys = { # 標準注音鍵盤
@@ -352,7 +353,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                         (ch,) = k_sel
                         self.send_keys(ch)
                     else:
-                        winsound.MessageBeep(winsound.MB_ICONEXCLAMATION)
+                        beep_typo()
             except inputCore.NoInputGestureAction:
                 pass
             self._gesture = None
@@ -389,7 +390,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 self.send_keys(cmd)
         except:
             log.warning('Undefined input gesture of "%s"' % (string,))
-            winsound.MessageBeep(winsound.MB_ICONEXCLAMATION)
+            beep_typo()
 
     def send_input_and_clear(self, string):
         queueHandler.queueFunction(queueHandler.eventQueue, self.send_input_commands, string)
@@ -499,7 +500,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
                 scriptHandler.queueScript(globalCommands.commands.script_braille_translate, gesture)
             elif mode & 1:
                 log.debug("BRLkeys: input rejected")
-                winsound.MessageBeep(winsound.MB_ICONEXCLAMATION)
+                beep_typo()
             else:
                 log.debug("BRLkeys: dots default")
                 self.clear()
