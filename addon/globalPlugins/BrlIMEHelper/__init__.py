@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+﻿# -*- coding: UTF-8 -*-
 # Copyright (C) 2019 Bo-Cheng Jhan <school510587@yahoo.com.tw>
 # This file is covered by the GNU General Public License.
 # See the file LICENSE for more details.
@@ -48,6 +48,7 @@ from NVDAHelper import localLib
 from NVDAHelper import nvdaControllerInternal_inputConversionModeUpdate
 from NVDAHelper import nvdaControllerInternal_inputLangChangeNotify
 from NVDAHelper import _setDllFuncPointer
+active_mode = {}
 thread_states = {}
 kl, layout = None, None
 # Note: Monkeying handleInputConversionModeUpdate does not work.
@@ -403,9 +404,28 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if fg != self.last_foreground:
             self.clear(join_timer=False)
             self.last_foreground = fg
+            self.change_IME()
         nextHandler()
 
+    def change_IME(self):
+        fg = getForegroundWindow()
+        pid, tid = getWindowThreadProcessID(fg)
+        if active_mode.get(pid, 0) == 0:
+            profile = mgr.GetActiveProfile(byref(GUID_TFCAT_TIP_KEYBOARD))
+            mgr.DeactivateProfile(profile.dwProfileType, profile.langid, clsid=profile.clsid, guidProfile=profile.guidProfile, dwFlags=0x30000000)
+            hkl = windll.user32.LoadKeyboardLayoutW("00000409", 1)
+            windll.user32.SendMessageW(fg, 0x0050, 0, LOWORD(hkl))
+        else:
+            hkl = windll.user32.LoadKeyboardLayoutW("00000404", 1)
+            windll.user32.SendMessageW(fg, 0x0050, 0, LOWORD(hkl))
+            clsid = GUID("{B115690A-EA02-48D5-A231-E3578D2FDF80}")
+            guidProfile = GUID("{B2F9C502-1742-11D4-9790-0080C882687E}")
+            mgr.ActivateProfile(1, LOWORD(hkl), clsid=byref(clsid), guidProfile=byref(guidProfile), dwFlags=0x30000000)
+
     def inferBRLmode(self):
+        global active_mode
+        pid, tid = getWindowThreadProcessID(getForegroundWindow())
+        return active_mode.get(pid, 0)
         global thread_states
         pid, tid = getWindowThreadProcessID(getForegroundWindow())
         kl = getKeyboardLayout(tid)
@@ -552,3 +572,4 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         "bk:dot4+dot5+dot6+space": "switchIMEmode",
         "bk:dot1+space": "viewBRLbuffer",
     }
+#t=CreateObject(CLSID_TF_InputProcessorProfiles, CLSCTX_ALL, interface=ITfInputProcessorProfileMgr)
