@@ -16,15 +16,17 @@ try:
 except:
     pass
 
-ItemSpec = namedtuple("ItemSpec", ["label", "default_value"])
+ItemSpec = namedtuple("ItemSpec", ["label", "default_value", "allowed_values"])
 profile = OrderedDict()
 profile["AUTO_BRL_KEY"] = ItemSpec(
     label = _("Automatically enable braille keyboard simulation when NVDA starts."),
     default_value = False,
+    allowed_values = None,
 )
 profile["DEFAULT_NO_ALPHANUMERIC_BRL_KEY"] = ItemSpec(
     label = _("Disable braille keyboard simulation by default in IME alphanumeric mode."),
     default_value = False,
+    allowed_values = None,
 )
 runtime_conf = None
 
