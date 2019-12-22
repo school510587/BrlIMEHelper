@@ -30,8 +30,8 @@ profile["DEFAULT_NO_ALPHANUMERIC_BRL_KEY"] = ItemSpec(
 )
 runtime_conf = None
 
-def conf_decode(value, valid_values):
-    if type(valid_values[0]) is bool:
+def conf_decode(value, allowed_values):
+    if type(allowed_values[0]) is bool:
         value = value.strip().lower()
         if value == "true":
             return True
@@ -55,7 +55,7 @@ def read():
         runtime_conf = OrderedDict()
         for k, t in profile.items():
             try:
-                runtime_conf[k] = conf_decode(user_conf[k], [t.default_value])
+                runtime_conf[k] = conf_decode(user_conf[k], [t.default_value] if t.allowed_values is None else t.allowed_values)
             except:
                 log.warning("Failed reading configuration: " + k, exc_info=True)
                 runtime_conf[k] = t.default_value
