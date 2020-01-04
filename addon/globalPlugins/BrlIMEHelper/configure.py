@@ -42,8 +42,8 @@ def conf_decode(value, default_value, allowed_values):
         else:
             answer = bool(int(value))
         return answer
-    elif isinstance(default_value, str):
-        assert(allowed_values is None or default_value in allowed_values)
+    assert(allowed_values is None or (default_value in allowed_values and all(type(v) is type(default_value) for v in allowed_values)))
+    if isinstance(default_value, str):
         if allowed_values is not None and value not in allowed_values:
             raise ValueError(value) # The value is not allowed.
         return value
