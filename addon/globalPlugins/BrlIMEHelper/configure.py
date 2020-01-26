@@ -3,7 +3,7 @@
 # This file is covered by the GNU General Public License.
 # See the file LICENSE for more details.
 
-# from __future__ import unicode_literals
+from __future__ import unicode_literals
 from collections import namedtuple
 from collections import Callable
 from collections import OrderedDict
@@ -11,6 +11,9 @@ from collections import OrderedDict
 from logHandler import log
 import addonHandler
 import config
+
+try: unicode
+except NameError: unicode = str
 
 try:
     addonHandler.initTranslation()
@@ -54,7 +57,7 @@ def conf_decode(value, default_value, allowed_values):
         (default_value in allowed_values and all(type(v) is type(default_value) for v in allowed_values))
     )
     allowed = lambda v: True if allowed_values is None else allowed_values(v) if isinstance(allowed_values, Callable) else (v in allowed_values)
-    if isinstance(default_value, str):
+    if isinstance(default_value, unicode):
         if not allowed(value):
             raise ValueError(value)
         return value
@@ -88,6 +91,6 @@ def write():
     user_conf = config.conf["BrlIMEHelper"]
     for k, t in profile.items():
         try:
-            user_conf[k] = str(runtime_conf[k])
+            user_conf[k] = unicode(runtime_conf[k])
         except:
-            user_conf[k] = str(t.default_value)
+            user_conf[k] = unicode(t.default_value)

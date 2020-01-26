@@ -3,6 +3,7 @@
 # This file is covered by the GNU General Public License.
 # See the file LICENSE for more details.
 
+from __future__ import unicode_literals
 from collections import OrderedDict
 import wx
 
@@ -14,6 +15,9 @@ from gui.settingsDialogs import SettingsDialog
 from logHandler import log
 
 from . import configure
+
+try: unicode
+except NameError: unicode = str
 
 try:
     addonHandler.initTranslation()
@@ -32,7 +36,7 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
             if isinstance(conf_value, bool):
                 self.CheckBox_settings[k] = sHelper.addItem(wx.CheckBox(self, label=v.label))
                 self.CheckBox_settings[k].SetValue(conf_value)
-            elif isinstance(conf_value, str):
+            elif isinstance(conf_value, unicode):
                 self.CheckBox_settings[k] = sHelper.addLabeledControl(v.label, wx.TextCtrl)
                 self.CheckBox_settings[k].ChangeValue(conf_value)
 
@@ -44,7 +48,7 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
             try:
                 if isinstance(v.default_value, bool):
                     configure.assign(k, self.CheckBox_settings[k].IsChecked())
-                elif isinstance(v.default_value, str):
+                elif isinstance(v.default_value, unicode):
                     configure.assign(k, self.CheckBox_settings[k].GetValue())
             except:
                 log.error("Failed setting configuration: " + k, exc_info=True)
