@@ -7,8 +7,11 @@ from __future__ import unicode_literals
 from collections import namedtuple
 from collections import Callable
 from collections import OrderedDict
+from ctypes import windll
 
+from keyboardHandler import getInputHkl
 from logHandler import log
+from winUser import *
 import addonHandler
 import config
 
@@ -31,6 +34,18 @@ profile["DEFAULT_NO_ALPHANUMERIC_BRL_KEY"] = ItemSpec(
     label = _("Disable braille keyboard simulation by default in IME alphanumeric mode."),
     default_value = False,
     allowed_values = None,
+)
+profile["BRAILLE_KEYS"] = ItemSpec(
+    label = _("Braille Keys (requires [OK] to take effect):"),
+    default_value = " FDSJKLA;",
+    allowed_values = lambda bk: len(bk) == len(set(bk)) == 9 and
+        all(ord(k) == windll.user32.MapVirtualKeyExW(VkKeyScanEx(k, getInputHkl())[1], MAPVK_VK_TO_CHAR, getInputHkl()) for k in bk),
+)
+profile["IGNORED_KEYS"] = ItemSpec(
+    label = _("Ignored Keys (requires [OK] to take effect):"),
+    default_value = "0123456789",
+    allowed_values = lambda ik: len(ik) == len(set(ik)) and
+        all(ord(k) == windll.user32.MapVirtualKeyExW(VkKeyScanEx(k, getInputHkl())[1], MAPVK_VK_TO_CHAR, getInputHkl()) for k in ik),
 )
 runtime_conf = None
 
