@@ -350,7 +350,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                         inputCore.manager.emulateGesture(self._gesture)
                     elif len(k_sel) == 1 and k_sel == touched_chars:
                         (ch,) = k_sel
-                        self.send_keys(ch)
+                        self.send_keys(ch.lower())
                     else:
                         beep_typo()
             except inputCore.NoInputGestureAction:
