@@ -57,10 +57,13 @@ def conf_decode(value, default_value, allowed_values):
         (default_value in allowed_values and all(type(v) is type(default_value) for v in allowed_values))
     )
     allowed = lambda v: True if allowed_values is None else allowed_values(v) if isinstance(allowed_values, Callable) else (v in allowed_values)
-    if isinstance(default_value, unicode):
-        if not allowed(value):
-            raise ValueError(value)
-        return value
+    try:
+        if isinstance(default_value, unicode):
+            if not allowed(value):
+                raise ValueError
+            return value
+    except: # Any failure, including exception thrown by allowed().
+        raise ValueError(value)
     raise NotImplementedError
 
 def get(key):
