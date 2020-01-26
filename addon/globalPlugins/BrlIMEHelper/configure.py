@@ -39,11 +39,15 @@ _allowed = lambda value, allowed_values: True if allowed_values is None \
     else (value in allowed_values)
 
 def assign(key, value):
-    global runtime_conf
+    global profile, runtime_conf
     if runtime_conf is None:
         read()
     assert(isinstance(value, type(profile[key].default_value)))
+    if not _allowed(value, profile[key].allowed_values):
+        raise ValueError("{0} => {1}".format(key, value))
+    old_value = runtime_conf[key]
     runtime_conf[key] = value
+    return old_value
 
 def conf_decode(value, default_value, allowed_values):
     assert(default_value is not None)

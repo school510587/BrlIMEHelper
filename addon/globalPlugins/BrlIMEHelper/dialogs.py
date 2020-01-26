@@ -5,6 +5,7 @@
 
 from __future__ import unicode_literals
 from collections import OrderedDict
+import winsound
 import wx
 
 import addonHandler
@@ -44,12 +45,18 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
         list(self.CheckBox_settings.values())[0].SetFocus()
 
     def onOk(self, evt):
+        backup, error = {}, False
         for k, v in configure.profile.items():
             try:
                 if isinstance(v.default_value, bool):
-                    configure.assign(k, self.CheckBox_settings[k].IsChecked())
+                    backup[k] = configure.assign(k, self.CheckBox_settings[k].IsChecked())
                 elif isinstance(v.default_value, unicode):
-                    configure.assign(k, self.CheckBox_settings[k].GetValue())
+                    backup[k] = configure.assign(k, self.CheckBox_settings[k].GetValue())
             except:
+                error = True
                 log.error("Failed setting configuration: " + k, exc_info=True)
+        if error:
+            winsound.MessageBeep(winsound.MB_ICONHAND)
+            for k, v in backup.items():
+                configure.assign(k, v)
         return super(BrlIMEHelperSettingsDialog, self).onOk(evt)
