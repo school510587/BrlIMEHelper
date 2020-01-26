@@ -78,6 +78,7 @@ def set(key, value):
     global runtime_conf
     if runtime_conf is None:
         read()
+    assert(isinstance(value, type(profile[key].default_value)))
     runtime_conf[key] = value
 
 def write():
