@@ -37,7 +37,7 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
     def onOk(self, evt):
         for k, v in self.CheckBox_settings.items():
             try:
-                configure.set(k, v.IsChecked())
+                configure.assign(k, v.IsChecked())
             except:
                 log.error("Failed setting configuration: " + k, exc_info=True)
         return super(BrlIMEHelperSettingsDialog, self).onOk(evt)

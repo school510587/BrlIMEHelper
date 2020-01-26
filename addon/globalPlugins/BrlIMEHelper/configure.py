@@ -31,6 +31,13 @@ profile["DEFAULT_NO_ALPHANUMERIC_BRL_KEY"] = ItemSpec(
 )
 runtime_conf = None
 
+def assign(key, value):
+    global runtime_conf
+    if runtime_conf is None:
+        read()
+    assert(isinstance(value, type(profile[key].default_value)))
+    runtime_conf[key] = value
+
 def conf_decode(value, default_value, allowed_values):
     assert(default_value is not None)
     if isinstance(default_value, bool):
@@ -73,13 +80,6 @@ def read():
                 runtime_conf[k] = t.default_value
     else:
         runtime_conf = OrderedDict((k, t.default_value) for k, t in profile.items())
-
-def set(key, value):
-    global runtime_conf
-    if runtime_conf is None:
-        read()
-    assert(isinstance(value, type(profile[key].default_value)))
-    runtime_conf[key] = value
 
 def write():
     if "BrlIMEHelper" not in config.conf:
