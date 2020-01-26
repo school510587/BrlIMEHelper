@@ -34,6 +34,10 @@ profile["DEFAULT_NO_ALPHANUMERIC_BRL_KEY"] = ItemSpec(
 )
 runtime_conf = None
 
+_allowed = lambda value, allowed_values: True if allowed_values is None \
+    else allowed_values(value) if isinstance(allowed_values, Callable) \
+    else (value in allowed_values)
+
 def assign(key, value):
     global runtime_conf
     if runtime_conf is None:
@@ -56,13 +60,12 @@ def conf_decode(value, default_value, allowed_values):
     assert(allowed_values is None or isinstance(allowed_values, Callable) or
         (default_value in allowed_values and all(type(v) is type(default_value) for v in allowed_values))
     )
-    allowed = lambda v: True if allowed_values is None else allowed_values(v) if isinstance(allowed_values, Callable) else (v in allowed_values)
     try:
         if isinstance(default_value, unicode):
-            if not allowed(value):
+            if not _allowed(value, allowed_values):
                 raise ValueError
             return value
-    except: # Any failure, including exception thrown by allowed().
+    except: # Any failure, including exception thrown by _allowed().
         raise ValueError(value)
     raise NotImplementedError
 
