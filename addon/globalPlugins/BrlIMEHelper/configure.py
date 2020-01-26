@@ -53,9 +53,10 @@ def conf_decode(value, default_value, allowed_values):
     assert(allowed_values is None or isinstance(allowed_values, Callable) or
         (default_value in allowed_values and all(type(v) is type(default_value) for v in allowed_values))
     )
+    allowed = lambda v: True if allowed_values is None else allowed_values(v) if isinstance(allowed_values, Callable) else (v in allowed_values)
     if isinstance(default_value, str):
-        if (isinstance(allowed_values, Callable) and not allowed_values(value)) or (allowed_values is not None and value not in allowed_values):
-            raise ValueError(value) # The value is not allowed.
+        if not allowed(value):
+            raise ValueError(value)
         return value
     raise NotImplementedError
 
