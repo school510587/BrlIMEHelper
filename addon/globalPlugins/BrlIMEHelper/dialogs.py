@@ -28,16 +28,24 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
     def makeSettings(self, settingsSizer):
         sHelper = guiHelper.BoxSizerHelper(self, sizer=settingsSizer)
         for k, v in configure.profile.items():
-            self.CheckBox_settings[k] = sHelper.addItem(wx.CheckBox(self, label=v.label))
-            self.CheckBox_settings[k].SetValue(configure.get(k))
+            conf_value = configure.get(k)
+            if isinstance(conf_value, bool):
+                self.CheckBox_settings[k] = sHelper.addItem(wx.CheckBox(self, label=v.label))
+                self.CheckBox_settings[k].SetValue(conf_value)
+            elif isinstance(conf_value, str):
+                self.CheckBox_settings[k] = sHelper.addLabeledControl(v.label, wx.TextCtrl)
+                self.CheckBox_settings[k].ChangeValue(conf_value)
 
     def postInit(self):
         list(self.CheckBox_settings.values())[0].SetFocus()
 
     def onOk(self, evt):
-        for k, v in self.CheckBox_settings.items():
+        for k, v in configure.profile.items():
             try:
-                configure.assign(k, v.IsChecked())
+                if isinstance(v.default_value, bool):
+                    configure.assign(k, self.CheckBox_settings[k].IsChecked())
+                elif isinstance(v.default_value, str):
+                    configure.assign(k, self.CheckBox_settings[k].GetValue())
             except:
                 log.error("Failed setting configuration: " + k, exc_info=True)
         return super(BrlIMEHelperSettingsDialog, self).onOk(evt)
