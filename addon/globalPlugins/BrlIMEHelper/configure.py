@@ -44,7 +44,7 @@ def assign(key, value):
         read()
     assert(isinstance(value, type(profile[key].default_value)))
     if not _allowed(value, profile[key].allowed_values):
-        raise ValueError("{0} => {1}".format(key, value))
+        raise ValueError("{0!r} => {1!r}".format(key, value))
     old_value = runtime_conf[key]
     runtime_conf[key] = value
     return old_value
