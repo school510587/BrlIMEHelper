@@ -139,11 +139,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     SCRCAT_BrlIMEHelper = _("Braille IME Helper")
 
     # ACC_KEYS is the universe of all processed characters. BRL_KEYS and
-    # SEL_KEYS must be its two disjoint subsets. Note that BRL_KEYS must
-    # be ordered.
+    # SEL_KEYS must be its subsets. Note that they are currently replaced
+    # by BRAILLE_KEYS and IGNORED_KEYS options, respectively. If the same
+    # key is present in both options, the former takes precedence.
     ACC_KEYS = set(string.ascii_letters + string.digits + string.punctuation + " ")
-    BRL_KEYS = " FDSJKLA;"
-    SEL_KEYS = set("0123456789")
 
     symb2gesture = {
         "UNICODE_PREFIX": "`u",
@@ -306,7 +305,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         ch = unichr(LOWORD(charCode))
         log.debug('char code: %d' % (charCode,))
         try:
-            dot = 1 << self.BRL_KEYS.index(ch)
+            dot = 1 << configure.get("BRAILLE_KEYS").index(ch)
         except: # not found
             if ch not in self.ACC_KEYS:
                 return self._oldKeyDown(vkCode, scanCode, extended, injected)
@@ -345,7 +344,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     self.send_keys(self.touched_keys)
                 else:
                     touched_chars = set(self.touched_keys.values())
-                    k_brl, k_sel = set(self.BRL_KEYS) & touched_chars, self.SEL_KEYS & touched_chars
+                    k_brl, k_sel = set(configure.get("BRAILLE_KEYS")) & touched_chars, set(configure.get("IGNORED_KEYS")) & touched_chars
                     if k_brl == touched_chars:
                         log.debug("keyup: send dot {0:08b} {1}".format(self._gesture.dots, self._gesture.space))
                         inputCore.manager.emulateGesture(self._gesture)
