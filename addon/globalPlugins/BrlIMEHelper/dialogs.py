@@ -41,6 +41,7 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
                 self.options[k] = sHelper.addLabeledControl(v.label, wx.TextCtrl)
                 self.options[k].SetName(k)
                 self.options[k].ChangeValue(conf_value)
+        self.options["BRAILLE_KEYS"].SetMaxLength(9)
 
     def postInit(self):
         list(self.options.values())[0].SetFocus()
