@@ -35,10 +35,11 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
         for k, v in configure.profile.items():
             conf_value = configure.get(k)
             if isinstance(conf_value, bool):
-                self.options[k] = sHelper.addItem(wx.CheckBox(self, label=v.label))
+                self.options[k] = sHelper.addItem(wx.CheckBox(self, name=k, label=v.label))
                 self.options[k].SetValue(conf_value)
             elif isinstance(conf_value, unicode):
                 self.options[k] = sHelper.addLabeledControl(v.label, wx.TextCtrl)
+                self.options[k].SetName(k)
                 self.options[k].ChangeValue(conf_value)
 
     def postInit(self):
