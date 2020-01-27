@@ -28,30 +28,30 @@ except:
 class BrlIMEHelperSettingsDialog(SettingsDialog):
     # Translators: Title of the Braille IME Helper settings dialog.
     title = _("Braille IME Helper Settings")
-    CheckBox_settings = OrderedDict()
+    options = OrderedDict()
 
     def makeSettings(self, settingsSizer):
         sHelper = guiHelper.BoxSizerHelper(self, sizer=settingsSizer)
         for k, v in configure.profile.items():
             conf_value = configure.get(k)
             if isinstance(conf_value, bool):
-                self.CheckBox_settings[k] = sHelper.addItem(wx.CheckBox(self, label=v.label))
-                self.CheckBox_settings[k].SetValue(conf_value)
+                self.options[k] = sHelper.addItem(wx.CheckBox(self, label=v.label))
+                self.options[k].SetValue(conf_value)
             elif isinstance(conf_value, unicode):
-                self.CheckBox_settings[k] = sHelper.addLabeledControl(v.label, wx.TextCtrl)
-                self.CheckBox_settings[k].ChangeValue(conf_value)
+                self.options[k] = sHelper.addLabeledControl(v.label, wx.TextCtrl)
+                self.options[k].ChangeValue(conf_value)
 
     def postInit(self):
-        list(self.CheckBox_settings.values())[0].SetFocus()
+        list(self.options.values())[0].SetFocus()
 
     def onOk(self, evt):
         backup, error = {}, False
         for k, v in configure.profile.items():
             try:
                 if isinstance(v.default_value, bool):
-                    backup[k] = configure.assign(k, self.CheckBox_settings[k].IsChecked())
+                    backup[k] = configure.assign(k, self.options[k].IsChecked())
                 elif isinstance(v.default_value, unicode):
-                    backup[k] = configure.assign(k, self.CheckBox_settings[k].GetValue())
+                    backup[k] = configure.assign(k, self.options[k].GetValue())
             except:
                 error = True
                 log.error("Failed setting configuration: " + k, exc_info=True)
