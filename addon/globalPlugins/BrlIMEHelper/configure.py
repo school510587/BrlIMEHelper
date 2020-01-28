@@ -23,6 +23,8 @@ try:
 except:
     pass
 
+NUM_BRAILLE_KEYS = 9
+
 ItemSpec = namedtuple("ItemSpec", ["label", "default_value", "allowed_values"])
 profile = OrderedDict()
 profile["AUTO_BRL_KEY"] = ItemSpec(
@@ -38,7 +40,7 @@ profile["DEFAULT_NO_ALPHANUMERIC_BRL_KEY"] = ItemSpec(
 profile["BRAILLE_KEYS"] = ItemSpec(
     label = _("Braille Keys (requires [OK] to take effect):"),
     default_value = " FDSJKLA;",
-    allowed_values = lambda bk: len(bk) == len(set(bk)) == 9 and
+    allowed_values = lambda bk: len(bk) == len(set(bk)) == NUM_BRAILLE_KEYS and
         all(ord(k) == windll.user32.MapVirtualKeyExW(VkKeyScanEx(k, getInputHkl())[1], MAPVK_VK_TO_CHAR, getInputHkl()) for k in bk),
 )
 profile["IGNORED_KEYS"] = ItemSpec(
