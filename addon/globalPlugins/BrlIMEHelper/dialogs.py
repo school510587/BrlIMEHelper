@@ -30,6 +30,26 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
     title = _("Braille IME Helper Settings")
     options = OrderedDict()
 
+    def __init__(self, parent):
+        try:
+            super(BrlIMEHelperSettingsDialog, self).__init__(parent, hasApplyButton=True)
+        except:
+            super(BrlIMEHelperSettingsDialog, self).__init__(parent)
+        apply_button = wx.FindWindowById(wx.ID_APPLY, self)
+        if apply_button is None:
+            log.debug("Try to reconstruct buttons in the bottom right corner for NVDA versions earlier than 2018.2.")
+            ok_button = wx.FindWindowById(wx.ID_OK, self)
+            cancel_button = wx.FindWindowById(wx.ID_CANCEL, self)
+            assert(ok_button.GetParent() is cancel_button.GetParent())
+            mainSizer = ok_button.GetParent().GetSizer()
+            if mainSizer.Remove(2): # The sizer containing [OK] and [Cancel] buttons is removed.
+                ok_button.Destroy()
+                cancel_button.Destroy()
+                mainSizer.Add(self.CreateButtonSizer(wx.OK|wx.CANCEL|wx.APPLY), border=guiHelper.BORDER_FOR_DIALOGS, flag=wx.ALL|wx.ALIGN_RIGHT)
+                mainSizer.Fit(self)
+            self.postInit()
+        self.Bind(wx.EVT_BUTTON, self.onApply, id=wx.ID_APPLY)
+
     def makeSettings(self, settingsSizer):
         sHelper = guiHelper.BoxSizerHelper(self, sizer=settingsSizer)
         for k, v in configure.profile.items():
@@ -45,6 +65,12 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
 
     def postInit(self):
         list(self.options.values())[0].SetFocus()
+
+    def onApply(self, evt):
+        if hasattr(BrlIMEHelperSettingsDialog.__base__, "onApply"):
+            super(BrlIMEHelperSettingsDialog, self).onApply(evt)
+        else:
+            self.postInit()
 
     def onOk(self, evt):
         backup, error = {}, False
