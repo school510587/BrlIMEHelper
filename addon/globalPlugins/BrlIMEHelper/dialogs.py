@@ -68,6 +68,10 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
 
     def onApply(self, evt):
         backup, error = {}, None
+        for k in ("BRAILLE_KEYS", "IGNORED_KEYS"):
+            p = self.options[k].GetInsertionPoint()
+            self.options[k].ChangeValue(self.options[k].GetValue().upper())
+            self.options[k].SetInsertionPoint(p)
         for k, v in configure.profile.items():
             try:
                 if isinstance(v.default_value, bool):
