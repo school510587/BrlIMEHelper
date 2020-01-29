@@ -38,13 +38,13 @@ profile["DEFAULT_NO_ALPHANUMERIC_BRL_KEY"] = ItemSpec(
     allowed_values = None,
 )
 profile["BRAILLE_KEYS"] = ItemSpec(
-    label = _("Braille Keys (requires [OK] to take effect):"),
+    label = _("Braille Keys:"),
     default_value = " FDSJKLA;",
     allowed_values = lambda bk: len(bk) == len(set(bk)) == NUM_BRAILLE_KEYS and
         all(ord(k) == windll.user32.MapVirtualKeyExW(VkKeyScanEx(k, getInputHkl())[1], MAPVK_VK_TO_CHAR, getInputHkl()) for k in bk),
 )
 profile["IGNORED_KEYS"] = ItemSpec(
-    label = _("Ignored Keys (requires [OK] to take effect):"),
+    label = _("Ignored Keys:"),
     default_value = "0123456789",
     allowed_values = lambda ik: len(ik) == len(set(ik)) and
         all(ord(k) == windll.user32.MapVirtualKeyExW(VkKeyScanEx(k, getInputHkl())[1], MAPVK_VK_TO_CHAR, getInputHkl()) for k in ik),
