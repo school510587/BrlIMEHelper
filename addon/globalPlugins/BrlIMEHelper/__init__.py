@@ -180,6 +180,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.timer = [None, ""] # A 2-tuple [timer object, string].
         configure.read()
         self.config_r = {
+            "kbbrl_deactivated": False,
             "kbbrl_enabled": False,
             "no_ASCII_kbbrl": configure.get("DEFAULT_NO_ALPHANUMERIC_BRL_KEY"),
         }
@@ -288,6 +289,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         # directly to NVDA:
         # (1) Any modifier key is held down.
         # (2) NVDA is in browse mode.
+        # (3) The "kbbrl_deactivated" flag is set.
         def on_browse_mode():
             try:
                 obj = api.getFocusObject()
@@ -295,7 +297,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             except:
                 pass
             return False
-        if currentModifiers or self._trappedNVDAModifiers or on_browse_mode():
+        if currentModifiers or self._trappedNVDAModifiers or on_browse_mode() or self.config_r["kbbrl_deactivated"]:
             if (vkCode, extended) not in self._trappedKeys:
                 self._modifiedKeys.add((vkCode, extended))
                 return self._oldKeyDown(vkCode, scanCode, extended, injected)
@@ -450,7 +452,9 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
 
     def onSettings(self, evt):
         from .dialogs import BrlIMEHelperSettingsDialog
-        gui.mainFrame._popupSettingsDialog(BrlIMEHelperSettingsDialog)
+        def set_deactivate_flag(b):
+            self.config_r["kbbrl_deactivated"] = b
+        gui.mainFrame._popupSettingsDialog(BrlIMEHelperSettingsDialog, set_deactivate_flag)
 
     def script_toggleBRLsimulation(self, gesture):
         if self.config_r["kbbrl_enabled"]:

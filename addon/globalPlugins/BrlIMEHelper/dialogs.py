@@ -30,11 +30,12 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
     title = _("Braille IME Helper Settings")
     options = OrderedDict()
 
-    def __init__(self, parent):
+    def __init__(self, parent, deactivate):
         try:
             super(BrlIMEHelperSettingsDialog, self).__init__(parent, hasApplyButton=True)
         except:
             super(BrlIMEHelperSettingsDialog, self).__init__(parent)
+        self.deactivate = deactivate
         apply_button = wx.FindWindowById(wx.ID_APPLY, self)
         if apply_button is None:
             log.debug("Try to reconstruct buttons in the bottom right corner for NVDA versions earlier than 2018.2.")
@@ -50,6 +51,10 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
             self.postInit()
         self.Bind(wx.EVT_BUTTON, self.onApply, id=wx.ID_APPLY)
 
+    def Destroy(self):
+        self.deactivate(False)
+        return super(BrlIMEHelperSettingsDialog, self).Destroy()
+
     def makeSettings(self, settingsSizer):
         sHelper = guiHelper.BoxSizerHelper(self, sizer=settingsSizer)
         for k, v in configure.profile.items():
@@ -62,6 +67,10 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
                 self.options[k].SetName(k)
                 self.options[k].ChangeValue(conf_value)
         self.options["BRAILLE_KEYS"].SetMaxLength(configure.NUM_BRAILLE_KEYS)
+        self.options["BRAILLE_KEYS"].Bind(wx.EVT_KILL_FOCUS, self.onKeysOptionKillFocus)
+        self.options["BRAILLE_KEYS"].Bind(wx.EVT_SET_FOCUS, self.onKeysOptionSetFocus)
+        self.options["IGNORED_KEYS"].Bind(wx.EVT_KILL_FOCUS, self.onKeysOptionKillFocus)
+        self.options["IGNORED_KEYS"].Bind(wx.EVT_SET_FOCUS, self.onKeysOptionSetFocus)
 
     def postInit(self):
         list(self.options.values())[0].SetFocus()
@@ -86,6 +95,12 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
             for k, v in backup.items():
                 configure.assign(k, v)
             self.options[error].SetFocus() # Where the first error occurs.
+
+    def onKeysOptionKillFocus(self, evt):
+        self.deactivate(False)
+
+    def onKeysOptionSetFocus(self, evt):
+        self.deactivate(True)
 
     def onOk(self, evt):
         try:
