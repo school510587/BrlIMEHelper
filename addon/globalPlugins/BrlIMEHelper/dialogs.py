@@ -67,13 +67,7 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
         list(self.options.values())[0].SetFocus()
 
     def onApply(self, evt):
-        if hasattr(BrlIMEHelperSettingsDialog.__base__, "onApply"):
-            super(BrlIMEHelperSettingsDialog, self).onApply(evt)
-        else:
-            self.postInit()
-
-    def onOk(self, evt):
-        backup, error = {}, False
+        backup, error = {}, None
         for k, v in configure.profile.items():
             try:
                 if isinstance(v.default_value, bool):
@@ -81,10 +75,17 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
                 elif isinstance(v.default_value, unicode):
                     backup[k] = configure.assign(k, self.options[k].GetValue())
             except:
-                error = True
+                error = k if error is None else error
                 log.error("Failed setting configuration: " + k, exc_info=True)
-        if error:
+        if error is not None:
             winsound.MessageBeep(winsound.MB_ICONHAND)
             for k, v in backup.items():
                 configure.assign(k, v)
+            self.options[error].SetFocus() # Where the first error occurs.
+
+    def onOk(self, evt):
+        try:
+            self.onApply(None)
+        except:
+            log.error("Cannot apply the settings", exc_info=True)
         return super(BrlIMEHelperSettingsDialog, self).onOk(evt)
