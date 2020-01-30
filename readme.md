@@ -33,21 +33,22 @@ Before installation, check the following environment settings:
         + Dots 1, 2, 3 + Space: Enable/Disable braille input simulation in IME alphanumeric mode.
     * Computer keyboard:
         + NVDA+X: Enable/Disable the feature of simulating braille keyboard by a computer keyboard.
-        + F, D, S, J, K, L, A, semicolon: Dot 1 through 8.
+        + F, D, S, J, K, L, A, semicolon `[;:]`, and space bar: Dot 1 through 8 and braille space.
         + 0 through 9: Reserved for number input and candidate word selection.
 - Remarks
     1. In alphanumeric mode, the effect is determined by NVDA's braille input table.
     2. The original NVDA behavior of dot 7, dot 8, and dot 7 + dot 8 is preserved in both modes.
     3. The addon do not influence other buttons on a braille display, such as buttons for scrolling and positioning.
-    4. Users may manage all above shortcuts via NVDA input gestures dialog.
+    4. Users may manage all above shortcuts via NVDA input gestures dialog and BrlIMEHelper settings dialog.
     5. If no composed character is spoken after composition completion, then IME may get stuck by unreasonable (phonetic) input.
+
+Particularly, users can determine positions of braille dots, braille space, and ignored (reserved) keys for braille keyboard simulation in BrlIMEHelper settings dialog. Braille keyboard simulation is automatically disabled when either of the "Braille Keys" or the "Ignored Keys" edit control is focused. Exact 9 braille keys are required, but number of ignored keys is unlimited. If a key appears in both options, "Braille Keys" takes precedence. After entering all key positions by single computer keyboard strokes, `[Apply]` or `[OK]` button press is necessary to take effect. Occasionally, the "Braille Keys" option may not fully work, because simultaneous transmission of some key commands is unsupported by internal design of your computer (or notebook) keyboard. Please change your configuration to find a set of feasible braille keys.
 
 ## Issues and ways of development
 - Known bugs:
     * When "Show messages indefinitely" option is enabled, the message does not disappear as the content of composition changes.
 - Possible improvements in the future:
     * Allow users to customize the default state of the addon.
-    * Allow users to customize position of simulated braille buttons on a computer keyboard.
     * Allow users to customize dot patterns of symbols, and/or to load dot patterns from braille translation tables.
     * Allow the addon to work with other IMEs.
     * Allow the addon to work with other bopomofo keyboard layouts.
