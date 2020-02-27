@@ -49,6 +49,11 @@ profile["IGNORED_KEYS"] = ItemSpec(
     allowed_values = lambda ik: len(ik) == len(set(ik)) and
         all(ord(k) == windll.user32.MapVirtualKeyExW(VkKeyScanEx(k, getInputHkl())[1], MAPVK_VK_TO_CHAR, getInputHkl()) for k in ik),
 )
+profile["FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"] = ItemSpec(
+    label = _("Free all non-braille keys during braille keyboard simulation in IME alphanumeric mode."),
+    default_value = False,
+    allowed_values = None,
+)
 runtime_conf = None
 
 _allowed = lambda value, allowed_values: True if allowed_values is None \
