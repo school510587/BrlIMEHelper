@@ -274,7 +274,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     self.send_keys(self.touched_keys)
                 else:
                     touched_chars = set(self.touched_keys.values())
-                    k_brl, k_ign = set(configure.get("BRAILLE_KEYS")) & touched_chars, set(configure.get("IGNORED_KEYS")) & touched_chars
+                    k_brl, k_ign = set(configure.get("BRAILLE_KEYS")) & touched_chars, touched_chars
+                    if self.inferBRLmode() & 1 or not configure.get("FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"):
+                        k_ign = set(configure.get("IGNORED_KEYS")) & k_ign # Not &= to avoid tamper of touched_chars.
                     if k_brl == touched_chars:
                         log.debug("keyup: send dot {0:08b} {1}".format(self._gesture.dots, self._gesture.space))
                         inputCore.manager.emulateGesture(self._gesture)
