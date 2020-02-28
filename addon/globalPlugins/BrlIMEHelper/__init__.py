@@ -274,12 +274,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     self.send_keys(self.touched_keys)
                 else:
                     touched_chars = set(self.touched_keys.values())
-                    k_brl, k_sel = set(configure.get("BRAILLE_KEYS")) & touched_chars, set(configure.get("IGNORED_KEYS")) & touched_chars
+                    k_brl, k_ign = set(configure.get("BRAILLE_KEYS")) & touched_chars, set(configure.get("IGNORED_KEYS")) & touched_chars
                     if k_brl == touched_chars:
                         log.debug("keyup: send dot {0:08b} {1}".format(self._gesture.dots, self._gesture.space))
                         inputCore.manager.emulateGesture(self._gesture)
-                    elif len(k_sel) == 1 and k_sel == touched_chars:
-                        (ch,) = k_sel
+                    elif len(k_ign) == 1 and k_ign == touched_chars:
+                        (ch,) = k_ign
                         self.send_keys(ch.lower())
                     else:
                         beep_typo()
