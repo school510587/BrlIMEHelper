@@ -4,6 +4,8 @@
 # See the file LICENSE for more details.
 
 from __future__ import unicode_literals
+from collections import Iterable
+from collections import Mapping
 from collections import OrderedDict
 import winsound
 import wx
@@ -63,9 +65,17 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
                 self.options[k] = sHelper.addItem(wx.CheckBox(self, name=k, label=v.label))
                 self.options[k].SetValue(conf_value)
             elif isinstance(conf_value, unicode):
-                self.options[k] = sHelper.addLabeledControl(v.label, wx.TextCtrl)
+                if isinstance(v.allowed_values, Iterable):
+                    if isinstance(v.allowed_values, Mapping): # Choice box with processed values.
+                        self.options[k] = sHelper.addLabeledControl(v.label, wx.Choice, choices=v.allowed_values.values())
+                        self.options[k].SetStringSelection(v.allowed_values[conf_value])
+                    else: # Choice box with raw values.
+                        self.options[k] = sHelper.addLabeledControl(v.label, wx.Choice, choices=v.allowed_values)
+                        self.options[k].SetStringSelection(conf_value)
+                else: # General textbox.
+                    self.options[k] = sHelper.addLabeledControl(v.label, wx.TextCtrl)
+                    self.options[k].ChangeValue(conf_value)
                 self.options[k].SetName(k)
-                self.options[k].ChangeValue(conf_value)
         self.options["BRAILLE_KEYS"].SetMaxLength(configure.NUM_BRAILLE_KEYS)
         self.options["BRAILLE_KEYS"].Bind(wx.EVT_KILL_FOCUS, self.onKeysOptionKillFocus)
         self.options["BRAILLE_KEYS"].Bind(wx.EVT_SET_FOCUS, self.onKeysOptionSetFocus)
@@ -86,7 +96,13 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
                 if isinstance(v.default_value, bool):
                     backup[k] = configure.assign(k, self.options[k].IsChecked())
                 elif isinstance(v.default_value, unicode):
-                    backup[k] = configure.assign(k, self.options[k].GetValue())
+                    if isinstance(v.allowed_values, Iterable):
+                        if isinstance(v.allowed_values, Mapping):
+                            backup[k] = configure.assign(k, list(v.allowed_values.keys())[self.options[k].GetSelection()])
+                        else:
+                            backup[k] = configure.assign(k, self.options[k].GetStringSelection())
+                    else:
+                        backup[k] = configure.assign(k, self.options[k].GetValue())
             except:
                 error = k if error is None else error
                 log.error("Failed setting configuration: " + k, exc_info=True)
