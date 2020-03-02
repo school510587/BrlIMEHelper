@@ -54,6 +54,12 @@ profile["FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"] = ItemSpec(
     default_value = False,
     allowed_values = None,
 )
+from . import keyboard
+profile["KEYBOARD_MAPPING"] = ItemSpec(
+    label = _("Keyboard Mapping:"),
+    default_value = "STANDARD",
+    allowed_values = keyboard.mapping,
+)
 runtime_conf = None
 
 _allowed = lambda value, allowed_values: True if allowed_values is None \
