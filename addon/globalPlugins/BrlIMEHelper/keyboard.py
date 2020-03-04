@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+﻿# -*- coding: UTF-8 -*-
 # Copyright (C) 2020 Bo-Cheng Jhan <school510587@yahoo.com.tw>
 # This file is covered by the GNU General Public License.
 # See the file LICENSE for more details.
@@ -13,7 +13,7 @@ mapping["STANDARD"] = _("Standard")
 mapping["ET"] = _("E Tian")
 mapping["IBM"] = _("IBM")
 mapping["GIN_YIEH"] = _("Gin Yieh")
-# Hanyu Pinyin
+mapping["HANYU_PINYIN"] = _("Hanyu Pinyin")
 # Secondary Bopomofo Pinyin
 
 # Layouts of keyboard mappings.
@@ -24,5 +24,10 @@ layout["STANDARD"] = dict(zip(layout_index, "1qaz2wsxedcrfv5tgbyhnujm8ik,9ol.0p;
 layout["ET"] = dict(zip(layout_index, "bpmfdtnlvkhg7c,./j;'sexuaorwiqzy890-= 2341"))
 layout["IBM"] = dict(zip(layout_index, "1234567890-qwertyuiopasdfghjkl;zxcvbn m,./"))
 layout["GIN_YIEH"] = dict(zip(layout_index, "2wsx3edcrfvtgb6yhnujm8ik,9ol.0p;/-['= qaz1"))
+layout["HANYU_PINYIN"] = dict(zip(layout_index, [
+    "b", "p", "m", "f", "d", "t", "n", "l", "g", "k", "h", "j", "q", "x",
+    "zh", "ch", "sh", "r", "z", "c", "s",
+    "i", "u", "u",
+])
 
 assert(set(mapping.keys()) == set(layout.keys()))
