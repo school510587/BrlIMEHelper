@@ -6,6 +6,21 @@
 from __future__ import unicode_literals
 from winVersion import winVersion
 
+class _Symbol2KeyDict(dict):
+    def __init__(self, *args, **kwargs):
+        self.__class__.__base__.__init__(self, *args, **kwargs)
+    def __getitem__(self, index):
+        try:
+            return self.__class__.__base__.__getitem__(self, index)
+        except KeyError:
+            if len(index) != 1:
+                raise
+            if winVersion.major >= 6: # Vista or later.
+                return "|".join("`u%04x " % (ord(index),))
+            elif ord(index) < 0x10000:
+                return "|".join("`u%04x" % (ord(index),))
+            raise # Bopomofo IME on WinXP does not support characters outside the BMP.
+
 bopomofo_to_keys = { # 標準注音鍵盤
     "ㄅ": "1",
     "ㄆ": "q",
@@ -51,40 +66,38 @@ bopomofo_to_keys = { # 標準注音鍵盤
     " ": " ",
 }
 
-symb2gesture = {
-    "UNICODE_PREFIX": "`u",
-    "UNICODE_SUFFIX": " ",
-    "※": "Control+Alt+,|r",
-    "←": "Control+Alt+,|b",
-    "↑": "Control+Alt+,|h",
-    "→": "Control+Alt+,|n",
-    "↓": "Control+Alt+,|j",
-    "─": "Control+Alt+,|z",
-    "、": "Control+'",
-    "。": "Control+.",
-    "「": "Control+Alt+,|=",
-    "」": "Control+Alt+,|\\",
-    "『": "Control+Alt+,|0",
-    "』": "Control+Alt+,|-",
-    "【": "Control+[",
-    "】": "Control+]",
-    "！": "Control+!",
-    "，": "Control+,",
-    "：": "Control+:",
-    "；": "Control+;",
-    "？": "Control+?",
-    "｛": "Control+{",
-    "｝": "Control+}",
-}
-if winVersion.major < 6: # WinXP
-    symb2gesture["UNICODE_SUFFIX"] = ""
+symb2gesture = _Symbol2KeyDict([
+    (" ", " "),
+    ("※", "Control+Alt+,|r"),
+    ("←", "Control+Alt+,|b"),
+    ("↑", "Control+Alt+,|h"),
+    ("→", "Control+Alt+,|n"),
+    ("↓", "Control+Alt+,|j"),
+    ("─", "Control+Alt+,|z"),
+    ("、", "Control+'"),
+    ("。", "Control+."),
+    ("「", "Control+Alt+,|="),
+    ("」", "Control+Alt+,|\\"),
+    ("『", "Control+Alt+,|0"),
+    ("』", "Control+Alt+,|-"),
+    ("【", "Control+["),
+    ("】", "Control+]"),
+    ("！", "Control+!"),
+    ("，", "Control+,"),
+    ("：", "Control+:"),
+    ("；", "Control+;"),
+    ("？", "Control+?"),
+    ("｛", "Control+{"),
+    ("｝", "Control+}"),
+])
 
 def from_str(string):
+    try: # Single-character cases.
+        return [symb2gesture[string]]
+    except:
+        pass
     cmd_list = []
     for c in string:
-        key_name_str = symb2gesture.get(c, bopomofo_to_keys.get(c))
-        if key_name_str is None: # Lookup failure.
-            key_name_str = "%s%04x%s" % (symb2gesture["UNICODE_PREFIX"], ord(c), symb2gesture["UNICODE_SUFFIX"])
-            key_name_str = "|".join(key_name_str) # Insert "|" between characters.
+        key_name_str = bopomofo_to_keys.get(c, symb2gesture[c])
         cmd_list.append(key_name_str)
     return cmd_list
