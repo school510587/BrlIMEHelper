@@ -89,51 +89,7 @@ def scan_thread_ids(addon_inst):
 from .brl_tables import *
 from .sounds import *
 from . import configure
-
-bopomofo_to_keys = { # 標準注音鍵盤
-        "ㄅ": "1",
-        "ㄆ": "q",
-        "ㄇ": "a",
-        "ㄈ": "z",
-        "ㄉ": "2",
-        "ㄊ": "w",
-        "ㄋ": "s",
-        "ㄌ": "x",
-        "ㄍ": "e",
-        "ㄎ": "d",
-        "ㄏ": "c",
-        "ㄐ": "r",
-        "ㄑ": "f",
-        "ㄒ": "v",
-        "ㄓ": "5",
-        "ㄔ": "t",
-        "ㄕ": "g",
-        "ㄖ": "b",
-        "ㄗ": "y",
-        "ㄘ": "h",
-        "ㄙ": "n",
-        "ㄧ": "u",
-        "ㄨ": "j",
-        "ㄩ": "m",
-        "ㄚ": "8",
-        "ㄛ": "i",
-        "ㄜ": "k",
-        "ㄝ": ",",
-        "ㄞ": "9",
-        "ㄟ": "o",
-        "ㄠ": "l",
-        "ㄡ": ".",
-        "ㄢ": "0",
-        "ㄣ": "p",
-        "ㄤ": ";",
-        "ㄥ": "/",
-        "ㄦ": "-",
-        "˙": "7",
-        "ˊ": "6",
-        "ˇ": "3",
-        "ˋ": "4",
-        " ": " ",
-}
+from . import keyboard
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     SCRCAT_BrlIMEHelper = _("Braille IME Helper")
@@ -143,32 +99,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     # by BRAILLE_KEYS and IGNORED_KEYS options, respectively. If the same
     # key is present in both options, the former takes precedence.
     ACC_KEYS = set(string.ascii_letters + string.digits + string.punctuation + " ")
-
-    symb2gesture = {
-        "UNICODE_PREFIX": "`u",
-        "UNICODE_SUFFIX": " ",
-        "※": "Control+Alt+,|r",
-        "←": "Control+Alt+,|b",
-        "↑": "Control+Alt+,|h",
-        "→": "Control+Alt+,|n",
-        "↓": "Control+Alt+,|j",
-        "─": "Control+Alt+,|z",
-        "、": "Control+'",
-        "。": "Control+.",
-        "「": "Control+Alt+,|=",
-        "」": "Control+Alt+,|\\",
-        "『": "Control+Alt+,|0",
-        "』": "Control+Alt+,|-",
-        "【": "Control+[",
-        "】": "Control+]",
-        "！": "Control+!",
-        "，": "Control+,",
-        "：": "Control+:",
-        "；": "Control+;",
-        "？": "Control+?",
-        "｛": "Control+{",
-        "｝": "Control+}",
-    }
 
     def __init__(self):
         super(GlobalPlugin, self).__init__()
@@ -186,8 +116,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         }
         _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputConversionModeUpdate", hack_nvdaControllerInternal_inputConversionModeUpdate)
         _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputLangChangeNotify", hack_nvdaControllerInternal_inputLangChangeNotify)
-        if winVersion.major < 6: # WinXP
-            del self.symb2gesture["UNICODE_SUFFIX"]
         if configure.get("AUTO_BRL_KEY"):
             self.enable()
         self.menu = wx.Menu()
@@ -379,13 +307,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def send_input_commands(self, string):
         try:
-            cmd_list = []
-            for c in string:
-                key_name_str = self.symb2gesture.get(c, bopomofo_to_keys.get(c))
-                if key_name_str is None: # Lookup failure.
-                    key_name_str = "%s%04x%s" % (self.symb2gesture["UNICODE_PREFIX"], ord(c), self.symb2gesture.get("UNICODE_SUFFIX", ""))
-                    key_name_str = "|".join(key_name_str) # Insert "|" between characters.
-                cmd_list.append(key_name_str)
+            cmd_list = keyboard.from_str(string)
             for cmd in cmd_list:
                 log.debug('Sending "%s"' % (cmd,))
                 self.send_keys(cmd)
