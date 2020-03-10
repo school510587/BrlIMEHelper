@@ -67,7 +67,7 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
             elif isinstance(conf_value, unicode):
                 if isinstance(v.allowed_values, Iterable):
                     if isinstance(v.allowed_values, Mapping): # Choice box with processed values.
-                        self.options[k] = sHelper.addLabeledControl(v.label, wx.Choice, choices=v.allowed_values.values())
+                        self.options[k] = sHelper.addLabeledControl(v.label, wx.Choice, choices=list(v.allowed_values.values()))
                         self.options[k].SetStringSelection(v.allowed_values[conf_value])
                     else: # Choice box with raw values.
                         self.options[k] = sHelper.addLabeledControl(v.label, wx.Choice, choices=v.allowed_values)
