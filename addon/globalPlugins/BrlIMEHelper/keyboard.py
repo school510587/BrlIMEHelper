@@ -6,6 +6,7 @@
 from __future__ import unicode_literals
 from collections import OrderedDict
 from winVersion import winVersion
+import re
 
 # Display names of keyboard mappings.
 # It must be ordered to keep the order of dialog options constant.
@@ -16,17 +17,6 @@ mapping["IBM"] = _("IBM")
 mapping["GIN_YIEH"] = _("Gin Yieh")
 # Hanyu Pinyin
 # Secondary Bopomofo Pinyin
-
-# Layouts of keyboard mappings.
-# Each layout is required to be a dict with all keys listed in layout_index.
-layout_index = "ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙㄧㄨㄩㄚㄛㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦ ˊˇˋ˙"
-layout = OrderedDict()
-layout["STANDARD"] = dict(zip(layout_index, "1qaz2wsxedcrfv5tgbyhnujm8ik,9ol.0p;/- 6347"))
-layout["ET"] = dict(zip(layout_index, "bpmfdtnlvkhg7c,./j;'sexuaorwiqzy890-= 2341"))
-layout["IBM"] = dict(zip(layout_index, "1234567890-qwertyuiopasdfghjkl;zxcvbn m,./"))
-layout["GIN_YIEH"] = dict(zip(layout_index, "2wsx3edcrfvtgb6yhnujm8ik,9ol.0p;/-['= qaz1"))
-
-assert(set(mapping.keys()) == set(layout.keys()))
 
 class _Symbol2KeyDict(dict):
     def __init__(self, *args, **kwargs):
@@ -42,8 +32,6 @@ class _Symbol2KeyDict(dict):
             elif ord(index) < 0x10000:
                 return "|".join("`u%04x" % (ord(index),))
             raise # Bopomofo IME on WinXP does not support characters outside the BMP.
-
-bopomofo_to_keys = layout["STANDARD"]
 
 symb2gesture = _Symbol2KeyDict([
     (" ", " "),
@@ -70,13 +58,48 @@ symb2gesture = _Symbol2KeyDict([
     ("｝", "Control+}"),
 ])
 
+class Translator:
+    layout_index = "ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙㄧㄨㄩㄚㄛㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦ ˊˇˋ˙"
+    def __init__(self, default_mapping, special_rules=None, sepchar="|"):
+        split = lambda s: list(s if sepchar == "" else s.split(sepchar))
+        self.default_map = dict(zip(Translator.layout_index, (split(k) for k in default_mapping)))
+        self.special_rules = []
+        if special_rules is not None:
+            for p in special_rules:
+                self.special_rules.append((re.compile(p[0], re.U), split(p[1])))
+    def convert(self, subject):
+        answer, skip = [], 0
+        for i in range(len(subject)):
+            if skip > 0:
+                skip -= 1
+                continue
+            prefix, sub = [], self.default_map.get(subject[i], [symb2gesture[subject[i]]])
+            for r in self.special_rules:
+                m = r[0].match(subject, i)
+                if m:
+                    if m.end(0) > m.start(0):
+                        skip = (m.end(0) - m.start(0)) - 1
+                        sub = r[1]
+                        break
+                    prefix += r[1]
+            answer.append(prefix + sub)
+        return answer
+
+# Layouts of keyboard mappings.
+# Each layout is required to be a dict with all keys listed in layout_index.
+layout = OrderedDict()
+layout["STANDARD"] = ("1qaz2wsxedcrfv5tgbyhnujm8ik,9ol.0p;/- 6347",)
+layout["ET"] = ("bpmfdtnlvkhg7c,./j;'sexuaorwiqzy890-= 2341",)
+layout["IBM"] = ("1234567890-qwertyuiopasdfghjkl;zxcvbn m,./",)
+layout["GIN_YIEH"] = ("2wsx3edcrfvtgb6yhnujm8ik,9ol.0p;/-['= qaz1",)
+
+assert(set(mapping.keys()) == set(layout.keys()))
+
+bopomofo_to_keys = Translator(*layout["STANDARD"])
+
 def from_str(string):
     try: # Single-character cases.
         return [symb2gesture[string]]
     except:
         pass
-    cmd_list = []
-    for c in string:
-        key_name_str = bopomofo_to_keys.get(c, symb2gesture[c])
-        cmd_list.append(key_name_str)
-    return cmd_list
+    return bopomofo_to_keys.convert(string)
