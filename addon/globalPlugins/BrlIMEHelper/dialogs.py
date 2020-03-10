@@ -32,12 +32,12 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
     title = _("Braille IME Helper Settings")
     options = OrderedDict()
 
-    def __init__(self, parent, deactivate):
+    def __init__(self, parent, deactivate, post_apply=lambda: 0):
         try:
             super(BrlIMEHelperSettingsDialog, self).__init__(parent, hasApplyButton=True)
         except:
             super(BrlIMEHelperSettingsDialog, self).__init__(parent)
-        self.deactivate = deactivate
+        self.deactivate, self.post_apply = deactivate, post_apply
         apply_button = wx.FindWindowById(wx.ID_APPLY, self)
         if apply_button is None:
             log.debug("Try to reconstruct buttons in the bottom right corner for NVDA versions earlier than 2018.2.")
@@ -111,6 +111,8 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
             for k, v in backup.items():
                 configure.assign(k, v)
             self.options[error].SetFocus() # Where the first error occurs.
+        else:
+            self.post_apply()
 
     def onKeysOptionKillFocus(self, evt):
         self.deactivate(False)
