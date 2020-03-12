@@ -68,6 +68,10 @@ class Translator:
             for p in special_rules:
                 self.special_rules.append((re.compile(p[0], re.U), split(p[1])))
     def convert(self, subject):
+        try: # Single-character cases.
+            return [symb2gesture[subject]]
+        except:
+            pass
         answer, skip = [], 0
         for i in range(len(subject)):
             if skip > 0:
@@ -98,8 +102,4 @@ assert(set(mapping.keys()) == set(layout.keys()))
 bopomofo_to_keys = Translator(*layout["STANDARD"])
 
 def from_str(string):
-    try: # Single-character cases.
-        return [symb2gesture[string]]
-    except:
-        pass
     return bopomofo_to_keys.convert(string)
