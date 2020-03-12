@@ -106,12 +106,17 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
             except:
                 error = k if error is None else error
                 log.error("Failed setting configuration: " + k, exc_info=True)
+        if error is None:
+            try:
+                self.post_apply()
+            except:
+                log.warning("Cannot apply the configuration", exc_info=True)
+                error = list(configure.profile.keys())[0]
         if error is not None:
             winsound.MessageBeep(winsound.MB_ICONHAND)
             for k, v in backup.items():
                 configure.assign(k, v)
             self.options[error].SetFocus() # Where the first error occurs.
-        else:
             self.post_apply()
 
     def onKeysOptionKillFocus(self, evt):
