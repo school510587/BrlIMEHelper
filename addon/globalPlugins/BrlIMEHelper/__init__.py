@@ -130,6 +130,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             _("Braille IME Helper"),
             # Translators: Tooltip of BrlIMEHelper configuration item in NVDA tools menu.
             _("Configure Braille IME Helper"))
+        self.applyConfig()
 
     def terminate(self):
         try:
@@ -143,6 +144,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.scanner.join()
         self.disable()
         configure.write()
+
+    def applyConfig(self):
+        pass
 
     def clear(self, brl_buffer=True, join_timer=True):
         if self.timer[0]:
@@ -378,7 +382,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         from .dialogs import BrlIMEHelperSettingsDialog
         def set_deactivate_flag(b):
             self.config_r["kbbrl_deactivated"] = b
-        gui.mainFrame._popupSettingsDialog(BrlIMEHelperSettingsDialog, set_deactivate_flag)
+        gui.mainFrame._popupSettingsDialog(BrlIMEHelperSettingsDialog, set_deactivate_flag, self.applyConfig)
 
     def script_toggleBRLsimulation(self, gesture):
         if self.config_r["kbbrl_enabled"]:
