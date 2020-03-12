@@ -98,8 +98,3 @@ layout["IBM"] = ("1234567890-qwertyuiopasdfghjkl;zxcvbn m,./",)
 layout["GIN_YIEH"] = ("2wsx3edcrfvtgb6yhnujm8ik,9ol.0p;/-['= qaz1",)
 
 assert(set(mapping.keys()) == set(layout.keys()))
-
-bopomofo_to_keys = Translator(*layout["STANDARD"])
-
-def from_str(string):
-    return bopomofo_to_keys.convert(string)

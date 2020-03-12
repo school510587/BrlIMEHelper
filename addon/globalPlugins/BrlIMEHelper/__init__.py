@@ -146,7 +146,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         configure.write()
 
     def applyConfig(self):
-        pass
+        self.kbmap = keyboard.Translator(*keyboard.layout[configure.get("KEYBOARD_MAPPING")])
 
     def clear(self, brl_buffer=True, join_timer=True):
         if self.timer[0]:
@@ -313,7 +313,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def send_input_commands(self, string):
         try:
-            cmd_list = keyboard.from_str(string)
+            cmd_list = self.kbmap.convert(string)
             for cmd in cmd_list:
                 log.debug('Sending "%s"' % (cmd,))
                 self.send_keys(cmd)
