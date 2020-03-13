@@ -15,7 +15,7 @@ mapping["STANDARD"] = _("Standard")
 mapping["ET"] = _("E Tian")
 mapping["IBM"] = _("IBM")
 mapping["GIN_YIEH"] = _("Gin Yieh")
-# Hanyu Pinyin
+mapping["HANYU_PINYIN"] = _("Hanyu Pinyin")
 # Secondary Bopomofo Pinyin
 
 class _Symbol2KeyDict(dict):
@@ -96,5 +96,23 @@ layout["STANDARD"] = ("1qaz2wsxedcrfv5tgbyhnujm8ik,9ol.0p;/- 6347",)
 layout["ET"] = ("bpmfdtnlvkhg7c,./j;'sexuaorwiqzy890-= 2341",)
 layout["IBM"] = ("1234567890-qwertyuiopasdfghjkl;zxcvbn m,./",)
 layout["GIN_YIEH"] = ("2wsx3edcrfvtgb6yhnujm8ik,9ol.0p;/-['= qaz1",)
+layout["HANYU_PINYIN"] = ([
+        "b", "p", "m", "f", "d", "t", "n", "l", "g", "k", "h", "j", "q", "x", "zh", "ch", "sh", "r", "z", "c", "s",
+        "yi", "wu", "yu", "a", "o", "e", "e", "ai", "ei", "ao", "ou", "an", "en", "ang", "eng", "er",
+        "1", "2", "3", "4", "5",
+    ], [
+        (r"(?<=[ㄓㄔㄕㄖㄗㄘㄙ])(?![ㄨㄚㄜㄞㄟㄠㄡㄢㄣㄤㄥ])", "i"),
+        (r"(?<=[ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒ])ㄧ", "i"),
+        (r"ㄧ(?=[ㄚㄛㄝㄞㄠㄡㄢㄤ])", "y"),
+        (r"(?<=[ㄉㄊㄋㄌㄍㄎㄏㄓㄔㄕㄖㄗㄘㄙ])ㄨ(?=ㄥ)", "o"),
+        (r"(?<=[ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄓㄔㄕㄖㄗㄘㄙ])ㄨ", "u"),
+        (r"ㄨ(?=[ㄚㄛㄞㄟㄢㄣㄤㄥ])", "w"),
+        (r"(?<=[ㄋㄌ])ㄩ(?![ㄝㄢㄣㄥ])", "v"),
+        (r"(?<=[ㄐㄑㄒ])ㄩ(?=ㄥ)", "io"),
+        (r"(?<=[ㄋㄌㄐㄑㄒ])ㄩ", "u"),
+        (r"ㄩ(?=ㄥ)", "yo"),
+        (r"(?<=[ㄧㄩ])ㄣ", "n"),
+        (r"(?<=[ㄧㄨㄩ])ㄥ", "ng"),
+    ], "")
 
 assert(set(mapping.keys()) == set(layout.keys()))
