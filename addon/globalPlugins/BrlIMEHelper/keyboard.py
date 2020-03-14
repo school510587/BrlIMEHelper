@@ -28,7 +28,7 @@ mapping["ET"] = _("E Tian")
 mapping["IBM"] = _("IBM")
 mapping["GIN_YIEH"] = _("Gin Yieh")
 mapping["HANYU_PINYIN"] = _("Hanyu Pinyin")
-# Secondary Bopomofo Pinyin
+mapping["MPS2_PINYIN"] = _("Secondary Bopomofo Pinyin")
 
 class _Symbol2KeyDict(dict):
     def __init__(self, *args, **kwargs):
@@ -123,6 +123,22 @@ layout["HANYU_PINYIN"] = ([
         (r"(?<=[ㄐㄑㄒ])ㄩ(?=ㄥ)", "io"),
         (r"(?<=[ㄋㄌㄐㄑㄒ])ㄩ", "u"),
         (r"ㄩ(?=ㄥ)", "yo"),
+        (r"(?<=[ㄧㄩ])ㄣ", "n"),
+        (r"(?<=[ㄧㄨㄩ])ㄥ", "ng"),
+    ], "")
+layout["MPS2_PINYIN"] = ([
+        "b", "p", "m", "f", "d", "t", "n", "l", "g", "k", "h", "j", "ch", "sh", "j", "ch", "sh", "r", "tz", "ts", "s",
+        "yi", "wu", "yu", "a", "o", "e", "e", "ai", "ei", "au", "ou", "an", "en", "ang", "eng", "er",
+        "1", "2", "3", "4", "5",
+    ], [
+        (r"(?<=[ㄓㄔㄕ])(?![ㄨㄚㄜㄞㄟㄠㄡㄢㄣㄤㄥ])", "r"),
+        (r"(?<=[ㄘㄙ])(?![ㄨㄚㄜㄞㄟㄠㄡㄢㄣㄤㄥ])", "z"),
+        (r"(?<=[ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒ])ㄧ", "i"),
+        (r"ㄧ(?=[ㄚㄛㄝㄞㄠㄡㄢㄤ])", "y"),
+        (r"(?<![ㄉㄊㄋㄌㄍㄎㄏㄓㄔㄕㄖㄗㄘㄙ])ㄨ(?=ㄥ)", "we"),
+        (r"(?<=[ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄓㄔㄕㄖㄗㄘㄙ])ㄨ", "u"),
+        (r"ㄨ(?=[ㄚㄛㄞㄟㄢㄣㄤㄥ])", "w"),
+        (r"(?<=[ㄋㄌㄐㄑㄒ])ㄩ", "iu"),
         (r"(?<=[ㄧㄩ])ㄣ", "n"),
         (r"(?<=[ㄧㄨㄩ])ㄥ", "ng"),
     ], "")
