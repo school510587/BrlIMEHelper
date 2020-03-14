@@ -3,10 +3,22 @@
 # This file is covered by the GNU General Public License.
 # See the file LICENSE for more details.
 
+from __future__ import print_function
 from __future__ import unicode_literals
 from collections import OrderedDict
-from winVersion import winVersion
 import re
+
+try: # On NVDA.
+    from winVersion import winVersion
+except: # NVDA-independent execution.
+    import sys
+    winVersion = sys.getwindowsversion()
+
+try:
+    _("")
+except NameError: # NVDA-independent execution.
+    import gettext
+    gettext.install("") # Install _() into builtins namespace.
 
 # Display names of keyboard mappings.
 # It must be ordered to keep the order of dialog options constant.
@@ -116,3 +128,6 @@ layout["HANYU_PINYIN"] = ([
     ], "")
 
 assert(set(mapping.keys()) == set(layout.keys()))
+
+if __name__ == "__main__":
+    pass
