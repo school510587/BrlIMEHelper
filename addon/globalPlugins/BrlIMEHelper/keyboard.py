@@ -24,12 +24,12 @@ except NameError: # NVDA-independent execution.
 # It must be ordered to keep the order of dialog options constant.
 mapping = OrderedDict()
 mapping["STANDARD"] = _("Standard")
-mapping["ET"] = _("E Tian")
+mapping["E_TIAN"] = _("E Tian")
 mapping["IBM"] = _("IBM")
-mapping["GIN_YIEH"] = _("Gin Yieh")
+mapping["JING_YE"] = _("Gin Yieh")
 mapping["HANYU_PINYIN"] = _("Hanyu Pinyin")
-mapping["MPS2_PINYIN"] = _("Secondary Bopomofo Pinyin")
-mapping["THL_PINYIN"] = _("Tongyong Pinyin")
+mapping["SECONDARY_BOPOMOFO_PINYIN"] = _("Secondary Bopomofo Pinyin")
+mapping["TONGYONG_PINYIN"] = _("Tongyong Pinyin")
 
 class _Symbol2KeyDict(dict):
     def __init__(self, *args, **kwargs):
@@ -106,9 +106,9 @@ class Translator:
 # Each layout is required to be a dict with all keys listed in layout_index.
 layout = OrderedDict()
 layout["STANDARD"] = ("1qaz2wsxedcrfv5tgbyhnujm8ik,9ol.0p;/- 6347",)
-layout["ET"] = ("bpmfdtnlvkhg7c,./j;'sexuaorwiqzy890-= 2341",)
+layout["E_TIAN"] = ("bpmfdtnlvkhg7c,./j;'sexuaorwiqzy890-= 2341",)
 layout["IBM"] = ("1234567890-qwertyuiopasdfghjkl;zxcvbn m,./",)
-layout["GIN_YIEH"] = ("2wsx3edcrfvtgb6yhnujm8ik,9ol.0p;/-['= qaz1",)
+layout["JING_YE"] = ("2wsx3edcrfvtgb6yhnujm8ik,9ol.0p;/-['= qaz1",)
 layout["HANYU_PINYIN"] = ([
         "b", "p", "m", "f", "d", "t", "n", "l", "g", "k", "h", "j", "q", "x", "zh", "ch", "sh", "r", "z", "c", "s",
         "yi", "wu", "yu", "a", "o", "e", "e", "ai", "ei", "ao", "ou", "an", "en", "ang", "eng", "er",
@@ -127,7 +127,7 @@ layout["HANYU_PINYIN"] = ([
         (r"(?<=[ㄧㄩ])ㄣ", "n"),
         (r"(?<=[ㄧㄨㄩ])ㄥ", "ng"),
     ], "")
-layout["MPS2_PINYIN"] = ([
+layout["SECONDARY_BOPOMOFO_PINYIN"] = ([
         "b", "p", "m", "f", "d", "t", "n", "l", "g", "k", "h", "j", "ch", "sh", "j", "ch", "sh", "r", "tz", "ts", "s",
         "yi", "wu", "yu", "a", "o", "e", "e", "ai", "ei", "au", "ou", "an", "en", "ang", "eng", "er",
         "1", "2", "3", "4", "5",
@@ -143,7 +143,7 @@ layout["MPS2_PINYIN"] = ([
         (r"(?<=[ㄧㄩ])ㄣ", "n"),
         (r"(?<=[ㄧㄨㄩ])ㄥ", "ng"),
     ], "")
-layout["THL_PINYIN"] = ([
+layout["TONGYONG_PINYIN"] = ([
         "b", "p", "m", "f", "d", "t", "n", "l", "g", "k", "h", "j", "c", "s", "jh", "ch", "sh", "r", "z", "c", "s",
         "yi", "wu", "yu", "a", "o", "e", "e", "ai", "ei", "ao", "ou", "an", "en", "ang", "eng", "er",
         "1", "2", "3", "4", "5",
