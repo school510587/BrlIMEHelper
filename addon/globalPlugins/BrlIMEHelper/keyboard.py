@@ -8,6 +8,13 @@ from __future__ import unicode_literals
 from collections import OrderedDict
 import re
 
+import addonHandler
+
+try:
+    addonHandler.initTranslation()
+except:
+    log.warning("Exception occurred when loading translation.", exc_info=True)
+
 try: # On NVDA.
     from winVersion import winVersion
 except: # NVDA-independent execution.
