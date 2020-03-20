@@ -10,6 +10,7 @@ Braille IME Helper (BrlIMEHelper) enables users to input Chinese characters dire
 3. Allowing system and NVDA keyboard shortcuts.
 4. Different braille composition modes for different windows.
 5. Allowing password input on a web browser by the braille keyboard.
+6. Various customization options from users' feedback.
 
 ## System and environment requirements
 Before installation, check the following environment settings:
@@ -108,3 +109,8 @@ Particularly, users can determine positions of braille dots, braille space, and 
 * Use a more proper sound effect for the warning of typo.
 * Allow users to customize positions of braille keys and ignored keys on a computer keyboard.
 * Add an `[Apply]` button into the settings dialog.
+
+### Version 1.2
+* Allow users to ignore all non-braille keys during braille keyboard simulation in alphanumeric mode.
+* Add "Keyboard Mapping" option corresponding to the keyboard mapping option of 微軟注音 IME.
+* Allow braille input of rhymes with ⡼ prefix.
