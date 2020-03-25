@@ -48,6 +48,7 @@ Particularly, users can determine positions of braille dots, braille space, and 
 ## Issues and ways of development
 - Known bugs:
     * When "Show messages indefinitely" option is enabled, the message does not disappear as the content of composition changes.
+    * NVDA braille does not reflect immediately as user input in "Braille Keys" and "Ignored Keys" edit controls.
 - Possible improvements in the future:
     * Allow users to customize the default state of the addon.
     * Allow users to customize dot patterns of symbols, and/or to load dot patterns from braille translation tables.
