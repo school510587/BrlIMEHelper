@@ -254,7 +254,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             if dot == 1:
                 self._gesture.space = True
             self._gesture.dots |= dot >> 1
-        else: log.debug("keydown: num = %s" % (ch,))
+        else:
+            log.debug("keydown: ignored = %s" % (ch,))
         return False
 
     def _keyUp(self, vkCode, scanCode, extended, injected):
