@@ -165,6 +165,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self._trappedKeys = set()
         self._trappedNVDAModifiers = set()
         self._gesture = None
+        self._uncommittedDots = 0 # Dots recorded by NumPad keys.
 
     def enable(self):
         if self.config_r["kbbrl_enabled"]:
@@ -215,8 +216,29 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return self._oldKeyDown(vkCode, scanCode, extended, injected)
         # Don't process any numpad key.
         if vkCode & 0xF0 == 0x60:
-            self._modifiedKeys.add((vkCode, extended))
-            return self._oldKeyDown(vkCode, scanCode, extended, injected)
+            key_id, dots = vkCode & 0x0F, 0
+            try:
+                if currentModifiers or self._trappedNVDAModifiers:
+                    raise NotImplementedError # Modified numpad keys.
+                elif 0x00 <= key_id <= 0x08: # VK_NUMPAD0 to VK_NUMPAD8
+                    dots = self._uncommittedDots | (1 << key_id)
+                elif key_id == 0x09: # VK_NUMPAD9 = 0x69
+                    pass # self._uncommittedDots is cleared.
+                elif key_id == 0x0E: # VK_DECIMAL = 0x6E
+                    if not self._uncommittedDots:
+                        raise NotImplementedError # No uncommitted dots.
+                    self._gesture = brailleInput.BrailleInputGesture()
+                    self._gesture.space = bool(self._uncommittedDots & 0x01)
+                    self._gesture.dots = self._uncommittedDots >> 1
+                else:
+                    raise NotImplementedError # Unused numpad keys.
+            except NotImplementedError:
+                self._modifiedKeys.add((vkCode, extended))
+                return self._oldKeyDown(vkCode, scanCode, extended, injected)
+            finally:
+                self._uncommittedDots = dots
+            self._trappedKeys.add((vkCode, extended))
+            return False
         # In some cases, a key not previously trapped must be passed
         # directly to NVDA:
         # (1) Any modifier key is held down.
@@ -291,6 +313,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                             self.send_keys(ch.lower())
                         else:
                             beep_typo()
+                        self._uncommittedDots = 0
                 else:
                     if self._gesture is not None:
                         inputCore.manager.emulateGesture(self._gesture)
