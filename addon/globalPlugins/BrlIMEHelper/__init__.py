@@ -230,6 +230,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     self._gesture = brailleInput.BrailleInputGesture()
                     self._gesture.space = bool(self._uncommittedDots & 0x01)
                     self._gesture.dots = self._uncommittedDots >> 1
+                elif key_id == 0x0F: # VK_DIVIDE = 0x6F
+                    dots = self._uncommittedDots
+                    scriptHandler.queueScript(self.script_viewBRLbuffer, None)
                 else:
                     raise NotImplementedError # Unused numpad keys.
             except NotImplementedError:
@@ -495,8 +498,10 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
 
     def script_viewBRLbuffer(self, gesture):
         hint = self.brl_state.hint_msg(self.brl_str, "")
-        if hint:
-            queueHandler.queueFunction(queueHandler.eventQueue, ui.message, hint)
+        numpad_state = "".join(str(i) for i in range(9) if self._uncommittedDots & (1 << i))
+        info = (("{0} ", "")[hint == ""] + ("#{1}", "")[numpad_state == ""]).format(hint, numpad_state)
+        if info:
+            queueHandler.queueFunction(queueHandler.eventQueue, ui.message, info)
         else:
             winsound.MessageBeep()
     # Translators: Name of a command to view braille buffer.
