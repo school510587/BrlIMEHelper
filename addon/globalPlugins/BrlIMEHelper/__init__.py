@@ -160,7 +160,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def initKBBRL(self): # Members for keyboard BRL simulation.
         self.ignore_injected_keys = ([], [])
-        self.touched_keys = OrderedDict()
+        self.touched_mainKB_keys = OrderedDict()
         self._modifiedKeys = set()
         self._trappedKeys = set()
         self._trappedNVDAModifiers = set()
@@ -245,8 +245,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 return self._oldKeyDown(vkCode, scanCode, extended, injected)
             dot = 0
         self._trappedKeys.add((vkCode, extended))
-        if (vkCode, extended) not in self.touched_keys:
-            self.touched_keys[(vkCode, extended)] = ch
+        if (vkCode, extended) not in self.touched_mainKB_keys:
+            self.touched_mainKB_keys[(vkCode, extended)] = ch
         if dot:
             if not self._gesture:
                 self._gesture = brailleInput.BrailleInputGesture()
@@ -276,9 +276,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if not self._trappedKeys: # A session ends.
             try: # Select an action to perform, either BRL or SEL.
                 if self.config_r["no_ASCII_kbbrl"] and not(self.inferBRLmode() & 1) and not(self._gesture and self._gesture.dots and self._gesture.space):
-                    self.send_keys(self.touched_keys)
+                    self.send_keys(self.touched_mainKB_keys)
                 else:
-                    touched_chars = set(self.touched_keys.values())
+                    touched_chars = set(self.touched_mainKB_keys.values())
                     k_brl, k_ign = set(configure.get("BRAILLE_KEYS")) & touched_chars, touched_chars
                     if self.inferBRLmode() & 1 or not configure.get("FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"):
                         k_ign = set(configure.get("IGNORED_KEYS")) & k_ign # Not &= to avoid tamper of touched_chars.
@@ -293,7 +293,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             except inputCore.NoInputGestureAction:
                 pass
             self._gesture = None
-            self.touched_keys.clear()
+            self.touched_mainKB_keys.clear()
         return False
 
     def send_keys(self, keys):
