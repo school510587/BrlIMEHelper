@@ -275,21 +275,25 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return self._oldKeyUp(vkCode, scanCode, extended, injected)
         if not self._trappedKeys: # A session ends.
             try: # Select an action to perform, either BRL or SEL.
-                if self.config_r["no_ASCII_kbbrl"] and not(self.inferBRLmode() & 1) and not(self._gesture and self._gesture.dots and self._gesture.space):
-                    self.send_keys(self.touched_mainKB_keys)
-                else:
-                    touched_chars = set(self.touched_mainKB_keys.values())
-                    k_brl, k_ign = set(configure.get("BRAILLE_KEYS")) & touched_chars, touched_chars
-                    if self.inferBRLmode() & 1 or not configure.get("FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"):
-                        k_ign = set(configure.get("IGNORED_KEYS")) & k_ign # Not &= to avoid tamper of touched_chars.
-                    if k_brl == touched_chars:
-                        log.debug("keyup: send dot {0:08b} {1}".format(self._gesture.dots, self._gesture.space))
-                        inputCore.manager.emulateGesture(self._gesture)
-                    elif len(k_ign) == 1 and k_ign == touched_chars:
-                        (ch,) = k_ign
-                        self.send_keys(ch.lower())
+                if self.touched_mainKB_keys:
+                    if self.config_r["no_ASCII_kbbrl"] and not(self.inferBRLmode() & 1) and not(self._gesture and self._gesture.dots and self._gesture.space):
+                        self.send_keys(self.touched_mainKB_keys)
                     else:
-                        beep_typo()
+                        touched_chars = set(self.touched_mainKB_keys.values())
+                        k_brl, k_ign = set(configure.get("BRAILLE_KEYS")) & touched_chars, touched_chars
+                        if self.inferBRLmode() & 1 or not configure.get("FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"):
+                            k_ign = set(configure.get("IGNORED_KEYS")) & k_ign # Not &= to avoid tamper of touched_chars.
+                        if k_brl == touched_chars:
+                            log.debug("keyup: send dot {0:08b} {1}".format(self._gesture.dots, self._gesture.space))
+                            inputCore.manager.emulateGesture(self._gesture)
+                        elif len(k_ign) == 1 and k_ign == touched_chars:
+                            (ch,) = k_ign
+                            self.send_keys(ch.lower())
+                        else:
+                            beep_typo()
+                else:
+                    if self._gesture is not None:
+                        inputCore.manager.emulateGesture(self._gesture)
             except inputCore.NoInputGestureAction:
                 pass
             self._gesture = None
