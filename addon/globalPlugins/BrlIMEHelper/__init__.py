@@ -218,8 +218,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if vkCode & 0xF0 == 0x60:
             key_id, dots = vkCode & 0x0F, 0
             try:
-                if currentModifiers or self._trappedNVDAModifiers:
-                    raise NotImplementedError # Modified numpad keys.
+                if currentModifiers or self._trappedNVDAModifiers or not configure.get("DEFAULT_SEPARATED_BRL_INPUT_BY_NUMPAD"):
+                    raise NotImplementedError # Modified numpad keys, or the feature is not enabled.
                 elif 0x00 <= key_id <= 0x08: # VK_NUMPAD0 to VK_NUMPAD8
                     dots = self._uncommittedDots | (1 << key_id)
                 elif key_id == 0x09: # VK_NUMPAD9 = 0x69
