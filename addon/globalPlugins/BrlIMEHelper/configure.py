@@ -15,6 +15,8 @@ from winUser import *
 import addonHandler
 import config
 
+from . import keyboard
+
 try: unicode
 except NameError: unicode = str
 
@@ -54,7 +56,6 @@ profile["FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"] = ItemSpec(
     default_value = False,
     allowed_values = None,
 )
-from . import keyboard
 profile["KEYBOARD_MAPPING"] = ItemSpec(
     label = _("Keyboard Mapping:"),
     default_value = "STANDARD",
