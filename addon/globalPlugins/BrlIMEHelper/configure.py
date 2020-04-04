@@ -61,6 +61,11 @@ profile["KEYBOARD_MAPPING"] = ItemSpec(
     default_value = "STANDARD",
     allowed_values = keyboard.mapping,
 )
+profile["DEFAULT_SEPARATED_BRL_INPUT_BY_NUMPAD"] = ItemSpec(
+    label = _("Allow separated braille input by numpad during braille keyboard simulation."),
+    default_value = False,
+    allowed_values = None,
+)
 runtime_conf = None
 
 _allowed = lambda value, allowed_values: True if allowed_values is None \
