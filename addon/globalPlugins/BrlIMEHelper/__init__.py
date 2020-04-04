@@ -498,7 +498,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
 
     def script_viewBRLbuffer(self, gesture):
         hint = self.brl_state.hint_msg(self.brl_str, "")
-        numpad_state = "".join(str(i) for i in range(9) if self._uncommittedDots & (1 << i))
+        numpad_state = "".join(str(i) for i in range(configure.NUM_BRAILLE_KEYS) if self._uncommittedDots & (1 << i))
         info = (("{0} ", "")[hint == ""] + ("#{1}", "")[numpad_state == ""]).format(hint, numpad_state)
         if info:
             queueHandler.queueFunction(queueHandler.eventQueue, ui.message, info)
