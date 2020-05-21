@@ -15,7 +15,7 @@ except: # Python 2 does not have partialmethod.
     from types import MethodType
     monkey_method = lambda m, cls: MethodType(m, None, cls)
 from serial.win32 import INVALID_HANDLE_VALUE
-from threading import Thread, Timer
+from threading import Timer
 import os
 import string
 import winsound
@@ -44,52 +44,30 @@ try:
 except:
     log.warning("Exception occurred when loading translation.", exc_info=True)
 
+from .brl_tables import *
+from .runtime_state import thread_states
+from .sounds import *
+from . import configure
+from . import keyboard
+
 from NVDAHelper import localLib
 from NVDAHelper import nvdaControllerInternal_inputConversionModeUpdate
 from NVDAHelper import nvdaControllerInternal_inputLangChangeNotify
 from NVDAHelper import _setDllFuncPointer
-thread_states = {}
 kl, layout = None, None
 # Note: Monkeying handleInputConversionModeUpdate does not work.
 @WINFUNCTYPE(c_long, c_long, c_long, c_ulong)
 def hack_nvdaControllerInternal_inputConversionModeUpdate(oldFlags, newFlags, lcid):
     global thread_states
-    pid = getWindowThreadProcessID(getForegroundWindow())[0]
-    new_record = dict(zip(("mode", "layout"), (newFlags, "")))
-    if pid in thread_states: new_record["layout"] = thread_states[pid]["layout"]
-    thread_states[pid] = new_record
+    pid = thread_states.update_foreground(mode=newFlags)
     log.debug('Logged IME mode change: pid={pid}, layout="{layout}", mode={mode}'.format(pid=pid, **thread_states[pid]))
     return nvdaControllerInternal_inputConversionModeUpdate(c_long(oldFlags), c_long(newFlags), c_ulong(lcid))
 @WINFUNCTYPE(c_long, c_long, c_ulong, c_wchar_p)
 def hack_nvdaControllerInternal_inputLangChangeNotify(threadID, hkl, layoutString):
     global thread_states
-    pid = getWindowThreadProcessID(getForegroundWindow())[0]
-    new_record = dict(zip(("mode", "layout"), (None, layoutString)))
-    if pid in thread_states: new_record["mode"] = thread_states[pid]["mode"]
-    thread_states[pid] = new_record
+    pid = thread_states.update_foreground(layout=layoutString)
     log.debug('Logged IME language change: pid={pid}, layout="{layout}", mode={mode}'.format(pid=pid, **thread_states[pid]))
     return nvdaControllerInternal_inputLangChangeNotify(threadID, hkl, layoutString)
-
-def scan_thread_ids(addon_inst):
-    from time import sleep
-    global thread_states
-    while addon_inst.running:
-        try:
-            for pid in list(thread_states): # Use list() to avoid runtime error by size change.
-                h = windll.Kernel32.OpenProcess(0x100000, 0, pid) # With SYNCHRONIZE access.
-                if h: # The process exists.
-                    windll.Kernel32.CloseHandle(h)
-                else:
-                    del thread_states[pid]
-                    log.debug("Killed pid=%d" % (pid,))
-        except:
-            log.error("scan_thread_ids", exc_info=True)
-        sleep(0.01)
-
-from .brl_tables import *
-from .sounds import *
-from . import configure
-from . import keyboard
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     SCRCAT_BrlIMEHelper = _("Braille IME Helper")
@@ -104,9 +82,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         super(GlobalPlugin, self).__init__()
         self.brl_state = brl_buf_state(os.path.join(os.path.dirname(__file__), str("bopomofo.json")), lambda m: log.error(m, exc_info=True))
         self.last_foreground = INVALID_HANDLE_VALUE
-        self.running = True
-        self.scanner = Thread(target=scan_thread_ids, args=(self,))
-        self.scanner.start()
+        thread_states.start_scan()
         self.timer = [None, ""] # A 2-tuple [timer object, string].
         configure.read()
         self.config_r = {
@@ -140,8 +116,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputConversionModeUpdate", nvdaControllerInternal_inputConversionModeUpdate)
         _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputLangChangeNotify", nvdaControllerInternal_inputLangChangeNotify)
         self.clear()
-        self.running = False
-        self.scanner.join()
+        thread_states.stop_scan()
         self.disable()
         configure.write()
 
