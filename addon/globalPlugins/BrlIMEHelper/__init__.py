@@ -49,24 +49,7 @@ from .runtime_state import thread_states
 from .sounds import *
 from . import configure
 from . import keyboard
-
-from NVDAHelper import localLib
-from NVDAHelper import nvdaControllerInternal_inputConversionModeUpdate
-from NVDAHelper import nvdaControllerInternal_inputLangChangeNotify
-from NVDAHelper import _setDllFuncPointer
-# Note: Monkeying handleInputConversionModeUpdate does not work.
-@WINFUNCTYPE(c_long, c_long, c_long, c_ulong)
-def hack_nvdaControllerInternal_inputConversionModeUpdate(oldFlags, newFlags, lcid):
-    global thread_states
-    pid = thread_states.update_foreground(mode=newFlags)
-    log.debug('Logged IME mode change: pid={pid}, layout="{layout}", mode={mode}'.format(pid=pid, **thread_states[pid]))
-    return nvdaControllerInternal_inputConversionModeUpdate(c_long(oldFlags), c_long(newFlags), c_ulong(lcid))
-@WINFUNCTYPE(c_long, c_long, c_ulong, c_wchar_p)
-def hack_nvdaControllerInternal_inputLangChangeNotify(threadID, hkl, layoutString):
-    global thread_states
-    pid = thread_states.update_foreground(layout=layoutString)
-    log.debug('Logged IME language change: pid={pid}, layout="{layout}", mode={mode}'.format(pid=pid, **thread_states[pid]))
-    return nvdaControllerInternal_inputLangChangeNotify(threadID, hkl, layoutString)
+import hack_IME
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     SCRCAT_BrlIMEHelper = _("Braille IME Helper")
@@ -89,8 +72,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             "kbbrl_enabled": False,
             "no_ASCII_kbbrl": configure.get("DEFAULT_NO_ALPHANUMERIC_BRL_KEY"),
         }
-        _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputConversionModeUpdate", hack_nvdaControllerInternal_inputConversionModeUpdate)
-        _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputLangChangeNotify", hack_nvdaControllerInternal_inputLangChangeNotify)
+        hack_IME.install()
         if configure.get("AUTO_BRL_KEY"):
             self.enable()
         self.menu = wx.Menu()
@@ -112,8 +94,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             gui.mainFrame.sysTrayIcon.toolsMenu.RemoveItem(self.BrlIMEHelper_item)
         except:
             pass
-        _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputConversionModeUpdate", nvdaControllerInternal_inputConversionModeUpdate)
-        _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputLangChangeNotify", nvdaControllerInternal_inputLangChangeNotify)
+        hack_IME.uninstall()
         self.clear()
         thread_states.stop_scan()
         self.disable()
