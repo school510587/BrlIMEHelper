@@ -54,7 +54,6 @@ from NVDAHelper import localLib
 from NVDAHelper import nvdaControllerInternal_inputConversionModeUpdate
 from NVDAHelper import nvdaControllerInternal_inputLangChangeNotify
 from NVDAHelper import _setDllFuncPointer
-kl, layout = None, None
 # Note: Monkeying handleInputConversionModeUpdate does not work.
 @WINFUNCTYPE(c_long, c_long, c_long, c_ulong)
 def hack_nvdaControllerInternal_inputConversionModeUpdate(oldFlags, newFlags, lcid):
