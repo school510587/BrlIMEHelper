@@ -11,9 +11,11 @@ from logHandler import log
 
 addon_dir = os.path.dirname(__file__)
 
-def beep_typo():
+def _play_sound_hint(wav_path, replacement_winsound):
     try:
-        playWaveFile(os.path.join(addon_dir, str("beep_typo.wav")))
+        playWaveFile(os.path.join(addon_dir, str(wav_path)))
     except:
-        log.error("Error playing sound file: beep_typo.wav", exc_info=True)
-        winsound.MessageBeep(winsound.MB_ICONEXCLAMATION)
+        log.error("Error playing sound file: {0}".format(wav_path), exc_info=True)
+        winsound.MessageBeep(replacement_winsound)
+
+beep_typo = lambda: _play_sound_hint("beep_typo.wav", winsound.MB_ICONEXCLAMATION)
