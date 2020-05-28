@@ -97,7 +97,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         hack_IME.uninstall()
         self.clear()
         thread_states.stop_scan()
-        self.disable()
+        try:
+            self.disable()
+        except:
+            pass
         configure.write()
 
     def applyConfig(self):
@@ -124,7 +127,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def enable(self):
         if self.config_r["kbbrl_enabled"]:
-            return
+            raise RuntimeError("Invalid call of enable().")
         self.initKBBRL()
         def hack_kb_send(addon, *args):
             log.debug("Running monkeyed KeyboardInputGesture.send")
@@ -144,7 +147,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def disable(self):
         if not self.config_r["kbbrl_enabled"]:
-            return False
+            raise RuntimeError("Invalid call of disable().")
         winInputHook.keyDownCallback = self._oldKeyDown
         winInputHook.keyUpCallback = self._oldKeyUp
         KeyboardInputGesture.send = self.real_kb_send
