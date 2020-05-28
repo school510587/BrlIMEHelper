@@ -125,7 +125,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self._gesture = None
         self._uncommittedDots = 0 # Dots recorded by NumPad keys.
 
-    def enable(self):
+    def enable(self, beep=False):
         if self.config_r["kbbrl_enabled"]:
             raise RuntimeError("Invalid call of enable().")
         self.initKBBRL()
@@ -144,8 +144,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self._oldKeyUp = winInputHook.keyUpCallback
         winInputHook.keyUpCallback = self._keyUp
         self.config_r["kbbrl_enabled"] = True
+        if beep:
+            beep_enable()
 
-    def disable(self):
+    def disable(self, beep=False):
         if not self.config_r["kbbrl_enabled"]:
             raise RuntimeError("Invalid call of disable().")
         winInputHook.keyDownCallback = self._oldKeyDown
@@ -154,6 +156,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self._gesture = None
         self._trappedKeys = None
         self.config_r["kbbrl_enabled"] = False
+        if beep:
+            beep_disable()
 
     def _keyDown(self, vkCode, scanCode, extended, injected):
         log.debug("keydown: vk = 0x%02X%s" % (vkCode, ", injected" if injected else ""))
