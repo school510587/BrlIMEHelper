@@ -379,13 +379,21 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
 
     def script_toggleBRLsimulation(self, gesture):
         if self.config_r["kbbrl_enabled"]:
-            self.disable()
-            # Translators: Reported when braille input from the PC keyboard is disabled.
-            ui.message(_("Disabled: Simulating braille keyboard by a computer keyboard."))
+            if configure.get("BRL_KB_SIMULATION_HINT") == "audio":
+                self.disable(beep=True)
+            else:
+                self.disable()
+                if configure.get("BRL_KB_SIMULATION_HINT") == "ui.message":
+                    # Translators: Reported when braille input from the PC keyboard is disabled.
+                    ui.message(_("Disabled: Simulating braille keyboard by a computer keyboard."))
         else:
-            self.enable()
-            # Translators: Reported when braille input from the PC keyboard is enabled.
-            ui.message(_("Enabled: Simulating braille keyboard by a computer keyboard."))
+            if configure.get("BRL_KB_SIMULATION_HINT") == "audio":
+                self.enable(beep=True)
+            else:
+                self.enable()
+                if configure.get("BRL_KB_SIMULATION_HINT") == "ui.message":
+                    # Translators: Reported when braille input from the PC keyboard is enabled.
+                    ui.message(_("Enabled: Simulating braille keyboard by a computer keyboard."))
     # Translators: Name of a command to toggle braille input from a computer keyboard.
     script_toggleBRLsimulation.__doc__ = _("Toggles braille input from a computer keyboard.")
     script_toggleBRLsimulation.category = SCRCAT_BrlIMEHelper
