@@ -75,6 +75,19 @@ profile["CBRLKB_MANUAL_TOGGLE_HINT"] = ItemSpec(
         ("none", _("None")),
     ]),
 )
+profile["ONE_CBRLKB_TOGGLE_STATE"] = ItemSpec(
+    label = _("Consistent braille keyboard simulation toggle state for all processes."),
+    default_value = True,
+    allowed_values = None,
+)
+profile["CBRLKB_AUTO_TOGGLE_HINT"] = ItemSpec(
+    label = _("Indication of automatic toggle of braille keyboard simulation:"),
+    default_value = "audio",
+    allowed_values = OrderedDict([
+        ("audio", _("Audio")),
+        ("none", _("None")),
+    ]),
+)
 runtime_conf = None
 
 _allowed = lambda value, allowed_values: True if allowed_values is None \
