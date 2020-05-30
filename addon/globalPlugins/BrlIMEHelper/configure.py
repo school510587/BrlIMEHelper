@@ -75,6 +75,19 @@ profile["BRL_KB_SIMULATION_HINT"] = ItemSpec(
         ("none", _("None")),
     ]),
 )
+profile["IND_BRL_KEY_4EACH_PROCESS"] = ItemSpec(
+    label = _("Independent braille keyboard simulation state for each process."),
+    default_value = False,
+    allowed_values = None,
+)
+profile["BRL_KB_SIMULATION_AUTO_HINT"] = ItemSpec(
+    label = _("Indication of automatic switching braille keyboard simulation:"),
+    default_value = "audio",
+    allowed_values = OrderedDict([
+        ("audio", _("Audio")),
+        ("none", _("None")),
+    ]),
+)
 runtime_conf = None
 
 _allowed = lambda value, allowed_values: True if allowed_values is None \
