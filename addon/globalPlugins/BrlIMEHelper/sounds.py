@@ -3,19 +3,22 @@
 # This file is covered by the GNU General Public License.
 # See the file LICENSE for more details.
 
-import os.path
-import winsound
+from winsound import *
+import os
 
-from nvwave import playWaveFile
 from logHandler import log
 
 addon_dir = os.path.dirname(__file__)
 
 def _play_sound_hint(wav_path, replacement_winsound):
     try:
-        playWaveFile(os.path.join(addon_dir, str(wav_path)))
+        wav_path = os.path.join(addon_dir, str(wav_path))
+        if os.access(wav_path, os.R_OK):
+            PlaySound(wav_path, SND_FILENAME|SND_ASYNC|SND_NODEFAULT)
+        else:
+            raise IOError("Failed to access {0}".format(wav_path))
     except:
         log.error("Error playing sound file: {0}".format(wav_path), exc_info=True)
-        winsound.MessageBeep(replacement_winsound)
+        PlaySound(replacement_winsound, SND_ALIAS|SND_ASYNC)
 
-beep_typo = lambda: _play_sound_hint("beep_typo.wav", winsound.MB_ICONEXCLAMATION)
+beep_typo = lambda: _play_sound_hint("beep_typo.wav", "SystemExclamation")
