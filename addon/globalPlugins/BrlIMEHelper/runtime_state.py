@@ -14,16 +14,32 @@ import os
 from logHandler import log
 from winUser import *
 
+from . import configure
+
 class _Runtime_States(defaultdict):
     def __init__(self):
-        super(self.__class__, self).__init__(lambda: copy({"mode": None, "layout": ""}))
+        super(self.__class__, self).__init__(lambda: copy({"mode": None, "layout": "", "cbrlkb": configure.get("AUTO_BRL_KEY")}))
+        self.cbrlkb = configure.profile["AUTO_BRL_KEY"].default_value
         self.scanning = False
         self.scanner = None
     def __del__(self):
         self.stop_scan()
+    def __getitem__(self, key):
+        item = super(self.__class__, self).__getitem__(key)
+        if not configure.get("IND_BRL_KEY_4EACH_PROCESS"):
+            item["cbrlkb"] = self.cbrlkb
+        return item
     def __missing__(self, key):
         log.debug("Create entry for pid={0}".format(key))
         return super(self.__class__, self).__missing__(key)
+    def reset_cbrlkb_state(self):
+        auto_cbrlkb = configure.get("AUTO_BRL_KEY")
+        for pid in list(self): # Use list() to avoid runtime error by size change.
+            try:
+                self[pid]["cbrlkb"] = auto_cbrlkb
+                log.debug("Reset cbrlkb state for pid=%d" % (pid,))
+            except:
+                log.error("Failed to reset cbrlkb state for pid=%d" % (pid,), exc_info=True)
     def start_scan(self):
         def scan_and_clear_unused_entries(self):
             while self.scanning:
