@@ -13,9 +13,12 @@ import os
 from logHandler import log
 from winUser import *
 
+from . import configure
+
 class _Runtime_States(defaultdict):
     def __init__(self):
-        super(self.__class__, self).__init__(lambda: {"mode": None, "layout": ""})
+        super(self.__class__, self).__init__(lambda: {"mode": None, "layout": "", "cbrlkb": configure.get("AUTO_BRL_KEY")})
+        self.cbrlkb = configure.profile["AUTO_BRL_KEY"].default_value
         self.scanning = False
         self.scanner = None
     def __del__(self):
