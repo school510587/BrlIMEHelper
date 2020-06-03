@@ -67,7 +67,7 @@ profile["DEFAULT_SEPARATED_BRL_INPUT_BY_NUMPAD"] = ItemSpec(
     allowed_values = None,
 )
 profile["BRL_KB_SIMULATION_HINT"] = ItemSpec(
-    label = _("Indication of braille keyboard simulation:"),
+    label = _("Indication of manual switching braille keyboard simulation:"),
     default_value = "ui.message",
     allowed_values = OrderedDict([
         ("ui.message", _("Speech and/or braille")),
