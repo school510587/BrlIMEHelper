@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 from collections import defaultdict
 from copy import copy
 from ctypes import windll
+from serial.win32 import INVALID_HANDLE_VALUE
 from threading import Thread
 from time import sleep
 import os
@@ -32,6 +33,12 @@ class _Runtime_States(defaultdict):
     def __missing__(self, key):
         log.debug("Create entry for pid={0}".format(key))
         return super(self.__class__, self).__missing__(key)
+    def get_by_hwnd(self, hwnd):
+        if hwnd == INVALID_HANDLE_VALUE:
+            raise KeyError("Invalid window handle")
+        pid = getWindowThreadProcessID(hwnd)[0]
+        log.debug("Get item by hwnd={0} => pid={1}".format(hwnd, pid))
+        return self[pid]
     def reset_cbrlkb_state(self):
         auto_cbrlkb = configure.get("AUTO_BRL_KEY")
         for pid in list(self): # Use list() to avoid runtime error by size change.
