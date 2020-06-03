@@ -20,14 +20,14 @@ from .runtime_state import thread_states
 def hack_nvdaControllerInternal_inputConversionModeUpdate(oldFlags, newFlags, lcid):
     global thread_states
     pid = thread_states.update_foreground(mode=newFlags)
-    log.debug('Logged IME mode change: pid={pid}, layout="{layout}", mode={mode}'.format(pid=pid, **thread_states[pid]))
+    log.debug("IME mode update: oldFlags={0}, newFlags={1}, lcid={2} (IME layout: {3})".format(oldFlags, newFlags, lcid, thread_states[pid]["layout"]))
     return nvdaControllerInternal_inputConversionModeUpdate(c_long(oldFlags), c_long(newFlags), c_ulong(lcid))
 
 @WINFUNCTYPE(c_long, c_long, c_ulong, c_wchar_p)
 def hack_nvdaControllerInternal_inputLangChangeNotify(threadID, hkl, layoutString):
     global thread_states
     pid = thread_states.update_foreground(layout=layoutString)
-    log.debug('Logged IME language change: pid={pid}, layout="{layout}", mode={mode}'.format(pid=pid, **thread_states[pid]))
+    log.debug("IME language change: thread={0}, hkl={1}, layout={2} (IME mode: {3})".format(threadID, hkl, layoutString, thread_states[pid]["mode"]))
     return nvdaControllerInternal_inputLangChangeNotify(threadID, hkl, layoutString)
 
 def install():
