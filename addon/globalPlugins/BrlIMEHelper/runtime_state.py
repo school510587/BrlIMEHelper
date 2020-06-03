@@ -70,10 +70,10 @@ class _Runtime_States(defaultdict):
             self.scanner.join()
             self.scanner = None
     def update_foreground(self, **kwargs):
-        pid = getWindowThreadProcessID(getForegroundWindow())[0]
-        log.debug("Update entry {0} for pid={1}".format(kwargs, pid))
-        self[pid].update(kwargs)
-        return pid
+        item = self.get_by_hwnd(getForegroundWindow())
+        log.debug("Update this item by {0}".format(kwargs))
+        item.update(kwargs)
+        return item
     def update_self(self, **kwargs):
         pid = os.getpid()
         log.debug("Update entry {0} for NVDA itself (pid={1})".format(kwargs, pid))
