@@ -73,6 +73,8 @@ class _Runtime_States(defaultdict):
         item = self.get_by_hwnd(getForegroundWindow())
         log.debug("Update this item by {0}".format(kwargs))
         item.update(kwargs)
+        if "cbrlkb" in kwargs and not configure.get("IND_BRL_KEY_4EACH_PROCESS"):
+            self.cbrlkb = kwargs["cbrlkb"]
         return item
     def update_self(self, **kwargs):
         pid = os.getpid()
