@@ -18,7 +18,7 @@ from . import configure
 class _Runtime_States(defaultdict):
     def __init__(self):
         super(self.__class__, self).__init__(lambda: {"mode": None, "layout": "", "cbrlkb": configure.get("AUTO_BRL_KEY")})
-        self.cbrlkb = configure.profile["AUTO_BRL_KEY"].default_value
+        self._cbrlkb = configure.profile["AUTO_BRL_KEY"].default_value
         self.scanning = False
         self.scanner = None
     def __del__(self):
@@ -29,19 +29,27 @@ class _Runtime_States(defaultdict):
     def foreground_process_change_notify(self, new_pid):
         if configure.get("ONE_CBRLKB_TOGGLE_STATE"):
             return 0
-        result, self.cbrlkb = (self[new_pid]["cbrlkb"] - self.cbrlkb), self[new_pid]["cbrlkb"]
+        result, self._cbrlkb = (self[new_pid]["cbrlkb"] - self._cbrlkb), self[new_pid]["cbrlkb"]
         return result
+    @property
+    def cbrlkb(self):
+        return self._cbrlkb
+    @cbrlkb.setter
+    def cbrlkb(self, value):
+        self._cbrlkb = bool(value)
+        if not configure.get("ONE_CBRLKB_TOGGLE_STATE"):
+            self.update_foreground(cbrlkb=self._cbrlkb)
     def reset_cbrlkb_state(self):
-        old_cbrlkb_state = self.cbrlkb
+        old_cbrlkb_state = self._cbrlkb
         if configure.get("ONE_CBRLKB_TOGGLE_STATE"):
-            self.cbrlkb = configure.get("AUTO_BRL_KEY")
+            self._cbrlkb = configure.get("AUTO_BRL_KEY")
         for pid in list(self): # Use list() to avoid runtime error by size change.
             try:
-                self[pid]["cbrlkb"] = self.cbrlkb
-                log.debug("Set cbrlkb state of pid={0} to {1}".format(pid, self.cbrlkb))
+                self[pid]["cbrlkb"] = self._cbrlkb
+                log.debug("Set cbrlkb state of pid={0} to {1}".format(pid, self._cbrlkb))
             except:
                 log.warning("Failed to set cbrlkb state for pid={0}".format(pid), exc_info=True)
-        return self.cbrlkb - old_cbrlkb_state
+        return self._cbrlkb - old_cbrlkb_state
     def start_scan(self):
         def scan_and_clear_unused_entries(self):
             while self.scanning:
