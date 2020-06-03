@@ -112,7 +112,7 @@ def get(key):
     try:
         return runtime_conf[key]
     except:
-        log.warning("Failed reading configuration: " + k)
+        log.warning("Option {0} has not been set. The default value will be returned.".format(key))
     return profile[key].default_value
 
 def read():
