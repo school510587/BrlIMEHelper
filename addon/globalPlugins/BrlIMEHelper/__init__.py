@@ -69,7 +69,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         configure.read()
         self.config_r = {
             "kbbrl_deactivated": False,
-            "kbbrl_enabled": False,
             "no_ASCII_kbbrl": configure.get("DEFAULT_NO_ALPHANUMERIC_BRL_KEY"),
         }
         hack_IME.install()
@@ -126,12 +125,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self._uncommittedDots = 0 # Dots recorded by NumPad keys.
 
     def enable(self, beep=False):
-        if self.config_r["kbbrl_enabled"]:
+        if thread_states.cbrlkb:
             raise RuntimeError("Invalid call of enable().")
         self.initKBBRL()
         def hack_kb_send(addon, *args):
             log.debug("Running monkeyed KeyboardInputGesture.send")
-            if not args[0].isModifier and not args[0].modifiers and addon.config_r["kbbrl_enabled"]:
+            if not args[0].isModifier and not args[0].modifiers and thread_states.cbrlkb:
                 addon.ignore_injected_keys[0].append((args[0].vkCode, args[0].scanCode, args[0].isExtended))
                 addon.ignore_injected_keys[1].append(addon.ignore_injected_keys[0][-1])
             return addon.real_kb_send(*args)
@@ -143,19 +142,19 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         winInputHook.keyDownCallback = self._keyDown
         self._oldKeyUp = winInputHook.keyUpCallback
         winInputHook.keyUpCallback = self._keyUp
-        self.config_r["kbbrl_enabled"] = True
+        thread_states.cbrlkb = True
         if beep:
             beep_enable()
 
     def disable(self, beep=False):
-        if not self.config_r["kbbrl_enabled"]:
+        if not thread_states.cbrlkb:
             raise RuntimeError("Invalid call of disable().")
         winInputHook.keyDownCallback = self._oldKeyDown
         winInputHook.keyUpCallback = self._oldKeyUp
         KeyboardInputGesture.send = self.real_kb_send
         self._gesture = None
         self._trappedKeys = None
-        self.config_r["kbbrl_enabled"] = False
+        thread_states.cbrlkb = False
         if beep:
             beep_disable()
 
@@ -378,7 +377,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         gui.mainFrame._popupSettingsDialog(BrlIMEHelperSettingsDialog, set_deactivate_flag, self.applyConfig)
 
     def script_toggleBRLsimulation(self, gesture):
-        if self.config_r["kbbrl_enabled"]:
+        if thread_states.cbrlkb:
             if configure.get("BRL_KB_SIMULATION_HINT") == "audio":
                 self.disable(beep=True)
             else:
