@@ -20,7 +20,7 @@ from . import configure
 class _Runtime_States(defaultdict):
     def __init__(self):
         super(self.__class__, self).__init__(lambda: copy({"mode": None, "layout": "", "cbrlkb": configure.get("AUTO_BRL_KEY")}))
-        self.cbrlkb = configure.profile["AUTO_BRL_KEY"].default_value
+        self._cbrlkb = configure.profile["AUTO_BRL_KEY"].default_value
         self.scanning = False
         self.scanner = None
     def __del__(self):
@@ -28,11 +28,20 @@ class _Runtime_States(defaultdict):
     def __getitem__(self, key):
         item = super(self.__class__, self).__getitem__(key)
         if not configure.get("IND_BRL_KEY_4EACH_PROCESS"):
-            item["cbrlkb"] = self.cbrlkb
+            item["cbrlkb"] = self._cbrlkb
         return item
     def __missing__(self, key):
         log.debug("Create entry for pid={0}".format(key))
         return super(self.__class__, self).__missing__(key)
+    @property
+    def cbrlkb(self):
+        return self.get_by_hwnd(getForegroundWindow())["cbrlkb"] if configure.get("IND_BRL_KEY_4EACH_PROCESS") else self._cbrlkb
+    @cbrlkb.setter
+    def cbrlkb(self, value):
+        if configure.get("IND_BRL_KEY_4EACH_PROCESS"):
+            self.get_by_hwnd(getForegroundWindow())["cbrlkb"] = bool(value)
+        else:
+            self._cbrlkb = bool(value)
     def get_by_hwnd(self, hwnd):
         if hwnd == INVALID_HANDLE_VALUE:
             raise KeyError("Invalid window handle")
@@ -74,7 +83,7 @@ class _Runtime_States(defaultdict):
         log.debug("Update this item by {0}".format(kwargs))
         item.update(kwargs)
         if "cbrlkb" in kwargs and not configure.get("IND_BRL_KEY_4EACH_PROCESS"):
-            self.cbrlkb = kwargs["cbrlkb"]
+            self._cbrlkb = kwargs["cbrlkb"]
         return item
     def update_self(self, **kwargs):
         pid = os.getpid()
