@@ -73,7 +73,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         }
         hack_IME.install()
         if configure.get("AUTO_BRL_KEY"):
-            self.enable()
+            self.enable(beep=(configure.get("BRL_KB_SIMULATION_AUTO_HINT") == "audio"))
         self.menu = wx.Menu()
         # Translators: Menu item of BrlIMEHelper settings.
         self.menuitem4Settings = self.menu.Append(wx.ID_ANY, _("&Settings..."))
