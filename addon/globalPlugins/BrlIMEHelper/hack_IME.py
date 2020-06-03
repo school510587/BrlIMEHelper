@@ -19,15 +19,23 @@ from .runtime_state import thread_states
 @WINFUNCTYPE(c_long, c_long, c_long, c_ulong)
 def hack_nvdaControllerInternal_inputConversionModeUpdate(oldFlags, newFlags, lcid):
     global thread_states
-    item = thread_states.update_foreground(mode=newFlags)
-    log.debug("IME mode update: oldFlags={0}, newFlags={1}, lcid={2} (IME layout: {3})".format(oldFlags, newFlags, lcid, item["layout"]))
+    log.debug("IME conversion mode update: oldFlags={0}, newFlags={1}, lcid={2}".format(oldFlags, newFlags, lcid))
+    try:
+        item = thread_states.update_foreground(mode=newFlags)
+        log.debug("IME status: {0}".format(item))
+    except:
+        log.error("IME conversion mode update failure", exc_info=True)
     return nvdaControllerInternal_inputConversionModeUpdate(c_long(oldFlags), c_long(newFlags), c_ulong(lcid))
 
 @WINFUNCTYPE(c_long, c_long, c_ulong, c_wchar_p)
 def hack_nvdaControllerInternal_inputLangChangeNotify(threadID, hkl, layoutString):
     global thread_states
-    item = thread_states.update_foreground(layout=layoutString)
-    log.debug("IME language change: thread={0}, hkl={1}, layout={2} (IME mode: {3})".format(threadID, hkl, layoutString, item["mode"]))
+    log.debug("IME language change: thread={0}, hkl={1}, layoutString={2}".format(threadID, hkl, layoutString))
+    try:
+        item = thread_states.update_foreground(layout=layoutString)
+        log.debug("IME status: {0}".format(item))
+    except:
+        log.error("IME language change failure", exc_info=True)
     return nvdaControllerInternal_inputLangChangeNotify(threadID, hkl, layoutString)
 
 def install():
