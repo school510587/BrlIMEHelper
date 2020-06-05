@@ -68,6 +68,6 @@ class _Runtime_States(defaultdict):
         pid = getWindowThreadProcessID(getForegroundWindow())[0]
         log.debug("Update entry {0} for pid={1}".format(kwargs, pid))
         self[pid].update(kwargs)
-        return pid
+        return self[pid]
 
 thread_states = _Runtime_States()
