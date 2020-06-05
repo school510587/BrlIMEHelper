@@ -26,6 +26,11 @@ class _Runtime_States(defaultdict):
     def __missing__(self, key):
         log.debug("Create entry for pid={0}".format(key))
         return super(self.__class__, self).__missing__(key)
+    def foreground_process_change_notify(self, new_pid):
+        if configure.get("ONE_CBRLKB_TOGGLE_STATE"):
+            return 0
+        result, self.cbrlkb = (self[new_pid]["cbrlkb"] - self.cbrlkb), self[new_pid]["cbrlkb"]
+        return result
     def reset_cbrlkb_state(self):
         old_cbrlkb_state = self.cbrlkb
         if configure.get("ONE_CBRLKB_TOGGLE_STATE"):
