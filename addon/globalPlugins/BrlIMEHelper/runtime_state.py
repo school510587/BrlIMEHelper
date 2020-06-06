@@ -5,7 +5,6 @@
 
 from __future__ import unicode_literals
 from collections import defaultdict
-from copy import copy
 from ctypes import windll
 from threading import Thread
 from time import sleep
@@ -16,7 +15,7 @@ from winUser import *
 
 class _Runtime_States(defaultdict):
     def __init__(self):
-        super(self.__class__, self).__init__(lambda: copy({"mode": None, "layout": ""}))
+        super(self.__class__, self).__init__(lambda: {"mode": None, "layout": ""})
         self.scanning = False
         self.scanner = None
     def __del__(self):
