@@ -26,6 +26,17 @@ class _Runtime_States(defaultdict):
     def __missing__(self, key):
         log.debug("Create entry for pid={0}".format(key))
         return super(self.__class__, self).__missing__(key)
+    def reset_cbrlkb_state(self):
+        old_cbrlkb_state = self.cbrlkb
+        if configure.get("ONE_CBRLKB_TOGGLE_STATE"):
+            self.cbrlkb = configure.get("AUTO_BRL_KEY")
+        for pid in list(self): # Use list() to avoid runtime error by size change.
+            try:
+                self[pid]["cbrlkb"] = self.cbrlkb
+                log.debug("Set cbrlkb state of pid={0} to {1}".format(pid, self.cbrlkb))
+            except:
+                log.warning("Failed to set cbrlkb state for pid={0}".format(pid), exc_info=True)
+        return self.cbrlkb - old_cbrlkb_state
     def start_scan(self):
         def scan_and_clear_unused_entries(self):
             while self.scanning:
