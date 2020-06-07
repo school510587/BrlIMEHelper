@@ -492,7 +492,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     script_viewBRLbuffer.category = SCRCAT_BrlIMEHelper
 
     __gestures = {
-        "kb:NVDA+x": "toggleBRLsimulation",
+        "kb:NVDA+control+6": "toggleBRLsimulation",
         "bk:dots": "BRLdots",
         "bk:dot2+dot4+dot5+space": "clearBRLbuffer",
         "bk:dot1+dot2+dot3+space": "toggleAlphaModeBRLsimulation",
