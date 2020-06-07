@@ -19,7 +19,7 @@ addon_info = {
     # Translators: Long description to be shown for this add-on on add-on information from add-ons manager
     "addon_description" : _("""Converts braille input into IME operations."""),
     # Version
-    "addon_version" : "1.2",
+    "addon_version" : "2.0",
     # Author(s)
     "addon_author" : u"Bo-Cheng Jhan <school510587@yahoo.com.tw>",
     # URL for the add-on documentation support
@@ -29,7 +29,7 @@ addon_info = {
     # Minimum NVDA version supported (e.g. "2018.3.0", minor version is optional)
     "addon_minimumNVDAVersion" : "2017.3",
     # Last NVDA version supported/tested (e.g. "2018.4.0", ideally more recent than minimum version)
-    "addon_lastTestedNVDAVersion" : "2019.3",
+    "addon_lastTestedNVDAVersion" : "2020.1",
     # Add-on update channel (default is stable or None)
     "addon_updateChannel" : None,
 }
