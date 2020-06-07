@@ -33,7 +33,7 @@ Before installation, check the following environment settings:
         + Dots 2, 4, 5 + Space: Clear braille buffer on typo to re-enter the correct content.
         + Dots 1, 2, 3 + Space: Enable/Disable braille input simulation in IME alphanumeric mode.
     * Computer keyboard:
-        + NVDA+X: Enable/Disable the feature of simulating braille keyboard by a computer keyboard.
+        + NVDA+Ctrl+6: Enable/Disable the feature of simulating braille keyboard by a computer keyboard.
         + F, D, S, J, K, L, A, semicolon `[;:]`, and space bar: Dot 1 through 8 and braille space.
         + 0 through 9: Reserved for number input and candidate word selection.
 - Remarks
