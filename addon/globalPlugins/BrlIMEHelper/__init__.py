@@ -103,6 +103,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         configure.write()
 
     def applyConfig(self):
+        thread_states.reset_cbrlkb_state()
         self.synchronize_cbrlkb_states(configure.get("CBRLKB_AUTO_TOGGLE_HINT"))
         self.kbmap = keyboard.Translator(*keyboard.layout[configure.get("KEYBOARD_MAPPING")])
 
@@ -325,6 +326,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if fg != self.last_foreground:
             self.clear(join_timer=False)
             self.last_foreground = fg
+            pid = getWindowThreadProcessID(self.last_foreground)[0]
+            if thread_states.foreground_process_change_notify(pid):
+                self.synchronize_cbrlkb_states(configure.get("CBRLKB_AUTO_TOGGLE_HINT"))
         nextHandler()
 
     def synchronize_cbrlkb_states(self, feedback):
