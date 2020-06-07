@@ -73,8 +73,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             "no_ASCII_kbbrl": configure.get("DEFAULT_NO_ALPHANUMERIC_BRL_KEY"),
         }
         hack_IME.install()
-        if configure.get("AUTO_BRL_KEY"):
-            self.enable(beep=(configure.get("CBRLKB_AUTO_TOGGLE_HINT") == "audio"))
+        thread_states.cbrlkb = configure.get("AUTO_BRL_KEY")
         self.menu = wx.Menu()
         # Translators: Menu item of BrlIMEHelper settings.
         self.menuitem4Settings = self.menu.Append(wx.ID_ANY, _("&Settings..."))
@@ -104,6 +103,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         configure.write()
 
     def applyConfig(self):
+        self.synchronize_cbrlkb_states(configure.get("CBRLKB_AUTO_TOGGLE_HINT"))
         self.kbmap = keyboard.Translator(*keyboard.layout[configure.get("KEYBOARD_MAPPING")])
 
     def clear(self, brl_buffer=True, join_timer=True):
@@ -327,6 +327,27 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self.last_foreground = fg
         nextHandler()
 
+    def synchronize_cbrlkb_states(self, feedback):
+        try:
+            if thread_states.cbrlkb:
+                if feedback == "audio":
+                    self.enable(beep=True)
+                else:
+                    self.enable(beep=False)
+                    if feedback == "ui.message":
+                        # Translators: Reported when braille input from the PC keyboard is enabled.
+                        ui.message(_("Enabled: Simulating braille keyboard by a computer keyboard."))
+            else:
+                if feedback == "audio":
+                    self.disable(beep=True)
+                else:
+                    self.disable(beep=False)
+                    if feedback == "ui.message":
+                        # Translators: Reported when braille input from the PC keyboard is disabled.
+                        ui.message(_("Disabled: Simulating braille keyboard by a computer keyboard."))
+        except:
+            pass
+
     def inferBRLmode(self):
         global thread_states
         pid, tid = getWindowThreadProcessID(getForegroundWindow())
@@ -378,22 +399,8 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         gui.mainFrame._popupSettingsDialog(BrlIMEHelperSettingsDialog, set_deactivate_flag, self.applyConfig)
 
     def script_toggleBRLsimulation(self, gesture):
-        if self.config_r["kbbrl_enabled"]:
-            if configure.get("CBRLKB_MANUAL_TOGGLE_HINT") == "audio":
-                self.disable(beep=True)
-            else:
-                self.disable()
-                if configure.get("CBRLKB_MANUAL_TOGGLE_HINT") == "ui.message":
-                    # Translators: Reported when braille input from the PC keyboard is disabled.
-                    ui.message(_("Disabled: Simulating braille keyboard by a computer keyboard."))
-        else:
-            if configure.get("CBRLKB_MANUAL_TOGGLE_HINT") == "audio":
-                self.enable(beep=True)
-            else:
-                self.enable()
-                if configure.get("CBRLKB_MANUAL_TOGGLE_HINT") == "ui.message":
-                    # Translators: Reported when braille input from the PC keyboard is enabled.
-                    ui.message(_("Enabled: Simulating braille keyboard by a computer keyboard."))
+        thread_states.cbrlkb = not thread_states.cbrlkb
+        self.synchronize_cbrlkb_states(configure.get("CBRLKB_MANUAL_TOGGLE_HINT"))
     # Translators: Name of a command to toggle braille input from a computer keyboard.
     script_toggleBRLsimulation.__doc__ = _("Toggles braille input from a computer keyboard.")
     script_toggleBRLsimulation.category = SCRCAT_BrlIMEHelper
