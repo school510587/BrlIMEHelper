@@ -26,22 +26,29 @@ Before installation, check the following environment settings:
 - It is suggested to set the braille input table to "English (U.S.) 8 dot computer braille", so that NVDA's behavior is closer to the habit of Taiwanese users.
 
 ## Manipulation
-- Shortcuts
-    * Braille keyboard:
-        + Dots 4, 5, 6 + Space: Toggle between alphanumeric and native modes. The effect is the same as pressing Shift on a computer keyboard.
-        + Dot 1 + Space: Review the braille buffer, i.e., what you just enter in native mode before finish of composition. (Example: 135 126 is insufficient for composition, but this function shows that you have entered ㄅㄛ.)
-        + Dots 2, 4, 5 + Space: Clear braille buffer on typo to re-enter the correct content.
-        + Dots 1, 2, 3 + Space: Enable/Disable braille input simulation in IME alphanumeric mode.
-    * Computer keyboard:
-        + NVDA+Ctrl+6: Enable/Disable the feature of simulating braille keyboard by a computer keyboard.
-        + F, D, S, J, K, L, A, semicolon `[;:]`, and space bar: Dot 1 through 8 and braille space.
-        + 0 through 9: Reserved for number input and candidate word selection.
-- Remarks
-    1. In alphanumeric mode, the effect is determined by NVDA's braille input table.
-    2. The original NVDA behavior of dot 7, dot 8, and dot 7 + dot 8 is preserved in both modes.
-    3. The addon do not influence other buttons on a braille display, such as buttons for scrolling and positioning.
-    4. Users may manage all above shortcuts via NVDA input gestures dialog and BrlIMEHelper settings dialog.
-    5. If no composed character is spoken after composition completion, then IME may get stuck by unreasonable (phonetic) input.
+
+### Shortcuts
+* Braille keyboard:
+    + Dots 4, 5, 6 + Space: Toggle between alphanumeric and native modes. The effect is the same as pressing Shift on a computer keyboard.
+    + Dot 1 + Space: Review the braille buffer, i.e., what you just enter in native mode before finish of composition. (Example: 135 126 is insufficient for composition, but this function shows that you have entered ㄅㄛ.)
+    + Dots 2, 4, 5 + Space: Clear braille buffer on typo to re-enter the correct content.
+    + Dots 1, 2, 3 + Space: Enable/Disable braille input simulation in IME alphanumeric mode.
+* Computer keyboard:
+    + NVDA+Ctrl+6: Enable/Disable the feature of simulating braille keyboard by a computer keyboard.
+    + F, D, S, J, K, L, A, semicolon `[;:]`, and space bar: Dot 1 through 8 and braille space.
+    + 0 through 9: Reserved for number input and candidate word selection.
+    + NumPad (optional feature, with Num Lock on): Input of a braille cell dot by dot.
+        - 0 through 8: The braille space and dots 1 through 8.
+        - 9: Clear uncompleted braille cell.
+        - Decimal point `[.]`: Complete input of one braille cell.
+        - Divide `[/]`: View uncommitted braille cell.
+
+### Remarks
+1. In alphanumeric mode, the effect is determined by NVDA's braille input table.
+2. The original NVDA behavior of dot 7, dot 8, and dot 7 + dot 8 is preserved in both modes.
+3. The addon do not influence other buttons on a braille display, such as buttons for scrolling and positioning.
+4. Users may manage all above shortcuts via NVDA input gestures dialog and BrlIMEHelper settings dialog.
+5. If no composed character is spoken after composition completion, then IME may get stuck by unreasonable (phonetic) input.
 
 Particularly, users can determine positions of braille dots, braille space, and ignored (reserved) keys for braille keyboard simulation in BrlIMEHelper settings dialog. Braille keyboard simulation is automatically disabled when either of the "Braille Keys" or the "Ignored Keys" edit control is focused. Exact 9 braille keys are required, but number of ignored keys is unlimited. If a key appears in both options, "Braille Keys" takes precedence. After entering all key positions by single computer keyboard strokes, `[Apply]` or `[OK]` button press is necessary to take effect. Occasionally, the "Braille Keys" option may not fully work, because simultaneous transmission of some key commands is unsupported by internal design of your computer (or notebook) keyboard. Please change your configuration to find a set of feasible braille keys.
 
