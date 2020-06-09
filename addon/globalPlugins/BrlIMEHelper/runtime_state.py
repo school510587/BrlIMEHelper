@@ -50,10 +50,5 @@ class _Runtime_States(defaultdict):
         log.debug("Update entry {0} for pid={1}".format(kwargs, pid))
         self[pid].update(kwargs)
         return pid
-    def update_self(self, **kwargs):
-        pid = os.getpid()
-        log.debug("Update entry {0} for NVDA itself (pid={1})".format(kwargs, pid))
-        self[pid].update(kwargs)
-        return pid
 
 thread_states = _Runtime_States()
