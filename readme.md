@@ -43,14 +43,38 @@ Before installation, check the following environment settings:
         - Decimal point `[.]`: Complete input of one braille cell.
         - Divide `[/]`: View uncommitted braille cell.
 
+### Options
+
+#### Automatically enable braille keyboard simulation when NVDA starts
+If checked, braille keyboard simulation is enabled automatically when NVDA starts.
+
+#### Disable braille keyboard simulation by default in IME alphanumeric mode
+If checked, the user can always type characters by the current keyboard layout in IME alphanumeric mode. The option improves experience of users who are familiar to the standard computer keyboard but new to IME keyboard layout of its native mode.
+
+#### "Braille Keys" and "Ignored Keys"
+Users can determine positions of braille dots, braille space, and ignored (reserved) keys for braille keyboard simulation in BrlIMEHelper settings dialog. Braille keyboard simulation is automatically disabled when either of the "Braille Keys" or the "Ignored Keys" edit control is focused. Exact 9 braille keys are required, but number of ignored keys is unlimited. If a key appears in both options, "Braille Keys" takes precedence. After entering all key positions by single computer keyboard strokes, `[Apply]` or `[OK]` button press is necessary to take effect. Occasionally, the "Braille Keys" option may not fully work, because simultaneous transmission of some key commands is unsupported by internal design of your computer (or notebook) keyboard. Please change your configuration to find a set of feasible braille keys.
+
+#### Free all non-braille keys during braille keyboard simulation in IME alphanumeric mode
+If checked, all keys, except the braille keys, are ignored during braille keyboard simulation in IME alphanumeric mode.
+
+#### Keyboard Mapping
+The option corresponds to the configuration of keyboard layout in IME native mode.
+
+#### Allow dot-by-dot braille input via numpad during braille keyboard simulation
+If checked, the user can input braille cells dot by dot via the numpad with Num Lock on.
+
+#### Indication of manual/automatic toggle of braille keyboard simulation
+The two options determines indication of toggle of braille keyboard simulation. Particularly, automatic toggling may occur after change of foreground window and/or options of the addon.
+
+#### Consistent braille keyboard simulation toggle state for all processes
+If checked, there is only one single state of braille keyboard simulation toggle, which is the behavior of all versions earlier than 2.0. Otherwise, the addon logs state of each process independently. A user who allows different IMEs for different windows may uncheck this option to reduce times of toggling braille keyboard simulation. Note that all toggle states of processes become the default state of NVDA starting if this option is changed from unchecked to checked.
+
 ### Remarks
 1. In alphanumeric mode, the effect is determined by NVDA's braille input table.
 2. The original NVDA behavior of dot 7, dot 8, and dot 7 + dot 8 is preserved in both modes.
 3. The addon do not influence other buttons on a braille display, such as buttons for scrolling and positioning.
 4. Users may manage all above shortcuts via NVDA input gestures dialog and BrlIMEHelper settings dialog.
 5. If no composed character is spoken after composition completion, then IME may get stuck by unreasonable (phonetic) input.
-
-Particularly, users can determine positions of braille dots, braille space, and ignored (reserved) keys for braille keyboard simulation in BrlIMEHelper settings dialog. Braille keyboard simulation is automatically disabled when either of the "Braille Keys" or the "Ignored Keys" edit control is focused. Exact 9 braille keys are required, but number of ignored keys is unlimited. If a key appears in both options, "Braille Keys" takes precedence. After entering all key positions by single computer keyboard strokes, `[Apply]` or `[OK]` button press is necessary to take effect. Occasionally, the "Braille Keys" option may not fully work, because simultaneous transmission of some key commands is unsupported by internal design of your computer (or notebook) keyboard. Please change your configuration to find a set of feasible braille keys.
 
 ## Issues and ways of development
 - Known bugs:
