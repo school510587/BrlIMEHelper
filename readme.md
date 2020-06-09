@@ -145,3 +145,11 @@ If checked, there is only one single state of braille keyboard simulation toggle
 * Allow users to ignore all non-braille keys during braille keyboard simulation in alphanumeric mode.
 * Add "Keyboard Mapping" option corresponding to the keyboard mapping option of 微軟注音 IME.
 * Allow braille input of rhymes with ⡼ prefix.
+
+### Version 2.0
+* Allow dot-by-dot braille input via numpad keys.
+* Add feedback manners of audio and none for indication of braille keyboard simulation toggle.
+* Allow independent state of braille keyboard simulation toggle for each process.
+* Modify keyboard shortcut NVDA+X to NVDA+Ctrl+6.
+* Add specification for all options into readme.md.
+* Code refactoring.
