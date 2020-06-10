@@ -321,7 +321,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.timer[1] = ""
         self.brl_str = ""
 
-    def event_gainFocus(self, obj, nextHandler):
+    def event_foreground(self, obj, nextHandler):
         fg = getForegroundWindow()
         if fg != self.last_foreground:
             self.clear(join_timer=False)
