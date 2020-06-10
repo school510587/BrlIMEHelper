@@ -32,7 +32,7 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
     title = _("Braille IME Helper Settings")
     options = OrderedDict()
 
-    def __init__(self, parent, deactivate, post_apply=lambda: 0):
+    def __init__(self, parent, deactivate, post_apply=lambda *args: 0):
         try:
             super(BrlIMEHelperSettingsDialog, self).__init__(parent, hasApplyButton=True)
         except:
@@ -86,7 +86,7 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
         list(self.options.values())[0].SetFocus()
 
     def onApply(self, evt):
-        backup, error = {}, None
+        backup, dirty, error = {}, set(), None
         for k in ("BRAILLE_KEYS", "IGNORED_KEYS"):
             p = self.options[k].GetInsertionPoint()
             self.options[k].ChangeValue(self.options[k].GetValue().upper())
@@ -103,12 +103,14 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
                             backup[k] = configure.assign(k, self.options[k].GetStringSelection())
                     else:
                         backup[k] = configure.assign(k, self.options[k].GetValue())
+                if backup[k] != configure.get(k):
+                    dirty.add(k)
             except:
                 error = k if error is None else error
                 log.error("Failed setting configuration: " + k, exc_info=True)
         if error is None:
             try:
-                self.post_apply()
+                self.post_apply(dirty)
             except:
                 log.warning("Cannot apply the configuration", exc_info=True)
                 error = list(configure.profile.keys())[0]
@@ -117,7 +119,7 @@ class BrlIMEHelperSettingsDialog(SettingsDialog):
             for k, v in backup.items():
                 configure.assign(k, v)
             self.options[error].SetFocus() # Where the first error occurs.
-            self.post_apply()
+            self.post_apply(dirty)
 
     def onKeysOptionKillFocus(self, evt):
         self.deactivate(False)

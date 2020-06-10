@@ -102,10 +102,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             pass
         configure.write()
 
-    def applyConfig(self):
-        thread_states.reset_cbrlkb_state()
-        self.synchronize_cbrlkb_states(configure.get("CBRLKB_AUTO_TOGGLE_HINT"))
-        self.kbmap = keyboard.Translator(*keyboard.layout[configure.get("KEYBOARD_MAPPING")])
+    def applyConfig(self, dirty=None):
+        if dirty is None or "ONE_CBRLKB_TOGGLE_STATE" in dirty:
+            thread_states.reset_cbrlkb_state()
+            self.synchronize_cbrlkb_states(configure.get("CBRLKB_AUTO_TOGGLE_HINT"))
+        if dirty is None or "KEYBOARD_MAPPING" in dirty:
+            self.kbmap = keyboard.Translator(*keyboard.layout[configure.get("KEYBOARD_MAPPING")])
 
     def clear(self, brl_buffer=True, join_timer=True):
         if self.timer[0]:
