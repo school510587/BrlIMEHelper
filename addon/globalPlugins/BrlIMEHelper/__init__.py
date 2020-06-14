@@ -323,7 +323,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def event_foreground(self, obj, nextHandler):
         fg = getForegroundWindow()
-        if fg != self.last_foreground:
+        if fg != self.last_foreground and not((getKeyState(VK_LMENU) | getKeyState(VK_RMENU)) & 32768):
             self.clear(join_timer=False)
             self.last_foreground = fg
             pid = getWindowThreadProcessID(self.last_foreground)[0]
