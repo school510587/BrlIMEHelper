@@ -90,7 +90,7 @@ If checked, there is only one single state of braille keyboard simulation toggle
 - 黃偉豪 <hurt.nzsmr@gmail.com>
 
 ## Acknowledgement
-- BrlIMEHelper has been sponsored by [Taiwan Visually Impaired People Association](https://www.facebook.com/tavip1030102/) <vipastaiwan@gmail.com> from 2019/07/01 to 2019/12/31, hereby express our sincere appreciation.
+- BrlIMEHelper has been sponsored by [Taiwan Visually Impaired People Association](https://www.facebook.com/tavip1030102/) <vipastaiwan@gmail.com> from 2019/07/01 to 2020/06/30, hereby express our sincere appreciation.
 
 ## History of changes
 
