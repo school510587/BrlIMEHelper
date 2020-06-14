@@ -86,11 +86,11 @@ If checked, there is only one single state of braille keyboard simulation toggle
     * Allow the addon to work with other IMEs.
 
 ## Contributors
-- Bo-Cheng Jhan <school510587@yahoo.com.tw>
-- 黃偉豪 <hurt.nzsmr@gmail.com>
+- Bo-Cheng Jhan &lt;<school510587@yahoo.com.tw>&gt;
+- 黃偉豪 &lt;<hurt.nzsmr@gmail.com>&gt;
 
 ## Acknowledgement
-- BrlIMEHelper has been sponsored by [Taiwan Visually Impaired People Association](https://www.facebook.com/tavip1030102/) <vipastaiwan@gmail.com> from 2019/07/01 to 2020/06/30, hereby express our sincere appreciation.
+- BrlIMEHelper has been sponsored by [Taiwan Visually Impaired People Association](https://www.facebook.com/tavip1030102/) &lt;<vipastaiwan@gmail.com>&gt; from 2019/07/01 to 2020/06/30, hereby express our sincere appreciation.
 
 ## History of changes
 
