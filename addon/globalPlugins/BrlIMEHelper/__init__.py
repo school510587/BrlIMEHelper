@@ -72,7 +72,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             "kbbrl_enabled": False,
             "no_ASCII_kbbrl": configure.get("DEFAULT_NO_ALPHANUMERIC_BRL_KEY"),
         }
-        hack_IME.install()
         thread_states.cbrlkb = configure.get("AUTO_BRL_KEY")
         self.menu = wx.Menu()
         # Translators: Menu item of BrlIMEHelper settings.
@@ -87,13 +86,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             # Translators: Tooltip of BrlIMEHelper configuration item in NVDA tools menu.
             _("Configure Braille IME Helper"))
         self.applyConfig()
+        hack_IME.install()
 
     def terminate(self):
+        hack_IME.uninstall()
         try:
             gui.mainFrame.sysTrayIcon.toolsMenu.RemoveItem(self.BrlIMEHelper_item)
         except:
             pass
-        hack_IME.uninstall()
         self.clear()
         thread_states.stop_scan()
         try:
