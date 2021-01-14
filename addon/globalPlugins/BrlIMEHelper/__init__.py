@@ -497,5 +497,5 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         "bk:dot2+dot4+dot5+space": "clearBRLbuffer",
         "bk:dot1+dot2+dot3+space": "toggleAlphaModeBRLsimulation",
         "bk:dot4+dot5+dot6+space": "switchIMEmode",
-        "bk:dot1+space": "viewBRLbuffer",
+        "bk:dot1+dot2+dot5+space": "viewBRLbuffer",
     }

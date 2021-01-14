@@ -30,7 +30,7 @@ Before installation, check the following environment settings:
 ### Shortcuts
 * Braille keyboard:
     + Dots 4, 5, 6 + Space: Toggle between alphanumeric and native modes. The effect is the same as pressing Shift on a computer keyboard.
-    + Dot 1 + Space: Review the braille buffer, i.e., what you just enter in native mode before finish of composition. (Example: 135 126 is insufficient for composition, but this function shows that you have entered ㄅㄛ.)
+    + Dots 1, 2, 5 + Space: Review the braille buffer, i.e., what you just enter in native mode before finish of composition. (Example: 135 126 is insufficient for composition, but this function shows that you have entered ㄅㄛ.)
     + Dots 2, 4, 5 + Space: Clear braille buffer on typo to re-enter the correct content.
     + Dots 1, 2, 3 + Space: Enable/Disable braille input simulation in IME alphanumeric mode.
 * Computer keyboard:
