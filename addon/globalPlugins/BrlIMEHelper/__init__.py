@@ -17,6 +17,7 @@ except: # Python 2 does not have partialmethod.
 from serial.win32 import INVALID_HANDLE_VALUE
 from threading import Timer
 import os
+import re
 import string
 import winsound
 import wx
@@ -29,6 +30,7 @@ from winUser import *
 from winVersion import winVersion
 import addonHandler
 import api
+import braille
 import brailleInput
 import globalCommands
 import globalPluginHandler
@@ -50,6 +52,25 @@ from .sounds import *
 from . import configure
 from . import hack_IME
 from . import keyboard
+
+class DummyBrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.BrailleInputGesture):
+    def __init__(self):
+        super(DummyBrailleInputGesture, self).__init__()
+        self.source = braille.handler.display.name
+    def _get_id(self):
+        try:
+            dots_id = self._makeDotsId()
+            log.debug("_makeDotsId returns " + dots_id)
+            sep = dots_id.find(":")
+            return dots_id[sep+1:]
+        except:
+            log.error("Maybe _makeDotsId does not work.")
+        return ""
+    def _get_identifiers(self):
+        ids = super(DummyBrailleInputGesture, self)._get_identifiers()
+        if self.source == "freedomScientific": # Exception specific to this driver.
+            ids[0] = re.sub(r"(.*)space", r"\1brailleSpaceBar", ids[0])
+        return ids
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     SCRCAT_BrlIMEHelper = _("Braille IME Helper")
@@ -192,7 +213,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 elif key_id == 0x0E: # VK_DECIMAL = 0x6E
                     if not self._uncommittedDots:
                         raise NotImplementedError # No uncommitted dots.
-                    self._gesture = brailleInput.BrailleInputGesture()
+                    self._gesture = DummyBrailleInputGesture()
                     self._gesture.space = bool(self._uncommittedDots & 0x01)
                     self._gesture.dots = self._uncommittedDots >> 1
                 elif key_id == 0x0F: # VK_DIVIDE = 0x6F
@@ -239,7 +260,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self.touched_mainKB_keys[(vkCode, extended)] = ch
         if dot:
             if not self._gesture:
-                self._gesture = brailleInput.BrailleInputGesture()
+                self._gesture = DummyBrailleInputGesture()
             log.debug("keydown: dots|space = {0:09b}".format(dot))
             if dot == 1:
                 self._gesture.space = True
