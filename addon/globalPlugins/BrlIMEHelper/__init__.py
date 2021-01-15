@@ -19,6 +19,7 @@ from threading import Timer
 import os
 import re
 import string
+import weakref
 import winsound
 import wx
 try: unichr
@@ -54,9 +55,41 @@ from . import hack_IME
 from . import keyboard
 
 class DummyBrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.BrailleInputGesture):
+    brl_display_weakref = weakref.ref(lambda: None)
+    default_bk_gestures = {
+        "globalCommands.GlobalCommands": {
+            "kb:shift+tab": ("bk:dot1+dot2+space",),
+            "kb:tab": ("bk:dot4+dot5+space",),
+            "kb:upArrow": ("bk:dot1+space",),
+            "kb:downArrow": ("bk:dot4+space",),
+            "kb:leftArrow": ("bk:dot3+space",),
+            "kb:rightArrow": ("bk:dot6+space",),
+            "kb:control+leftArrow": ("bk:dot2+space",),
+            "kb:control+rightArrow": ("bk:dot5+space",),
+            "kb:home": ("bk:dot1+dot3+space",),
+            "kb:control+home": ("bk:dot1+dot2+dot3+space",),
+            "kb:end": ("bk:dot4+dot6+space",),
+            "kb:control+end": ("bk:dot4+dot5+dot6+space",),
+            "kb:alt": ("bk:dot1+dot3+dot4+space",),
+            "kb:alt+tab": ("bk:dot2+dot3+dot4+dot5+space",),
+            "kb:alt+shift+tab": ("bk:dot1+dot2+dot5+dot6+space",),
+            "kb:windows+tab": ("bk:dot2+dot3+dot4+space",),
+            "kb:escape": ("bk:dot1+dot5+space",),
+            "kb:windows": ("bk:dot2+dot4+dot5+dot6+space",),
+            "kb:windows+d": ("bk:dot1+dot2+dot3+dot4+dot5+dot6+space",),
+            "reportCurrentLine": ("bk:dot1+dot4+space",),
+            "showGui": ("bk:dot1+dot3+dot4+dot5+space",),
+        },
+    }
     def __init__(self):
         super(DummyBrailleInputGesture, self).__init__()
-        self.source = braille.handler.display.name
+        if self.__class__.brl_display_weakref() is None:
+            self.__class__.brl_display_weakref = weakref.ref(braille.handler.display)
+            if self.__class__.brl_display_weakref().gestureMap:
+                self.__class__.brl_display_weakref().gestureMap.update(self.default_bk_gestures)
+            else:
+                self.__class__.brl_display_weakref().gestureMap = inputCore.GlobalGestureMap(self.default_bk_gestures)
+        self.source = self.__class__.brl_display_weakref().name
     def _get_id(self):
         try:
             dots_id = self._makeDotsId()
@@ -68,6 +101,8 @@ class DummyBrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.Brail
         return ""
     def _get_identifiers(self):
         ids = super(DummyBrailleInputGesture, self)._get_identifiers()
+        if inputCore.manager._captureFunc and not inputCore.manager.isInputHelpActive: # Adding custom input gesture.
+            return [g for g in ids if g.startswith("bk:")]
         if self.source == "freedomScientific": # Exception specific to this driver.
             ids[0] = re.sub(r"(.*)space", r"\1brailleSpaceBar", ids[0])
         return ids
