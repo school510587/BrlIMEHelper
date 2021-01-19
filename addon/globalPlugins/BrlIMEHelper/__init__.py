@@ -19,7 +19,6 @@ from threading import Timer
 import os
 import re
 import string
-import weakref
 import winsound
 import wx
 try: unichr
@@ -56,7 +55,6 @@ from . import hack_IME
 from . import keyboard
 
 class DummyBrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.BrailleInputGesture):
-    brl_display_weakref = weakref.ref(lambda: None)
     default_bk_gestures = {
         "kb:shift+tab": "dot1+dot2+space",
         "kb:tab": "dot4+dot5+space",
@@ -81,18 +79,13 @@ class DummyBrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.Brail
         "showGui": "dot1+dot3+dot4+dot5+space",
     }
     source = NoBrailleDisplayDriver.name
-    def __init__(self):
-        super(DummyBrailleInputGesture, self).__init__()
-        self.__class__.update_brl_display_weakref()
     @classmethod
-    def update_brl_display_weakref(cls):
-        if cls.brl_display_weakref() is None:
-            cls.brl_display_weakref = weakref.ref(braille.handler.display)
-            if not isinstance(cls.brl_display_weakref().gestureMap, inputCore.GlobalGestureMap):
-                cls.brl_display_weakref().gestureMap = inputCore.GlobalGestureMap()
-            for k, g in cls.default_bk_gestures.items():
-                g = "br({0}):{1}".format(cls.source, g)
-                cls.brl_display_weakref().gestureMap.add(g, "globalCommands", "GlobalCommands", k)
+    def update_brl_display_gesture_map(cls, display=braille.handler.display):
+        if not isinstance(display.gestureMap, inputCore.GlobalGestureMap):
+            display.gestureMap = inputCore.GlobalGestureMap()
+        for k, g in cls.default_bk_gestures.items():
+            g = "br({0}):{1}".format(cls.source, g)
+            display.gestureMap.add(g, "globalCommands", "GlobalCommands", k)
     def _get_id(self):
         try:
             dots_id = self._makeDotsId()
@@ -111,7 +104,7 @@ class DummyBrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.Brail
             if id.startswith("bk:"):
                 answer.append(id)
                 continue
-            physical_id = id.replace(self.source, self.__class__.brl_display_weakref().name, 1)
+            physical_id = id.replace(self.source, braille.handler.display.name, 1)
             if physical_id.startswith("br(freedomScientific):"): # Exception specific to this driver.
                 physical_id = re.sub(r"(.*)space", r"\1brailleSpaceBar", physical_id)
             answer.append(physical_id)
@@ -153,11 +146,24 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             # Translators: Tooltip of BrlIMEHelper configuration item in NVDA tools menu.
             _("Configure Braille IME Helper"))
         self.applyConfig()
-        DummyBrailleInputGesture.update_brl_display_weakref()
+        def hack_bd_driver_init(real_init, self, *args):
+            if real_init is not None:
+                real_init(self, *args)
+            DummyBrailleInputGesture.update_brl_display_gesture_map(self)
+        try: # Python 3
+            self.real_bd_driver_init = braille.BrailleDisplayDriver.__init__
+        except: # Python 2
+            self.real_bd_driver_init = None
+        braille.BrailleDisplayDriver.__init__ = monkey_method(partial(hack_bd_driver_init, self.real_bd_driver_init), braille.BrailleDisplayDriver)
+        DummyBrailleInputGesture.update_brl_display_gesture_map() # The current built one.
         hack_IME.install()
 
     def terminate(self):
         hack_IME.uninstall()
+        if self.real_bd_driver_init is None: # Python 2
+            del braille.BrailleDisplayDriver.__init__ 
+        else: # Python 3
+            braille.BrailleDisplayDriver.__init__ = self.real_bd_driver_init
         try:
             gui.mainFrame.sysTrayIcon.toolsMenu.RemoveItem(self.BrlIMEHelper_item)
         except:
