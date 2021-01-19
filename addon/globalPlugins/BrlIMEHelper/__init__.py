@@ -54,6 +54,15 @@ from . import configure
 from . import hack_IME
 from . import keyboard
 
+def cmpNVDAver(year, major, minor=0):
+    try: from buildVersion import version_year, version_major, version_minor
+    except: from versionInfo import version_year, version_major, version_minor
+    if version_year != year:
+        return version_year - year
+    if version_major != major:
+        return version_major - major
+    return version_minor - minor
+
 class DummyBrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.BrailleInputGesture):
     default_bk_gestures = {
         "kb:shift+tab": "dot1+dot2+space",
