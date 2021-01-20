@@ -92,9 +92,9 @@ class DummyBrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.Brail
     def update_brl_display_gesture_map(cls, display=braille.handler.display):
         if not isinstance(display.gestureMap, inputCore.GlobalGestureMap):
             display.gestureMap = inputCore.GlobalGestureMap()
+        source = "bk:" if cmpNVDAver(2018, 3) < 0 else "br({0}):".format(cls.source)
         for k, g in cls.default_bk_gestures.items():
-            g = "br({0}):{1}".format(cls.source, g)
-            display.gestureMap.add(g, "globalCommands", "GlobalCommands", k)
+            display.gestureMap.add(source + g, "globalCommands", "GlobalCommands", k)
     def _get_id(self):
         try:
             dots_id = self._makeDotsId()
