@@ -88,6 +88,16 @@ profile["CBRLKB_AUTO_TOGGLE_HINT"] = ItemSpec(
         ("none", _("None")),
     ]),
 )
+profile["REL_PHYSICAL_DUMMY_BRLKB"] = ItemSpec(
+    label = _("Behavior of the simulated braille keyboard:"),
+    default_value = "former-precedence",
+    allowed_values = OrderedDict([
+        ("consistent", _("Consistent with behavior of the physical braille keyboard.")),
+        ("former-precedence", _("Supported gestures of the physical braille keyboard takes precedence.")),
+        ("latter-precedence", _("Common gestures listed by the addon takes precedence.")),
+        ("independent", _("Independent of behavior of the physical braille keyboard.")),
+    ]),
+)
 runtime_conf = None
 
 _allowed = lambda value, allowed_values: True if allowed_values is None \
