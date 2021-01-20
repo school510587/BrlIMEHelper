@@ -106,7 +106,7 @@ class DummyBrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.Brail
         return ""
     def _get_identifiers(self):
         ids = super(DummyBrailleInputGesture, self)._get_identifiers()
-        if inputCore.manager._captureFunc and not inputCore.manager.isInputHelpActive: # Adding custom input gesture.
+        if isinstance(braille.handler.display, NoBrailleDisplayDriver):
             return ids
         answer = []
         for id in ids:
@@ -116,8 +116,27 @@ class DummyBrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.Brail
             physical_id = id.replace(self.source, braille.handler.display.name, 1)
             if physical_id.startswith("br(freedomScientific):"): # Exception specific to this driver.
                 physical_id = re.sub(r"(.*)space", r"\1brailleSpaceBar", physical_id)
-            answer.append(physical_id)
-            answer.append(id)
+            if cmpNVDAver(2018, 3) < 0:
+                id = "bk:" + id[id.find(":")+1:]
+            if configure.get("REL_PHYSICAL_DUMMY_BRLKB") == "consistent":
+                answer.append(physical_id)
+            elif configure.get("REL_PHYSICAL_DUMMY_BRLKB") == "former-precedence":
+                answer.append(physical_id)
+                answer.append(id)
+            elif configure.get("REL_PHYSICAL_DUMMY_BRLKB") == "latter-precedence":
+                answer.append(id)
+                answer.append(physical_id)
+            elif configure.get("REL_PHYSICAL_DUMMY_BRLKB") == "independent":
+                answer.append(id)
+            else:
+                log.error("Invalid REL_PHYSICAL_DUMMY_BRLKB value.", exc_info=True)
+        if cmpNVDAver(2018, 3) < 0:
+            answer, old_answer, id_set = [], answer, set()
+            for id in old_answer:
+                n_id = inputCore.normalizeGestureIdentifier(id)
+                if n_id not in id_set:
+                    id_set.add(n_id)
+                    answer.append(id)
         return answer
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
