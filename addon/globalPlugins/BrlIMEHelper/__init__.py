@@ -65,27 +65,27 @@ def cmpNVDAver(year, major, minor=0):
 
 class DummyBrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.BrailleInputGesture):
     default_bk_gestures = {
-        "kb:shift+tab": "dot1+dot2+space",
-        "kb:tab": "dot4+dot5+space",
-        "kb:upArrow": "dot1+space",
-        "kb:downArrow": "dot4+space",
-        "kb:leftArrow": "dot3+space",
-        "kb:rightArrow": "dot6+space",
-        "kb:control+leftArrow": "dot2+space",
-        "kb:control+rightArrow": "dot5+space",
-        "kb:home": "dot1+dot3+space",
-        "kb:control+home": "dot1+dot2+dot3+space",
-        "kb:end": "dot4+dot6+space",
-        "kb:control+end": "dot4+dot5+dot6+space",
-        "kb:alt": "dot1+dot3+dot4+space",
-        "kb:alt+tab": "dot2+dot3+dot4+dot5+space",
-        "kb:alt+shift+tab": "dot1+dot2+dot5+dot6+space",
-        "kb:windows+tab": "dot2+dot3+dot4+space",
-        "kb:escape": "dot1+dot5+space",
-        "kb:windows": "dot2+dot4+dot5+dot6+space",
-        "kb:windows+d": "dot1+dot2+dot3+dot4+dot5+dot6+space",
-        "reportCurrentLine": "dot1+dot4+space",
-        "showGui": "dot1+dot3+dot4+dot5+space",
+        "kb:tab": "space+dot4+dot5",
+        "kb:escape": "space+dot1+dot5",
+        "kb:end": "space+dot4+dot6",
+        "kb:home": "space+dot1+dot3",
+        "kb:leftArrow": "space+dot3",
+        "kb:upArrow": "space+dot1",
+        "kb:rightArrow": "space+dot6",
+        "kb:downArrow": "space+dot4",
+        "kb:shift+tab": "space+dot1+dot2",
+        "kb:control+end": "space+dot4+dot5+dot6",
+        "kb:control+home": "space+dot1+dot2+dot3",
+        "kb:control+leftArrow": "space+dot2",
+        "kb:control+rightArrow": "space+dot5",
+        "kb:alt": "space+dot1+dot3+dot4",
+        "kb:alt+tab": "space+dot2+dot3+dot4+dot5",
+        "kb:alt+shift+tab": "space+dot1+dot2+dot5+dot6",
+        "kb:windows": "space+dot2+dot4+dot5+dot6",
+        "kb:windows+tab": "space+dot2+dot3+dot4",
+        "kb:windows+d": "space+dot1+dot2+dot3+dot4+dot5+dot6",
+        "reportCurrentLine": "space+dot1+dot4",
+        "showGui": "space+dot1+dot3+dot4+dot5",
     }
     source = NoBrailleDisplayDriver.name
     @classmethod
@@ -576,7 +576,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     script_clearBRLbuffer.category = SCRCAT_BrlIMEHelper
 
     def script_switchIMEmode(self, gesture):
-        self.send_keys("Shift")
+        self.send_keys("shift")
     # Translators: Name of a command to switch IME mode.
     script_switchIMEmode.__doc__ = _("Switches IME mode.")
     script_switchIMEmode.category = SCRCAT_BrlIMEHelper
@@ -596,8 +596,8 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     __gestures = {
         "kb:NVDA+control+6": "toggleBRLsimulation",
         "bk:dots": "BRLdots",
-        "bk:dot2+dot4+dot5+space": "clearBRLbuffer",
-        "bk:dot1+dot2+dot3+space": "toggleAlphaModeBRLsimulation",
-        "bk:dot4+dot5+dot6+space": "switchIMEmode",
-        "bk:dot1+dot2+dot5+space": "viewBRLbuffer",
+        "bk:space+dot2+dot4+dot5": "clearBRLbuffer",
+        "bk:space+dot1+dot2+dot3": "toggleAlphaModeBRLsimulation",
+        "bk:space+dot4+dot5+dot6": "switchIMEmode",
+        "bk:space+dot1+dot2+dot5": "viewBRLbuffer",
     }
