@@ -618,4 +618,6 @@ if len(set(GlobalPlugin.default_bk_gestures.values())) != len(GlobalPlugin.defau
 # Modify format of default_bk_gestures values to that of braille input identifiers.
 for k in GlobalPlugin.default_bk_gestures:
     bk_dots = "%d" % GlobalPlugin.default_bk_gestures[k]
+    if not all(ord(bk_dots[i]) < ord(bk_dots[i+1]) for i in range(len(bk_dots) - 1)):
+        log.error("Ill-formed dot pattern of GlobalPlugin.default_bk_gestures: " + bk_dots)
     GlobalPlugin.default_bk_gestures[k] = "+".join(["space"] + [("dot" + d) for d in bk_dots])
