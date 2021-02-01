@@ -612,6 +612,9 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         "showGui": 1345, # Freedom Scientific
     }
 
+if len(set(GlobalPlugin.default_bk_gestures.values())) != len(GlobalPlugin.default_bk_gestures):
+    log.error("Multiple assignment of some dot pattern in GlobalPlugin.default_bk_gestures.")
+
 # Modify format of default_bk_gestures values to that of braille input identifiers.
 for k in GlobalPlugin.default_bk_gestures:
     bk_dots = "%d" % GlobalPlugin.default_bk_gestures[k]
