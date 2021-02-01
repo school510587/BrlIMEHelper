@@ -580,34 +580,39 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     }
 
     default_bk_gestures = {
-        "kb:tab": "space+dot4+dot5", # Freedom Scientific, HIMS
-        "kb:escape": "space+dot1+dot5", # Freedom Scientific, HIMS
-        "kb:pageUp": "space+dot1+dot2+dot6", # HIMS
-        "kb:pageDown": "space+dot3+dot4+dot5", # HIMS
-        "kb:end": "space+dot4+dot6", # Freedom Scientific, HIMS
-        "kb:home": "space+dot1+dot3", # Freedom Scientific, HIMS
-        "kb:leftArrow": "space+dot3", # Freedom Scientific, HIMS
-        "kb:upArrow": "space+dot1", # Freedom Scientific, HIMS
-        "kb:rightArrow": "space+dot6", # Freedom Scientific, HIMS
-        "kb:downArrow": "space+dot4", # Freedom Scientific, HIMS
-        "kb:delete": "space+dot1+dot3+dot5",
-        "kb:applications": "space+dot1+dot2+dot3+dot4", # HIMS
-        "kb:shift+tab": "space+dot1+dot2", # Freedom Scientific, HIMS
-        "kb:control+pageUp": "space+dot1+dot2+dot6+dot8", # HIMS
-        "kb:control+pageDown": "space+dot3+dot4+dot5+dot8", # HIMS
-        "kb:control+end": "space+dot4+dot5+dot6", # Freedom Scientific, HIMS
-        "kb:control+home": "space+dot1+dot2+dot3", # Freedom Scientific, HIMS
-        "kb:control+leftArrow": "space+dot2", # Freedom Scientific, HIMS
-        "kb:control+upArrow": "space+dot2+dot3", # HIMS
-        "kb:control+rightArrow": "space+dot5", # Freedom Scientific, HIMS
-        "kb:control+downArrow": "space+dot5+dot6", # HIMS
-        "kb:alt": "space+dot1+dot3+dot4", # Freedom Scientific, HIMS
-        "kb:alt+tab": "space+dot2+dot3+dot4+dot5", # Freedom Scientific
-        "kb:alt+f4": "space+dot1+dot3+dot5+dot6", # HIMS
-        "kb:alt+shift+tab": "space+dot1+dot2+dot5+dot6", # Freedom Scientific
-        "kb:windows": "space+dot2+dot4+dot5+dot6", # Freedom Scientific
-        "kb:windows+tab": "space+dot2+dot3+dot4", # Freedom Scientific
-        "kb:windows+d": "space+dot1+dot2+dot3+dot4+dot5+dot6", # Freedom Scientific
-        "reportCurrentLine": "space+dot1+dot4", # Freedom Scientific
-        "showGui": "space+dot1+dot3+dot4+dot5", # Freedom Scientific
+        "kb:tab": 45, # Freedom Scientific, HIMS
+        "kb:escape": 15, # Freedom Scientific, HIMS
+        "kb:pageUp": 126, # HIMS
+        "kb:pageDown": 345, # HIMS
+        "kb:end": 46, # Freedom Scientific, HIMS
+        "kb:home": 13, # Freedom Scientific, HIMS
+        "kb:leftArrow": 3, # Freedom Scientific, HIMS
+        "kb:upArrow": 1, # Freedom Scientific, HIMS
+        "kb:rightArrow": 6, # Freedom Scientific, HIMS
+        "kb:downArrow": 4, # Freedom Scientific, HIMS
+        "kb:delete": 135,
+        "kb:applications": 1234, # HIMS
+        "kb:shift+tab": 12, # Freedom Scientific, HIMS
+        "kb:control+pageUp": 1268, # HIMS
+        "kb:control+pageDown": 3458, # HIMS
+        "kb:control+end": 456, # Freedom Scientific, HIMS
+        "kb:control+home": 123, # Freedom Scientific, HIMS
+        "kb:control+leftArrow": 2, # Freedom Scientific, HIMS
+        "kb:control+upArrow": 23, # HIMS
+        "kb:control+rightArrow": 5, # Freedom Scientific, HIMS
+        "kb:control+downArrow": 56, # HIMS
+        "kb:alt": 134, # Freedom Scientific, HIMS
+        "kb:alt+tab": 2345, # Freedom Scientific
+        "kb:alt+f4": 1356, # HIMS
+        "kb:alt+shift+tab": 1256, # Freedom Scientific
+        "kb:windows": 2456, # Freedom Scientific
+        "kb:windows+tab": 234, # Freedom Scientific
+        "kb:windows+d": 123456, # Freedom Scientific
+        "reportCurrentLine": 14, # Freedom Scientific
+        "showGui": 1345, # Freedom Scientific
     }
+
+# Modify format of default_bk_gestures values to that of braille input identifiers.
+for k in GlobalPlugin.default_bk_gestures:
+    bk_dots = "%d" % GlobalPlugin.default_bk_gestures[k]
+    GlobalPlugin.default_bk_gestures[k] = "+".join(["space"] + [("dot" + d) for d in bk_dots])
