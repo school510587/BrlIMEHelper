@@ -64,45 +64,13 @@ def cmpNVDAver(year, major, minor=0):
     return version_minor - minor
 
 class DummyBrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.BrailleInputGesture):
-    default_bk_gestures = {
-        "kb:tab": "space+dot4+dot5", # Freedom Scientific, HIMS
-        "kb:escape": "space+dot1+dot5", # Freedom Scientific, HIMS
-        "kb:pageUp": "space+dot1+dot2+dot6", # HIMS
-        "kb:pageDown": "space+dot3+dot4+dot5", # HIMS
-        "kb:end": "space+dot4+dot6", # Freedom Scientific, HIMS
-        "kb:home": "space+dot1+dot3", # Freedom Scientific, HIMS
-        "kb:leftArrow": "space+dot3", # Freedom Scientific, HIMS
-        "kb:upArrow": "space+dot1", # Freedom Scientific, HIMS
-        "kb:rightArrow": "space+dot6", # Freedom Scientific, HIMS
-        "kb:downArrow": "space+dot4", # Freedom Scientific, HIMS
-        "kb:delete": "space+dot1+dot3+dot5",
-        "kb:applications": "space+dot1+dot2+dot3+dot4", # HIMS
-        "kb:shift+tab": "space+dot1+dot2", # Freedom Scientific, HIMS
-        "kb:control+pageUp": "space+dot1+dot2+dot6+dot8", # HIMS
-        "kb:control+pageDown": "space+dot3+dot4+dot5+dot8", # HIMS
-        "kb:control+end": "space+dot4+dot5+dot6", # Freedom Scientific, HIMS
-        "kb:control+home": "space+dot1+dot2+dot3", # Freedom Scientific, HIMS
-        "kb:control+leftArrow": "space+dot2", # Freedom Scientific, HIMS
-        "kb:control+upArrow": "space+dot2+dot3", # HIMS
-        "kb:control+rightArrow": "space+dot5", # Freedom Scientific, HIMS
-        "kb:control+downArrow": "space+dot5+dot6", # HIMS
-        "kb:alt": "space+dot1+dot3+dot4", # Freedom Scientific, HIMS
-        "kb:alt+tab": "space+dot2+dot3+dot4+dot5", # Freedom Scientific
-        "kb:alt+f4": "space+dot1+dot3+dot5+dot6", # HIMS
-        "kb:alt+shift+tab": "space+dot1+dot2+dot5+dot6", # Freedom Scientific
-        "kb:windows": "space+dot2+dot4+dot5+dot6", # Freedom Scientific
-        "kb:windows+tab": "space+dot2+dot3+dot4", # Freedom Scientific
-        "kb:windows+d": "space+dot1+dot2+dot3+dot4+dot5+dot6", # Freedom Scientific
-        "reportCurrentLine": "space+dot1+dot4", # Freedom Scientific
-        "showGui": "space+dot1+dot3+dot4+dot5", # Freedom Scientific
-    }
     source = NoBrailleDisplayDriver.name
     @classmethod
     def update_brl_display_gesture_map(cls, display=braille.handler.display):
         if not isinstance(display.gestureMap, inputCore.GlobalGestureMap):
             display.gestureMap = inputCore.GlobalGestureMap()
         source = "bk:" if cmpNVDAver(2018, 3) < 0 else "br({0}):".format(cls.source)
-        for k, g in cls.default_bk_gestures.items():
+        for k, g in GlobalPlugin.default_bk_gestures.items():
             display.gestureMap.add(source + g, "globalCommands", "GlobalCommands", k)
     def _get_id(self):
         try:
@@ -609,4 +577,37 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         "bk:space+dot1+dot2+dot3": "toggleAlphaModeBRLsimulation",
         "bk:space+dot4+dot5+dot6": "switchIMEmode",
         "bk:space+dot1+dot2+dot5": "viewBRLbuffer",
+    }
+
+    default_bk_gestures = {
+        "kb:tab": "space+dot4+dot5", # Freedom Scientific, HIMS
+        "kb:escape": "space+dot1+dot5", # Freedom Scientific, HIMS
+        "kb:pageUp": "space+dot1+dot2+dot6", # HIMS
+        "kb:pageDown": "space+dot3+dot4+dot5", # HIMS
+        "kb:end": "space+dot4+dot6", # Freedom Scientific, HIMS
+        "kb:home": "space+dot1+dot3", # Freedom Scientific, HIMS
+        "kb:leftArrow": "space+dot3", # Freedom Scientific, HIMS
+        "kb:upArrow": "space+dot1", # Freedom Scientific, HIMS
+        "kb:rightArrow": "space+dot6", # Freedom Scientific, HIMS
+        "kb:downArrow": "space+dot4", # Freedom Scientific, HIMS
+        "kb:delete": "space+dot1+dot3+dot5",
+        "kb:applications": "space+dot1+dot2+dot3+dot4", # HIMS
+        "kb:shift+tab": "space+dot1+dot2", # Freedom Scientific, HIMS
+        "kb:control+pageUp": "space+dot1+dot2+dot6+dot8", # HIMS
+        "kb:control+pageDown": "space+dot3+dot4+dot5+dot8", # HIMS
+        "kb:control+end": "space+dot4+dot5+dot6", # Freedom Scientific, HIMS
+        "kb:control+home": "space+dot1+dot2+dot3", # Freedom Scientific, HIMS
+        "kb:control+leftArrow": "space+dot2", # Freedom Scientific, HIMS
+        "kb:control+upArrow": "space+dot2+dot3", # HIMS
+        "kb:control+rightArrow": "space+dot5", # Freedom Scientific, HIMS
+        "kb:control+downArrow": "space+dot5+dot6", # HIMS
+        "kb:alt": "space+dot1+dot3+dot4", # Freedom Scientific, HIMS
+        "kb:alt+tab": "space+dot2+dot3+dot4+dot5", # Freedom Scientific
+        "kb:alt+f4": "space+dot1+dot3+dot5+dot6", # HIMS
+        "kb:alt+shift+tab": "space+dot1+dot2+dot5+dot6", # Freedom Scientific
+        "kb:windows": "space+dot2+dot4+dot5+dot6", # Freedom Scientific
+        "kb:windows+tab": "space+dot2+dot3+dot4", # Freedom Scientific
+        "kb:windows+d": "space+dot1+dot2+dot3+dot4+dot5+dot6", # Freedom Scientific
+        "reportCurrentLine": "space+dot1+dot4", # Freedom Scientific
+        "showGui": "space+dot1+dot3+dot4+dot5", # Freedom Scientific
     }
