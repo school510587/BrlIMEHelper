@@ -116,6 +116,34 @@ class DummyBrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.Brail
                     answer.append(id)
         return answer
 
+# A helper function to construct GlobalPlugin.default_bk_gestures.
+def _make_bk_gesture_set(dots, main, var1="kb:control+", var2="kb:alt+", var3="kb:control+alt+", key=None):
+    if dots < 0 or dots % 10 > 6:
+        raise ValueError("Invalid dots: {0}".format(dots))
+    elif dots == 0 and main is not None: # This causes command binding to bk:space.
+        raise ValueError("Invalid: dots is 0 and main is not None")
+    result = []
+    if key is None and main is not None and main.startswith("kb:"):
+        key = main[3:]
+    if main is not None:
+        result.append((main, dots))
+    if var1 is not None:
+        if var1.endswith("+"):
+            var1 = None if key is None else (var1 + key)
+        if var1 is not None:
+            result.append((var1, dots * 10 + 7))
+    if var2 is not None:
+        if var2.endswith("+"):
+            var2 = None if key is None else (var2 + key)
+        if var2 is not None:
+            result.append((var2, dots * 10 + 8))
+    if var3 is not None:
+        if var3.endswith("+"):
+            var3 = None if key is None else (var3 + key)
+        if var3 is not None:
+            result.append((var3, dots * 100 + 78))
+    return result
+
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     SCRCAT_BrlIMEHelper = _("Braille IME Helper")
 
@@ -579,38 +607,67 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         "bk:space+dot1+dot2+dot5": "viewBRLbuffer",
     }
 
-    default_bk_gestures = {
-        "kb:tab": 45, # Freedom Scientific, HIMS
-        "kb:escape": 15, # Freedom Scientific, HIMS
-        "kb:pageUp": 126, # HIMS
-        "kb:pageDown": 345, # HIMS
-        "kb:end": 46, # Freedom Scientific, HIMS
-        "kb:home": 13, # Freedom Scientific, HIMS
-        "kb:leftArrow": 3, # Freedom Scientific, HIMS
-        "kb:upArrow": 1, # Freedom Scientific, HIMS
-        "kb:rightArrow": 6, # Freedom Scientific, HIMS
-        "kb:downArrow": 4, # Freedom Scientific, HIMS
-        "kb:delete": 135,
-        "kb:applications": 1234, # HIMS
-        "kb:shift+tab": 12, # Freedom Scientific, HIMS
-        "kb:control+pageUp": 1268, # HIMS
-        "kb:control+pageDown": 3458, # HIMS
-        "kb:control+end": 456, # Freedom Scientific, HIMS
-        "kb:control+home": 123, # Freedom Scientific, HIMS
-        "kb:control+leftArrow": 2, # Freedom Scientific, HIMS
-        "kb:control+upArrow": 23, # HIMS
-        "kb:control+rightArrow": 5, # Freedom Scientific, HIMS
-        "kb:control+downArrow": 56, # HIMS
-        "kb:alt": 134, # Freedom Scientific, HIMS
-        "kb:alt+tab": 2345, # Freedom Scientific
-        "kb:alt+f4": 1356, # HIMS
-        "kb:alt+shift+tab": 1256, # Freedom Scientific
-        "kb:windows": 2456, # Freedom Scientific
-        "kb:windows+tab": 234, # Freedom Scientific
-        "kb:windows+d": 123456, # Freedom Scientific
-        "reportCurrentLine": 14, # Freedom Scientific
-        "showGui": 1345, # Freedom Scientific
-    }
+    default_bk_gestures = dict(
+        _make_bk_gesture_set(1, None, key="a") +
+        _make_bk_gesture_set(12, None, key="b") +
+        _make_bk_gesture_set(14, "kb:control", key="c") +
+        _make_bk_gesture_set(145, None, key="d") +
+        _make_bk_gesture_set(15, None, key="e") +
+        _make_bk_gesture_set(124, None, key="f") +
+        _make_bk_gesture_set(1245, None, key="g") +
+        _make_bk_gesture_set(125, None, key="h") +
+        _make_bk_gesture_set(24, None, key="i") +
+        _make_bk_gesture_set(245, None, key="j") +
+        _make_bk_gesture_set(13, None, key="k") +
+        _make_bk_gesture_set(123, None, key="l") +
+        _make_bk_gesture_set(134, "kb:alt", key="m") +
+        _make_bk_gesture_set(1345, "showGui", key="n") +
+        _make_bk_gesture_set(135, None, key="o") +
+        _make_bk_gesture_set(1234, None, key="p") +
+        _make_bk_gesture_set(12345, None, key="q") +
+        _make_bk_gesture_set(1235, None, key="r") +
+        _make_bk_gesture_set(234, "kb:shift", key="s") +
+        _make_bk_gesture_set(2345, None, key="t") +
+        _make_bk_gesture_set(136, None, key="u") +
+        _make_bk_gesture_set(1236, None, key="v") +
+        _make_bk_gesture_set(2456, "kb:windows", key="w") +
+        _make_bk_gesture_set(1346, "kb:alt+f4", key="x") +
+        _make_bk_gesture_set(13456, None, key="y") +
+        _make_bk_gesture_set(1356, None, key="z") +
+        _make_bk_gesture_set(246, "kb:pageUp", var3=None) +
+        _make_bk_gesture_set(1256, "kb:pageDown", var3=None) +
+        _make_bk_gesture_set(12456, "sayAll") +
+        _make_bk_gesture_set(45, "kb:home", var3=None) +
+        _make_bk_gesture_set(0, None, "kb:windows+space", "kb:alt+space", "kb:windows+shift+space") +
+        _make_bk_gesture_set(2346, "kb:escape", var3=None) +
+        _make_bk_gesture_set(5, "leftMouseClick", "kb:f11", "moveMouseToNavigatorObject", None) +
+        _make_bk_gesture_set(3456, "kb:delete", var3=None) +
+        _make_bk_gesture_set(1246, "kb:end", var3=None) +
+        _make_bk_gesture_set(146, "kb:downArrow") +
+        _make_bk_gesture_set(12346, "kb:applications", None, None, None) +
+        _make_bk_gesture_set(3, None, None, "navigatorObject_currentDimensions", "kb:windows+tab") +
+        _make_bk_gesture_set(12356, "kb:NVDA+f9", None, None, None) +
+        _make_bk_gesture_set(23456, "kb:NVDA+f10", None, None, None) +
+        _make_bk_gesture_set(16, "kb:shift+tab", var3=None) +
+        _make_bk_gesture_set(346, "kb:upArrow") +
+        _make_bk_gesture_set(6, "rightMouseClick", None, "moveNavigatorObjectToMouse", "kb:windows+t") +
+        _make_bk_gesture_set(36, None, None, "navigatorObject_toFocus", None) +
+        _make_bk_gesture_set(34, "kb:tab", var3=None) +
+        _make_bk_gesture_set(356, None, "kb:f10", "review_activate", None) +
+        _make_bk_gesture_set(2, "review_previousCharacter", "kb:f1", "reviewMode_previous", "kb:windows+a") +
+        _make_bk_gesture_set(23, "review_currentCharacter", "kb:f2", "navigatorObject_firstChild", "kb:windows+b") +
+        _make_bk_gesture_set(25, "review_nextCharacter", "kb:f3", None, "kb:windows+x") +
+        _make_bk_gesture_set(256, "review_previousWord", "kb:f4", "navigatorObject_previous", "kb:windows+d") +
+        _make_bk_gesture_set(26, "review_currentWord", "kb:f5", "navigatorObject_current", None) +
+        _make_bk_gesture_set(235, "review_nextWord", "kb:f6", "navigatorObject_next", None) +
+        _make_bk_gesture_set(2356, "review_previousLine", "kb:f7", "reviewMode_next", None) +
+        _make_bk_gesture_set(236, "review_currentLine", "kb:f8", "navigatorObject_parent", None) +
+        _make_bk_gesture_set(35, "review_nextLine", "kb:f9", None, "kb:windows+i") +
+        _make_bk_gesture_set(56, "review_sayAll", "kb:f12", None, None) +
+        _make_bk_gesture_set(126, "kb:leftArrow") +
+        _make_bk_gesture_set(345, "kb:rightArrow") +
+        []
+    )
 
 if len(set(GlobalPlugin.default_bk_gestures.values())) != len(GlobalPlugin.default_bk_gestures):
     log.error("Multiple assignment of some dot pattern in GlobalPlugin.default_bk_gestures.")
