@@ -127,26 +127,37 @@ def _make_bk_gesture_set(dots, main, var1="kb:control+", var2="kb:alt+", var3="k
         if not all(ord(bk_dots[j]) < ord(bk_dots[j+1]) for j in range(len(bk_dots) - 1)):
             log.error("Ill-formed dot pattern: " + bk_dots)
         return "+".join(["space"] + [("dot" + d) for d in bk_dots])
+    def parse_name(s):
+        l = s.split(".")
+        if len(l) == 1: # The default module and class.
+            l = ["globalCommands", "GlobalCommands"] + l
+        elif len(l) == 2:
+            if l[0] != "GlobalPlugin":
+                raise ValueError("Both module and class must be assigned: " + s)
+            l = ["globalPlugins.BrlIMEHelper"] + l
+        elif len(l) > 3:
+            l = [".".join(l[:-2]), l[-2], l[-1]]
+        return tuple(l)
     result = []
     if key is None and main is not None and main.startswith("kb:"):
         key = main[3:]
     if main is not None:
-        result.append((int2bk_gesture(dots), ("globalCommands", "GlobalCommands", main)))
+        result.append((int2bk_gesture(dots), parse_name(main)))
     if var1 is not None:
         if var1.endswith("+"):
             var1 = None if key is None else (var1 + key)
         if var1 is not None:
-            result.append((int2bk_gesture(dots * 10 + 7), ("globalCommands", "GlobalCommands", var1)))
+            result.append((int2bk_gesture(dots * 10 + 7), parse_name(var1)))
     if var2 is not None:
         if var2.endswith("+"):
             var2 = None if key is None else (var2 + key)
         if var2 is not None:
-            result.append((int2bk_gesture(dots * 10 + 8), ("globalCommands", "GlobalCommands", var2)))
+            result.append((int2bk_gesture(dots * 10 + 8), parse_name(var2)))
     if var3 is not None:
         if var3.endswith("+"):
             var3 = None if key is None else (var3 + key)
         if var3 is not None:
-            result.append((int2bk_gesture(dots * 100 + 78), ("globalCommands", "GlobalCommands", var3)))
+            result.append((int2bk_gesture(dots * 100 + 78), parse_name(var3)))
     return result
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
