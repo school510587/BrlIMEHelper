@@ -673,6 +673,3 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         _make_bk_gesture_set(345, "kb:rightArrow") +
         []
     )
-
-if len(set(GlobalPlugin.default_bk_gestures.values())) != len(GlobalPlugin.default_bk_gestures):
-    log.error("Multiple assignment of some dot pattern in GlobalPlugin.default_bk_gestures.")
