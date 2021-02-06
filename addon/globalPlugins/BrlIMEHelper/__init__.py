@@ -614,6 +614,15 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     script_viewBRLbuffer.__doc__ = _("View braille buffer.")
     script_viewBRLbuffer.category = SCRCAT_BrlIMEHelper
 
+    def script_openControlPanel(self, gesture): # os.system("control") is inefficient.
+        l = windll.Kernel32.GetSystemDirectoryA(None, 0)
+        b = create_string_buffer(l)
+        windll.Kernel32.GetSystemDirectoryA(b, len(b))
+        windll.Kernel32.WinExec(os.path.join(b.value, b"control.exe"), 1) # SW_NORMAL
+    # Translators: Name of a command to open the control panel.
+    script_openControlPanel.__doc__ = _("Open the control panel.")
+    script_openControlPanel.category = SCRCAT_BrlIMEHelper
+
     __gestures = {
         "kb:NVDA+control+6": "toggleBRLsimulation",
         "bk:dots": "BRLdots",
@@ -667,7 +676,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         _make_bk_gesture_set(16, "kb:shift+tab", var3=None) +
         _make_bk_gesture_set(346, "kb:upArrow") +
         _make_bk_gesture_set(6, "rightMouseClick", None, "moveNavigatorObjectToMouse", "kb:windows+t") +
-        _make_bk_gesture_set(36, None, None, "navigatorObject_toFocus", None) +
+        _make_bk_gesture_set(36, None, None, "navigatorObject_toFocus", "GlobalPlugin.openControlPanel") +
         _make_bk_gesture_set(34, "kb:tab", var3=None) +
         _make_bk_gesture_set(356, None, "kb:f10", "review_activate", None) +
         _make_bk_gesture_set(2, "review_previousCharacter", "kb:f1", "reviewMode_previous", "kb:windows+a") +
