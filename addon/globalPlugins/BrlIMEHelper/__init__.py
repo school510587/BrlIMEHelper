@@ -70,8 +70,8 @@ class DummyBrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.Brail
         if not isinstance(display.gestureMap, inputCore.GlobalGestureMap):
             display.gestureMap = inputCore.GlobalGestureMap()
         source = "bk:" if cmpNVDAver(2018, 3) < 0 else "br({0}):".format(cls.source)
-        for k, g in GlobalPlugin.default_bk_gestures.items():
-            display.gestureMap.add(source + g, "globalCommands", "GlobalCommands", k)
+        for g, f in GlobalPlugin.default_bk_gestures.items():
+            display.gestureMap.add(source + g, *f)
     def _get_id(self):
         try:
             dots_id = self._makeDotsId()
@@ -122,26 +122,31 @@ def _make_bk_gesture_set(dots, main, var1="kb:control+", var2="kb:alt+", var3="k
         raise ValueError("Invalid dots: {0}".format(dots))
     elif dots == 0 and main is not None: # This causes command binding to bk:space.
         raise ValueError("Invalid: dots is 0 and main is not None")
+    def int2bk_gesture(i):
+        bk_dots = "%d" % i
+        if not all(ord(bk_dots[j]) < ord(bk_dots[j+1]) for j in range(len(bk_dots) - 1)):
+            log.error("Ill-formed dot pattern: " + bk_dots)
+        return "+".join(["space"] + [("dot" + d) for d in bk_dots])
     result = []
     if key is None and main is not None and main.startswith("kb:"):
         key = main[3:]
     if main is not None:
-        result.append((main, dots))
+        result.append((int2bk_gesture(dots), ("globalCommands", "GlobalCommands", main)))
     if var1 is not None:
         if var1.endswith("+"):
             var1 = None if key is None else (var1 + key)
         if var1 is not None:
-            result.append((var1, dots * 10 + 7))
+            result.append((int2bk_gesture(dots * 10 + 7), ("globalCommands", "GlobalCommands", var1)))
     if var2 is not None:
         if var2.endswith("+"):
             var2 = None if key is None else (var2 + key)
         if var2 is not None:
-            result.append((var2, dots * 10 + 8))
+            result.append((int2bk_gesture(dots * 10 + 8), ("globalCommands", "GlobalCommands", var2)))
     if var3 is not None:
         if var3.endswith("+"):
             var3 = None if key is None else (var3 + key)
         if var3 is not None:
-            result.append((var3, dots * 100 + 78))
+            result.append((int2bk_gesture(dots * 100 + 78), ("globalCommands", "GlobalCommands", var3)))
     return result
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
@@ -671,10 +676,3 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
 
 if len(set(GlobalPlugin.default_bk_gestures.values())) != len(GlobalPlugin.default_bk_gestures):
     log.error("Multiple assignment of some dot pattern in GlobalPlugin.default_bk_gestures.")
-
-# Modify format of default_bk_gestures values to that of braille input identifiers.
-for k in GlobalPlugin.default_bk_gestures:
-    bk_dots = "%d" % GlobalPlugin.default_bk_gestures[k]
-    if not all(ord(bk_dots[i]) < ord(bk_dots[i+1]) for i in range(len(bk_dots) - 1)):
-        log.error("Ill-formed dot pattern of GlobalPlugin.default_bk_gestures: " + bk_dots)
-    GlobalPlugin.default_bk_gestures[k] = "+".join(["space"] + [("dot" + d) for d in bk_dots])
