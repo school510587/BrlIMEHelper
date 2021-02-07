@@ -629,7 +629,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         "bk:space+dot2+dot4+dot5": "clearBRLbuffer",
         "bk:space+dot1+dot2+dot3": "toggleAlphaModeBRLsimulation",
         "bk:space+dot4+dot5+dot6": "switchIMEmode",
-        "bk:space+dot1+dot2+dot5": "viewBRLbuffer",
+        "bk:space+dot1": "viewBRLbuffer",
     }
 
     default_bk_gestures = dict(
