@@ -93,8 +93,8 @@ profile["REL_PHYSICAL_DUMMY_BRLKB"] = ItemSpec(
     default_value = "former-precedence",
     allowed_values = OrderedDict([
         ("consistent", _("Consistent with behavior of the physical braille keyboard.")),
-        ("former-precedence", _("Supported gestures of the physical braille keyboard takes precedence.")),
-        ("latter-precedence", _("Common gestures listed by the addon takes precedence.")),
+        ("former-precedence", _("Gestures supported by the physical braille keyboard take precedence.")),
+        ("latter-precedence", _("Gestures listed by the addon take precedence.")),
         ("independent", _("Independent of behavior of the physical braille keyboard.")),
     ]),
 )
