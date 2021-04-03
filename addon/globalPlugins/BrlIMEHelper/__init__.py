@@ -649,7 +649,6 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         _make_bk_gesture_set(1345, "showGui", var3=None, key="n") +
         _make_bk_gesture_set(135, None, key="o") +
         _make_bk_gesture_set(1234, None, var3=None, key="p") +
-        _make_bk_gesture_set(12345, None, var3=None, key="q") +
         _make_bk_gesture_set(1235, None, var3=None, key="r") +
         _make_bk_gesture_set(234, "kb:shift", key="s") +
         _make_bk_gesture_set(2345, None, var3=None, key="t") +
@@ -657,7 +656,6 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         _make_bk_gesture_set(1236, None, var3=None, key="v") +
         _make_bk_gesture_set(2456, "kb:windows", var3=None, key="w") +
         _make_bk_gesture_set(1346, "kb:alt+f4", var3=None, key="x") +
-        _make_bk_gesture_set(13456, None, var3=None, key="y") +
         _make_bk_gesture_set(1356, None, var3=None, key="z") +
         _make_bk_gesture_set(246, "kb:pageUp", var3=None) +
         _make_bk_gesture_set(1256, "kb:pageDown", var3=None) +
