@@ -47,6 +47,180 @@
     + 小數點 `[.]`: 完成一個點字方的輸入。
     + 除號 `[/]`: 檢視打到一半未送出的點字方。
 
+#### 由電腦鍵盤所模擬的點字鍵盤
+
+透過本附加元件，使用者可以利用一般電腦鍵盤上的點字鍵送出點字輸入，就像操作真正的點字鍵盤那樣。這些點字輸入可以被模擬成來自「不使用點顯器」或者正在運作中的點顯器。快速鍵通常是點位加上點字空白，被模擬成來自這兩種「點顯器」的快速鍵可能有不同的功能，不過使用者可以自訂它們的功能。
+
+本附加元件提供超過 150 組點字快速鍵來對應到一些常用的電腦鍵盤組合鍵及 NVDA 的功能，好讓設定電腦鍵盤模擬點字鍵盤的使用者在操作時減少手的移動。它們分成三類，以中文寫成的最初設計規劃請見 [nvda-tw 電郵群組的 #3664 號訊息](https://groups.io/g/nvda-tw/message/3664)。
+
+這一整節中，點字快速鍵都包括點位與點字空白。為了說明簡單，就只提到點位的部份。下面有點字快速鍵和對應功能的列表。假如功能寫的是鍵盤名稱（例如 `[Ctrl]+[A]`），則這個鍵入序列會被送到系統中，否則，表中指示的 NVDA 或附加元件功能會被執行。
+
+相容性警告：在不到 2018.3 的 NVDA 版本中，點字輸入的來源不能是「不使用點顯器」，所以本附加元件產生的模擬點字輸入來自「點字鍵盤」（譯註：「點字鍵盤」指的是任意點顯器的點字鍵盤，可以將「輸入手勢」的設定套用在所有品牌、型號的點顯器上）。若沒有針對正在使用的點顯器設定點字快速鍵，實體點字鍵盤的操作也會變成執行本附加元件定義之功能，而這個行為不會發生在較新的 NVDA 版本中。
+
+##### 第一類
+
+這一類的點字快速鍵一定包含第 1 點或第 4 點。以下是設計的原則：
+
+1. 只由第 1 點至第 6 點組成的點字快速鍵，可以代表電腦鍵盤上的一個鍵（或組合鍵）或者 NVDA 的一項功能。大部份這類點字快速鍵未被佔用，以保留使用者自訂的彈性。
+2. 有第 7 點或第 8 點的點字快速鍵代表帶有 `[Ctrl]` 或 `[Alt]` 的組合鍵。
+
+<table border="1">
+ <tr><th>點位（加上點字空白）</th><th>功能</th><th>加第 7 點</th><th>加第 8 點</th><th>加 7, 8 點</th></tr>
+ <tr><td>1</td><td>為點字輸入法助手佔用</td><td>[Ctrl]+[A]</td><td>[Alt]+[A]</td><td>[Ctrl]+[Alt]+[A]</td></tr>
+ <tr><td>12</td><td>無</td><td>[Ctrl]+[B]</td><td>[Alt]+[B]</td><td>[Ctrl]+[Alt]+[B]</td></tr>
+ <tr><td>14</td><td>[Ctrl]</td><td>[Ctrl]+[C]</td><td>[Alt]+[C]</td><td>[Ctrl]+[Alt]+[C]</td></tr>
+ <tr><td>145</td><td>無</td><td>[Ctrl]+[D]</td><td>[Alt]+[D]</td><td>[Ctrl]+[Alt]+[D]</td></tr>
+ <tr><td>15</td><td>無</td><td>[Ctrl]+[E]</td><td>[Alt]+[E]</td><td>[Ctrl]+[Alt]+[E]</td></tr>
+ <tr><td>124</td><td>無</td><td>[Ctrl]+[F]</td><td>[Alt]+[F]</td><td>[Ctrl]+[Alt]+[F]</td></tr>
+ <tr><td>1245</td><td>無</td><td>[Ctrl]+[G]</td><td>[Alt]+[G]</td><td>無</td></tr>
+ <tr><td>125</td><td>無</td><td>[Ctrl]+[H]</td><td>[Alt]+[H]</td><td>[Ctrl]+[Alt]+[H]</td></tr>
+ <tr><td>24</td><td>無</td><td>[Ctrl]+[I]</td><td>[Alt]+[I]</td><td>[Ctrl]+[Alt]+[I]</td></tr>
+ <tr><td>245</td><td>為點字輸入法助手佔用</td><td>[Ctrl]+[J]</td><td>[Alt]+[J]</td><td>[Ctrl]+[Alt]+[J]</td></tr>
+ <tr><td>13</td><td>無</td><td>[Ctrl]+[K]</td><td>[Alt]+[K]</td><td>[Ctrl]+[Alt]+[K]</td></tr>
+ <tr><td>123</td><td>為點字輸入法助手佔用</td><td>[Ctrl]+[L]</td><td>[Alt]+[L]</td><td>[Ctrl]+[Alt]+[L]</td></tr>
+ <tr><td>134</td><td>[Alt]</td><td>[Ctrl]+[M]</td><td>[Alt]+[M]</td><td>[Ctrl]+[Alt]+[M]</td></tr>
+ <tr><td>1345</td><td>開啟 NVDA 功能表</td><td>[Ctrl]+[N]</td><td>[Alt]+[N]</td><td>無</td></tr>
+ <tr><td>135</td><td>無</td><td>[Ctrl]+[O]</td><td>[Alt]+[O]</td><td>[Ctrl]+[Alt]+[O]</td></tr>
+ <tr><td>1234</td><td>無</td><td>[Ctrl]+[P]</td><td>[Alt]+[P]</td><td>無</td></tr>
+ <tr><td>1235</td><td>無</td><td>[Ctrl]+[R]</td><td>[Alt]+[R]</td><td>無</td></tr>
+ <tr><td>234</td><td>[Shift]</td><td>[Ctrl]+[S]</td><td>[Alt]+[S]</td><td>[Ctrl]+[Alt]+[S]</td></tr>
+ <tr><td>2345</td><td>無</td><td>[Ctrl]+[T]</td><td>[Alt]+[T]</td><td>無</td></tr>
+ <tr><td>136</td><td>無</td><td>[Ctrl]+[U]</td><td>[Alt]+[U]</td><td>[Ctrl]+[Alt]+[U]</td></tr>
+ <tr><td>1236</td><td>無</td><td>[Ctrl]+[V]</td><td>[Alt]+[V]</td><td>無</td></tr>
+ <tr><td>2456</td><td>[Win]</td><td>[Ctrl]+[W]</td><td>[Alt]+[W]</td><td>無</td></tr>
+ <tr><td>1346</td><td>[Alt]+[F4]</td><td>[Ctrl]+[X]</td><td>[Alt]+[X]</td><td>無</td></tr>
+ <tr><td>1356</td><td>無</td><td>[Ctrl]+[Z]</td><td>[Alt]+[Z]</td><td>無</td></tr>
+ <tr><td>246</td><td>[PgUp]</td><td>[Ctrl]+[PgUp]</td><td>[Alt]+[PgUp]</td><td>無</td></tr>
+ <tr><td>1256</td><td>[PgDn]</td><td>[Ctrl]+[PgDn]</td><td>[Alt]+[PgDn]</td><td>無</td></tr>
+ <tr><td>12456</td><td>從目前游標所在位置往後讀到結尾</td><td>無</td><td>無</td><td>無</td></tr>
+ <tr><td>45</td><td>[Home]</td><td>[Ctrl]+[Home]</td><td>[Alt]+[Home]</td><td>無</td></tr>
+ <tr><td>2346</td><td>[Esc]</td><td>[Ctrl]+[Esc]</td><td>[Alt]+[Esc]</td><td>無</td></tr>
+ <tr><td>3456</td><td>[Delete]</td><td>[Ctrl]+[Delete]</td><td>[Alt]+[Delete]</td><td>無</td></tr>
+ <tr><td>1246</td><td>[End]</td><td>[Ctrl]+[End]</td><td>[Alt]+[End]</td><td>無</td></tr>
+ <tr><td>146</td><td>[&darr;]</td><td>[Ctrl]+[&darr;]</td><td>[Alt]+[&darr;]</td><td>[Ctrl]+[Alt]+[&darr;]</td></tr>
+ <tr><td>12346</td><td>[App]</td><td>無</td><td>無</td><td>無</td></tr>
+ <tr><td>12356</td><td>[NVDA]+[F9]</td><td>無</td><td>無</td><td>無</td></tr>
+ <tr><td>23456</td><td>[NVDA]+[F10]</td><td>無</td><td>無</td><td>無</td></tr>
+ <tr><td>16</td><td>[Shift]+[Tab]</td><td>[Ctrl]+[Shift]+[Tab]</td><td>[Alt]+[Shift]+[Tab]</td><td>無</td></tr>
+ <tr><td>346</td><td>[&uarr;]</td><td>[Ctrl]+[&uarr;]</td><td>[Alt]+[&uarr;]</td><td>[Ctrl]+[Alt]+[&uarr;]</td></tr>
+ <tr><td>34</td><td>[Tab]</td><td>[Ctrl]+[Tab]</td><td>[Alt]+[Tab]</td><td>無</td></tr>
+ <tr><td>126</td><td>[&larr;]</td><td>[Ctrl]+[&larr;]</td><td>[Alt]+[&larr;]</td><td>[Ctrl]+[Alt]+[&larr;]</td></tr>
+ <tr><td>345</td><td>[&rarr;]</td><td>[Ctrl]+[&rarr;]</td><td>[Alt]+[&rarr;]</td><td>[Ctrl]+[Alt]+[&rarr;]</td></tr>
+</table>
+
+##### 第二類
+
+在這個分類中，第 2, 3, 5, 6 點產生了 15 種不同的組合方式，下面的次分類是由所對應的功能而歸類。
+
+1. 九宮格數字鍵 `[1]` 到 `[9]` 由 9 個下位點字數字表示。
+2. 九宮格 `[/]`, `[+]`, `[.]`, `[-]`, 和 `[*]` 分別是第 5 點、第 5 6 點、第 3 點、第 3 6 點及第 6 點。
+3. 九宮格數字鍵加上 NVDA 鍵：前面兩個次分類的點字快速鍵再加第 8 點。
+4. `[F1]` 到 `[F12]`: 第一個次分類 9 組點字快速鍵與第二個次分類開頭兩組點字快速鍵再加第 7 點。另外 `[F10]` 是第 3 5 6 7 點。
+5. Windows 快速鍵：第一、第二個次類別的某些點字快速鍵加上第 7 8 點來代替諸如 `[Win]+[D]` 跟 `[Win]+[T]` 等。其中第 3 6 7 8 點代替打開控制台的操作。
+6. 九宮格 `[Enter]` 加 NVDA 鍵：第 3 5 6 8 點。
+
+<table border="1">
+ <tr><th>點位（加上點字空白）</th><th>功能</th><th>加第 7 點</th><th>加第 8 點</th><th>加 7, 8 點</th></tr>
+ <tr><td>2</td>
+  <td>檢閱游標移到前一個字元，並讀出</td>
+  <td>[F1]</td>
+  <td>切換到前一個檢閱模式</td>
+  <td>[Win]+[A]</td>
+ </tr>
+ <tr><td>23</td>
+  <td>讀出檢閱游標所在導航物件的字元</td>
+  <td>[F2]</td>
+  <td>將導航器移至第一個子物件</td>
+  <td>[Win]+[B]</td>
+ </tr>
+ <tr><td>25</td>
+  <td>檢閱游標移到導航器物件的後一個字元，並讀出</td>
+  <td>[F3]</td>
+  <td>無</td>
+  <td>[Win]+[X]</td>
+ </tr>
+ <tr><td>256</td>
+  <td>檢閱游標移到導航物件的前一個字詞，並讀出</td>
+  <td>[F4]</td>
+  <td>將導航器移到前一個物件</td>
+  <td>[Win]+[D]</td>
+ </tr>
+ <tr><td>26</td>
+  <td>讀出檢閱游標所在字元的字詞</td>
+  <td>[F5]</td>
+  <td>報讀目前的導航器物件</td>
+  <td>無</td>
+ </tr>
+ <tr><td>235</td>
+  <td>檢閱游標移到導航物件的後一個字詞，並讀出</td>
+  <td>[F6]</td>
+  <td>將導航器移到後一個物件</td>
+  <td>無</td>
+ </tr>
+ <tr><td>2356</td>
+  <td>檢閱游標移到上一行，並讀出</td>
+  <td>[F7]</td>
+  <td>切換到後一個檢閱模式</td>
+  <td>無</td>
+ </tr>
+ <tr><td>236</td>
+  <td>讀出導航器物件所在行的文字</td>
+  <td>[F8]</td>
+  <td>將導航器移到其母物件</td>
+  <td>無</td>
+ </tr>
+ <tr><td>35</td>
+  <td>檢閱游標移到導航物件的下一行，並讀出</td>
+  <td>[F9]</td>
+  <td>無</td>
+  <td>[Win]+[I]</td>
+ </tr>
+ <tr><td>356</td>
+  <td>無</td>
+  <td>[F10]</td>
+  <td>執行目前導航器物件的預設動作</td>
+  <td>無</td>
+ </tr>
+ <tr><td>5</td>
+  <td>在目前鼠標位置點擊滑鼠左鍵一次</td>
+  <td>[F11]</td>
+  <td>將鼠標移到目前的導航器物件</td>
+  <td>無</td>
+ </tr>
+ <tr><td>56</td>
+  <td>從目前檢閱游標所在的文字往後朗讀直到結尾</td>
+  <td>[F12]</td>
+  <td>無</td>
+  <td>無</td>
+ </tr>
+ <tr><td>3</td>
+  <td>無</td>
+  <td>無</td>
+  <td>讀出檢閱游標所在的文字或物件的位置資訊</td>
+  <td>[Win]+[Tab]</td>
+ </tr>
+ <tr><td>36</td>
+  <td>無</td>
+  <td>無</td>
+  <td>若可能的話，將導航器物件移到目前系統焦點，並將檢閱游標移到其內的編輯游標</td>
+  <td>開啟控制台</td>
+ </tr>
+ <tr><td>6</td>
+  <td>在目前鼠標位置點擊滑鼠右鍵一次</td>
+  <td>無</td>
+  <td>將導航器物件移到鼠標所指的物件並讀出</td>
+  <td>[Win]+[T]</td>
+ </tr>
+</table>
+
+##### 第三類
+
+這一類由第 7 點、第 8 點加上點字空白構成三組點字快速鍵。
+
+* 第 7 點 + 點字空白： `[Win]+[Space]` （譯註：切換所有語言中的輸入法）
+* 第 7, 8 點 + 點字空白： `[Win]+[Shift]+[Space]` （譯註：切換所有語言中的輸入法，方向與上一組快速鍵顛倒）
+* 第 8 點 + 點字空白： `[Alt]+[Space]`
+
 ### 選項
 
 #### 當 NVDA 啟動時自動啟用點字鍵盤模擬
