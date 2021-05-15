@@ -34,6 +34,15 @@ profile["AUTO_BRL_KEY"] = ItemSpec(
     default_value = False,
     allowed_values = None,
 )
+profile["IME_LANGUAGE_MODE_TOGGLE_KEY"] = ItemSpec(
+    label = _("The key shortcut to toggle IME alphanumeric/native mode:"),
+    default_value = "leftshift",
+    allowed_values = OrderedDict([
+        ("control+space", _("Ctrl + Space")),
+        ("leftshift", _("Left Shift")),
+        ("rightshift", _("Right Shift")),
+    ]),
+)
 profile["DEFAULT_NO_ALPHANUMERIC_BRL_KEY"] = ItemSpec(
     label = _("Disable braille keyboard simulation by default in IME alphanumeric mode."),
     default_value = False,

@@ -597,7 +597,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     script_clearBRLbuffer.category = SCRCAT_BrlIMEHelper
 
     def script_switchIMEmode(self, gesture):
-        self.send_keys("shift")
+        self.send_keys(configure.get("IME_LANGUAGE_MODE_TOGGLE_KEY"))
     # Translators: Name of a command to switch IME mode.
     script_switchIMEmode.__doc__ = _("Switches IME mode.")
     script_switchIMEmode.category = SCRCAT_BrlIMEHelper
