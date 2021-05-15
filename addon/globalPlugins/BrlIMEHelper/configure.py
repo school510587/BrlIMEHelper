@@ -9,7 +9,7 @@ from collections import Callable
 from collections import OrderedDict
 from ctypes import windll
 
-from keyboardHandler import getInputHkl
+from keyboardHandler import KeyboardInputGesture, getInputHkl
 from logHandler import log
 from winUser import *
 import addonHandler
@@ -38,9 +38,9 @@ profile["IME_LANGUAGE_MODE_TOGGLE_KEY"] = ItemSpec(
     label = _("The key shortcut to toggle IME alphanumeric/native mode:"),
     default_value = "leftshift",
     allowed_values = OrderedDict([
-        ("control+space", _("Ctrl + Space")),
-        ("leftshift", _("Left Shift")),
-        ("rightshift", _("Right Shift")),
+        ("control+space", KeyboardInputGesture.fromName("control+space").displayName),
+        ("leftshift", KeyboardInputGesture.fromName("leftshift").displayName),
+        ("rightshift", KeyboardInputGesture.fromName("rightshift").displayName),
     ]),
 )
 profile["DEFAULT_NO_ALPHANUMERIC_BRL_KEY"] = ItemSpec(
