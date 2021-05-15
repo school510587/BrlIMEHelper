@@ -226,6 +226,12 @@ There are 3 gestures in this class, consisting of dot 7, dot 8, and space.
 #### Automatically enable braille keyboard simulation when NVDA starts
 If checked, braille keyboard simulation is enabled automatically when NVDA starts.
 
+#### The key shortcut to toggle IME alphanumeric/native mode
+
+It determines the key command sent by the addon when the user presses dots 4, 5, and 6 along with the braille space. To keep the behavior consistent, the default is left shift.
+
+Note: Windows XP users, please configure the default language mode of 新注音 to native mode if you would like to use `[Ctrl]+[Space]` to switch between 美式鍵盤 and 新注音.
+
 #### Disable braille keyboard simulation by default in IME alphanumeric mode
 If checked, the user can always type characters by the current keyboard layout in IME alphanumeric mode. The option improves experience of users who are familiar to the standard computer keyboard but new to IME keyboard layout of its native mode.
 
