@@ -19,6 +19,7 @@ from threading import Timer
 import os
 import re
 import string
+import sys
 import winsound
 import wx
 try: unichr
@@ -28,7 +29,6 @@ from keyboardHandler import KeyboardInputGesture, getInputHkl, isNVDAModifierKey
 from logHandler import log
 from treeInterceptorHandler import DocumentTreeInterceptor
 from winUser import *
-from winVersion import winVersion
 import addonHandler
 import api
 import braille
@@ -481,7 +481,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         global thread_states
         pid, tid = getWindowThreadProcessID(getForegroundWindow())
         kl = getKeyboardLayout(tid)
-        if winVersion.major < 6 and kl == 0x04040404: # WinXP
+        if sys.getwindowsversion().major < 6 and kl == 0x04040404: # WinXP
             return 0
         elif pid not in thread_states or thread_states[pid]["mode"] is None:
             return 2
