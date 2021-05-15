@@ -484,6 +484,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if sys.getwindowsversion().major < 6 and kl == 0x04040404: # WinXP
             return 0
         elif pid not in thread_states or thread_states[pid]["mode"] is None:
+            if sys.getwindowsversion().major < 6 and configure.get("IME_LANGUAGE_MODE_TOGGLE_KEY") == "control+space":
+                return 3 # On WinXP, use Ctrl+Space to toggle IME mode.
             return 2
         elif thread_states[pid]["mode"] & 1 and LOWORD(kl) == 0x0404:
             return 1
