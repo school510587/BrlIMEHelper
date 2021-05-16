@@ -253,6 +253,9 @@ The two options determines indication of toggle of braille keyboard simulation. 
 #### Consistent braille keyboard simulation toggle state for all processes
 If checked, there is only one single state of braille keyboard simulation toggle, which is the behavior of all versions earlier than 2.0. Otherwise, the addon logs state of each process independently. A user who allows different IMEs for different windows may uncheck this option to reduce times of toggling braille keyboard simulation. Note that all toggle states of processes become the default state of NVDA starting if this option is changed from unchecked to checked.
 
+#### Behavior of the simulated braille keyboard
+The computer keyboard can emulate braille input from both the current working braille display and "No braille". When conflict happens, the precedence is determined by this option. On default, gestures provided by the addon take precedence.
+
 ### Remarks
 1. In alphanumeric mode, the effect is determined by NVDA's braille input table.
 2. The original NVDA behavior of dot 7, dot 8, and dot 7 + dot 8 is preserved in both modes.
