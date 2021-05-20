@@ -8,6 +8,7 @@ from collections import namedtuple
 from collections import Callable
 from collections import OrderedDict
 from ctypes import windll
+from sys import getwindowsversion as getWinVer
 
 from keyboardHandler import KeyboardInputGesture, getInputHkl
 from logHandler import log
@@ -26,6 +27,7 @@ except:
     pass
 
 NUM_BRAILLE_KEYS = 9
+WIN10_2004 = (10, 0, 19041)
 
 ItemSpec = namedtuple("ItemSpec", ["label", "default_value", "allowed_values"])
 profile = OrderedDict()
@@ -36,7 +38,7 @@ profile["AUTO_BRL_KEY"] = ItemSpec(
 )
 profile["IME_LANGUAGE_MODE_TOGGLE_KEY"] = ItemSpec(
     label = _("The key shortcut to toggle IME alphanumeric/native mode:"),
-    default_value = "leftshift",
+    default_value = "leftshift" if (6, 0, 0) <= (getWinVer().major, getWinVer().minor, getWinVer().build) < WIN10_2004 else "control+space",
     allowed_values = OrderedDict([
         ("control+space", KeyboardInputGesture.fromName("control+space").displayName),
         ("leftshift", KeyboardInputGesture.fromName("leftshift").displayName),
