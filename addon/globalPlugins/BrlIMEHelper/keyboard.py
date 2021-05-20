@@ -22,7 +22,7 @@ except: # NVDA-independent execution.
     winVersion = sys.getwindowsversion()
 
 try:
-    _("")
+    eval("_('')")
 except NameError: # NVDA-independent execution.
     import gettext
     gettext.install("") # Install _() into builtins namespace.
