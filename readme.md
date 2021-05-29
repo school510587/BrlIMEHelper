@@ -16,14 +16,19 @@ Braille IME Helper (BrlIMEHelper) enables users to input Chinese characters dire
 Before installation, check the following environment settings:
 
 - NVDA 2017.3 or later.
-- 微軟注音 must be your default IME with the following configuration:
-    * The composition mode must be default to alphanumeric.
-    * Use standard bopomofo keyboard layout. (default)
-    * The function of the left Shift must be to toggle the composition mode. (default)
+- 微軟注音 must be your default IME with configuration stated in the next paragraph.
 - If you would like to simulate braille keyboard by a computer keyboard, check that it supports NKRO (N-key rollover). See also: [What PC keyboards allow for 6-key braille data entry?](https://www.duxburysystems.com/faq2.asp?faq=32&fbclid=IwAR0zdRHClvT5gikN_RqAEX_phxEp51HZX9dtDGUkWU5gTprmvBUPyBs5cFk)
 - Please prevent Braille IME Helper from running with other applications or addons related to braille input, such as [PC Keyboard Braille Input for NVDA](https://addons.nvda-project.org/addons/pcKeyboardBrailleInput.en.html) addon and [Braille Chewing](https://github.com/EasyIME/PIME "PIME").
 - It is suggested to disable "Report changes to the reading string" option of NVDA's input composition settings to enjoy better experience during quick typing.
 - It is suggested to set the braille input table to "English (U.S.) 8 dot computer braille", so that NVDA's behavior is closer to the habit of Taiwanese users.
+
+The suggested 微軟注音 configuration is as follows. On any Windows version, use the default standard bopomofo keyboard layout. The table below shows the detail of configuration about composition mode.
+
+| Windows version | Default composition mode | Toggle key of composition mode | Remarks |
+| --------------- | ------------------------ | ------------------------------ | ------- |
+| Windows 10 2004 and above | Alphanumeric | `[Ctrl]+[Space]` | &nbsp; |
+| Vista to Windows 10 1909  | Alphanumeric | Left `[Shift]`   | &nbsp; |
+| Windows XP Service Pack 3 | Native       | `[Ctrl]+[Space]` | `[Ctrl]+[Space]` has to be configured to switch between 美式鍵盤 and 新注音. |
 
 ## Manipulation
 
