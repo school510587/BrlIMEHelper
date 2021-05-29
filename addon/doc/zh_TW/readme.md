@@ -246,7 +246,7 @@
 - 黃偉豪 &lt;<hurt.nzsmr@gmail.com>&gt;
 
 ## 致謝
-- 「點字輸入法助手」於 2019/07/01 至 2020/06/30 受到[社團法人臺灣視障協會](https://www.twvip.org) &lt;<vipastaiwan@gmail.com>&gt; 支持開發，特此深表感謝。
+- 「點字輸入法助手」於 2020/01/01 至 2021/12/31 受到[社團法人臺灣視障協會](https://www.twvip.org) &lt;<vipastaiwan@gmail.com>&gt; 支持開發，特此深表感謝。
 
 ## 修改歷程
 

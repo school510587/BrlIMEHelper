@@ -246,7 +246,7 @@ The computer keyboard can emulate braille input from both the current working br
 - 黃偉豪 &lt;<hurt.nzsmr@gmail.com>&gt;
 
 ## Acknowledgement
-- BrlIMEHelper has been sponsored by [Taiwan Visually Impaired People Association](https://www.twvip.org) &lt;<vipastaiwan@gmail.com>&gt; from 2019/07/01 to 2020/06/30, hereby express our sincere appreciation.
+- BrlIMEHelper has been sponsored by [Taiwan Visually Impaired People Association](https://www.twvip.org) &lt;<vipastaiwan@gmail.com>&gt; from 2020/01/01 to 2021/12/31, hereby express our sincere appreciation.
 
 ## History of changes
 
