@@ -66,7 +66,7 @@ Compatibility warning: NVDA versions earlier than 2018.3 disallow braille input 
 
 ##### Common Braille Gestures
 
-###### BrlIMEHelper Functions
+<b>BrlIMEHelper Functions</b>
 
 | Dots (+ braille space) | Function | Quick Memory |
 | :--------------------- | :------- | :----------- |
@@ -77,7 +77,7 @@ Compatibility warning: NVDA versions earlier than 2018.3 disallow braille input 
 
 What a user just enters in native mode is stored in the braille buffer before finish of composition. For example, 135 126 is insufficient for composition, but a review of the braille buffer shows that ㄅㄛ has been entered.
 
-###### Document Editing
+<b>Document Editing</b>
 
 | Dots (+ braille space) | Function | Quick Memory |
 | :--------------------- | :------- | :----------- |
@@ -97,7 +97,7 @@ What a user just enters in native mode is stored in the braille buffer before fi
 | 13567 | `[Ctrl]+[Z]` (undo) | Dot 7 (Ctrl) + dots 1, 3, 5, 6 (z) |
 | 3456  | `[Delete]` (remove text right to the cursor) | It is easy to link cross shape of # to "delete" |
 
-###### Windows System Key Shortcuts
+<b>Windows System Key Shortcuts</b>
 
 | Dots (+ braille space) | Function | Quick Memory |
 | :--------------------- | :------- | :----------- |
@@ -116,7 +116,7 @@ What a user just enters in native mode is stored in the braille buffer before fi
 | 78    | `[Win]+[Shift]+[Space]` (switch between IMEs in the reverse order of `[Win]+[Space]`) | &nbsp; |
 | 27, 237, ..., 357, 3567 | `[F1]` through `[F10]` | Dot 7 + ten braille digits |
 
-###### NVDA Operations
+<b>NVDA Operations</b>
 
 | Dots (+ braille space) | Function | Quick Memory |
 | :--------------------- | :------- | :----------- |
