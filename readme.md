@@ -310,3 +310,11 @@ The computer keyboard can emulate braille input from both the current working br
 * Modify keyboard shortcut NVDA+X to NVDA+Ctrl+6.
 * Add specification for all options into readme.md.
 * Code refactoring.
+
+### Version 2.1
+* Add various braille gestures to enhance efficiency for users who use virtual braille keyboard.
+* Abandon use of NVDA winVersion API to avoid compatibility issue caused by API update in NVDA 2021.1.
+* Add "The key shortcut to toggle IME alphanumeric/native mode" option.
+* Avoid gettext warning in keyboard.py.
+* Update files obtained from AddonTemplate.
+* Various corrections and improvements of this documentation.
