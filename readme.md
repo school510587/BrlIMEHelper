@@ -2,7 +2,7 @@
 Version 2.1
 
 ## Introduction
-Braille IME Helper (BrlIMEHelper) enables users to input Chinese characters directly through the braille keyboard on a braille display. When no braille keyboard is available, the addon can also simulate it using a computer keyboard. With conversion from braille input to IME operations by the addon, users familiar to braille rules can input Chinese characters without learning other input methods and keyboard layouts. So far, the addon is an implementation based on [bopomofo braille](https://en.wikipedia.org/wiki/Taiwanese_Braille) and 微軟注音 IME commonly used in Taiwan, but its concept can be extended to other braille systems and IMEs in the future.
+Braille IME Helper (BrlIMEHelper) enables users to input Chinese characters directly through the braille keyboard on a braille display. When no braille keyboard is available, the addon can also simulate it using a computer keyboard. With conversion from braille input to IME operations by the addon, users familiar to braille rules can input Chinese characters without learning other input methods and keyboard layouts. So far, the addon is an implementation based on [bopomofo braille](https://en.wikipedia.org/wiki/Taiwanese_Braille) and 微軟注音 IME commonly used in Taiwan, and its concept can be extended to other braille systems and IMEs in the future.
 
 ## Features
 1. Chinese input (including punctuations and math symbols) through the braille keyboard.
@@ -16,19 +16,21 @@ Braille IME Helper (BrlIMEHelper) enables users to input Chinese characters dire
 Before installation, check the following environment settings:
 
 - NVDA 2017.3 or later.
-- 微軟注音 must be your default IME with configuration stated in the next paragraph.
+- The IME must be properly configured, and the detail is presented in the next paragraph.
 - If you would like to simulate braille keyboard by a computer keyboard, check that it supports NKRO (N-key rollover). See also: [What PC keyboards allow for 6-key braille data entry?](https://www.duxburysystems.com/faq2.asp?faq=32&fbclid=IwAR0zdRHClvT5gikN_RqAEX_phxEp51HZX9dtDGUkWU5gTprmvBUPyBs5cFk)
 - Please prevent Braille IME Helper from running with other applications or addons related to braille input, such as [PC Keyboard Braille Input for NVDA](https://addons.nvda-project.org/addons/pcKeyboardBrailleInput.en.html) addon and [Braille Chewing](https://github.com/EasyIME/PIME "PIME").
 - It is suggested to disable "Report changes to the reading string" option of NVDA's input composition settings to enjoy better experience during quick typing.
 - It is suggested to set the braille input table to "English (U.S.) 8 dot computer braille", so that NVDA's behavior is closer to the habit of Taiwanese users.
 
-The suggested 微軟注音 configuration is as follows. On any Windows version, use the default standard bopomofo keyboard layout. The table below shows the detail of configuration about composition mode.
+This addon assumes that the user configures the IME as follows, but he/she can also change related options to suit the actual circumstance.
 
-| Windows version | Default composition mode | Toggle key of composition mode | Remarks |
-| --------------- | ------------------------ | ------------------------------ | ------- |
-| Windows 10 2004 and above | Alphanumeric | `[Ctrl]+[Space]` | &nbsp; |
-| Vista to Windows 10 1909  | Alphanumeric | Left `[Shift]`   | &nbsp; |
-| Windows XP Service Pack 3 | Native       | `[Ctrl]+[Space]` | `[Ctrl]+[Space]` has to be configured to switch between 美式鍵盤 and 新注音. |
+| Windows version | Windows 10 2004 and above | Vista to Windows 10 1909 | Windows XP Service Pack 3 |
+| --------------- | ------------------------- | ------------------------ | ------------------------- |
+| Default IME | 微軟注音 | 微軟注音 | 美式鍵盤 |
+| Default composition mode | Alphanumeric | Alphanumeric | Native (新注音) |
+| Composition mode toggle | `[Ctrl]+[Space]` | Left `[Shift]` | `[Ctrl]+[Space]` |
+| Keyboard layout | Standard | Standard | Standard |
+| Remarks | &nbsp; | &nbsp; | Switch between 美式鍵盤 and 新注音 by `[Ctrl]+[Space]`. |
 
 ## Manipulation
 
@@ -55,17 +57,9 @@ The addon provides both computer-keyboard and braille-keyboard gestures. Before 
 
 A braille gesture consists of the braille space and other braille dot(s). It allows the user to execute some specific function or emulate some key shortcut by the braille keyboard. With these braille gestures, the user may reduce the chance of moving his/her hands away from braille keys, and thus efficiency of operation is enhanced.
 
-To simplify subsequent content of the section, a braille gesture is described only by its braille dot(s). A link between dot(s) and function of a braille gesture always helps the user to remember it quickly. For example, the first alphabet of "ctrl" is "c", and "c" is dots 1 and 4 in English. Therefore, the gesture consisting of the braille space along with dots 1 and 4 represents a press of `[Ctrl]`. Some braille gestures may be easily remembered through visualization of its dot(s). For example, a cell of dots 1, 2, and 6 represents a less-than sign (&lt;) in English computer braille, and the sign looks like an arrow pointing to the left. So, the gesture consisting of the braille space along with dots 1, 2 and 6 represents a press of `[`&larr;`]`.
+The subsequent two subsections introduce braille gestures. The first subsection outlines some common braille gestures and suggestions for the user to quickly remember them. The second subsection provides a table to enumerate all braille gestures defined by this addon. Note that braille gestures executing BrlIMEHelper functions are available via both physical and virtual braille keyboards, but other braille gestures can only be used with the virtual braille keyboard.
 
-Trivial design principles are as follows:
-
-1. If either dot 1 or dot 4 is present, then dot 7 and dot 8 represent `[Ctrl]` and `[Alt]` respectively in the emulated key shortcut. For example, the gesture consisting of the braille space along with dots 1 and 7 represents `[Ctrl]`(dot 7)+`[A]`(dot 1, i.e. lowercase a).
-2. If neither dot 1 nor dot 4 is present, then the 4 cases are distinguished by presence of dot 7 and 8: Numpad keys (both are absent), function keys (dot 7 is present), numpad keys along with `[NVDA]` (dot 8 is present), Windows system key shortcuts (both are present).
-3. The 3 braille gestures without any of dots 1 through 6 are exceptions of the previous rule.
-
-The original proposal of design in Chinese is available in [message #3664 of nvda-tw group](https://groups.io/g/nvda-tw/message/3664).
-
-To prevent inefficient reading, there are two sections to introduce the braille gestures. In the first section, common braille gestures are listed with some suggestions for users to quickly remember them. Hereafter, the second section presents a table enumerating all braille gestures defined by the addon. Note that braille gestures executing BrlIMEHelper functions are available via both physical and virtual braille keyboards, but other braille gestures can only be used with the virtual braille keyboard.
+To simplify subsequent content of the section, a braille gesture is described only by its braille dot(s), without mentioning the braille space.
 
 Compatibility warning: NVDA versions earlier than 2018.3 disallow braille input from "No braille", so source of gestures provided by the addon is "braille keyboard". If the running braille display driver does not define the same gesture, then braille input generated by its physical braille keyboard may cause execution of them, which does not happen in newer NVDA versions.
 
@@ -115,10 +109,8 @@ What a user just enters in native mode is stored in the braille buffer before fi
 | 12346 | `[App]` (show the popup menu) | &nbsp; |
 | 1346  | `[Alt]+[F4]` (close the window) | The `[X]` button at the top right of a window |
 | 2346  | `[Esc]` | &nbsp; |
-| 25678 | `[Win]+[D]` (show the desktop) | Dots 7 and 8 (Win) + dots 1, 4, 5 (d) |
+| 25678 | `[Win]+[D]` (show the desktop) | Dots 7 and 8 (Win) + dots 2, 5, 6 (d at lower position, i.e. 4) |
 | 678   | `[Win]+[T]` (switch to the toolbar) | &nbsp; |
-| 7     | `[Win]+[Space]` (switch between all IMEs of all languages) | &nbsp; |
-| 78    | `[Win]+[Shift]+[Space]` (switch between IMEs in the reverse order of `[Win]+[Space]`) | &nbsp; |
 | 27, 237, ..., 357, 3567 | `[F1]` through `[F10]` | Dot 7 + ten braille digits |
 
 <b>NVDA Operations</b>
@@ -134,6 +126,10 @@ What a user just enters in native mode is stored in the braille buffer before fi
 ##### All Braille Gestures
 
 Here is a table listing all supported braille gestures.
+
+Before start, pease note that functions of most of the braille gestures can be induced by dot 7 and dot 8. Dot 7 represents that the emulated key shortcut contains `[Ctrl]`, or it is one of function keys `[F1]` to `[F12]`. Dot 8 represents that the emulated key shortcut contains either `[Alt]` or `[NVDA]` key. Both dots 7 and 8 represents that the emulated key shortcut contains either of `[Ctrl]+[Alt]` and `[Win]`. Anyway, proper comprehension of the design principle would help the reader to remember a lot of braille gestures at short notice.
+
+The original proposal of design in Chinese is available in [message #3664 of nvda-tw group](https://groups.io/g/nvda-tw/message/3664).
 
 | Dots (+ braille space) | Function | + dot 7 | + dot 8 | + dots 7 and 8 |
 | :--------------------- | :------- | :------ | :------ | :------------- |
