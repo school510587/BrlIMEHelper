@@ -24,3 +24,9 @@ a { text-decoration : underline;
 text-decoration : none; 
 }
 a:focus, a:hover {outline: solid}
+table {
+border-collapse: collapse;
+}
+table, th, td {
+border: 1px solid black;
+}
