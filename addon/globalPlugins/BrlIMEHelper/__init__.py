@@ -25,6 +25,7 @@ import wx
 try: unichr
 except NameError: unichr = chr
 from brailleDisplayDrivers.noBraille import BrailleDisplayDriver as NoBrailleDisplayDriver
+from brailleTables import getTable as getBRLtable
 from keyboardHandler import KeyboardInputGesture, getInputHkl, isNVDAModifierKey, currentModifiers
 from logHandler import log
 from treeInterceptorHandler import DocumentTreeInterceptor
@@ -175,6 +176,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.last_foreground = INVALID_HANDLE_VALUE
         thread_states.start_scan()
         self.timer = [None, ""] # A 2-tuple [timer object, string].
+        self.originalBRLtable = None
         configure.read()
         self.config_r = {
             "kbbrl_deactivated": False,
@@ -549,6 +551,25 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     script_toggleAlphaModeBRLsimulation.__doc__ = _("Toggles non-braille alphanumeric input during braille keyboard simulation.")
     script_toggleAlphaModeBRLsimulation.category = SCRCAT_BrlIMEHelper
 
+    def script_toggleUnicodeBRL(self, gesture):
+        try:
+            unicodeBRLtable = getBRLtable("unicode-braille.utb")
+        except:
+            log.error("Cannot find unicode-braille.utb", exc_info=True)
+            return
+        if brailleInput.handler.table is not unicodeBRLtable:
+            brailleInput.handler.table, self.originalBRLtable = unicodeBRLtable, brailleInput.handler.table
+            ui.message(_('The braille input translation table has been changed to "{0}"').format(brailleInput.handler.table.displayName))
+        elif self.originalBRLtable is not None:
+            brailleInput.handler.table, self.originalBRLtable = self.originalBRLtable, None
+            ui.message(_('The braille input translation table has been changed to "{0}"').format(brailleInput.handler.table.displayName))
+        else: # The user has never set the braille input table to any other table since NVDA started.
+            log.warning("script_toggleUnicodeBRL performs no action.")
+            winsound.MessageBeep()
+    # Translators: Name of a command to switch between unicode-braille.utb and any other braille input translation table.
+    script_toggleUnicodeBRL.__doc__ = _("Switches between the Unicode braille input translation table and any other input translation table.")
+    script_toggleUnicodeBRL.category = SCRCAT_BrlIMEHelper
+
     def script_BRLdots(self, gesture):
         mode, mode_msgs, new_brl = self.inferBRLmode(), [], ""
         if mode & 2: mode_msgs.append("assumed")
@@ -632,6 +653,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         "bk:space+dot1+dot2+dot3": "toggleAlphaModeBRLsimulation",
         "bk:space+dot4+dot5+dot6": "switchIMEmode",
         "bk:space+dot1": "viewBRLbuffer",
+        "bk:space+dot1+dot3+dot6": "toggleUnicodeBRL",
     }
 
     default_bk_gestures = dict(
