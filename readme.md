@@ -73,6 +73,7 @@ Compatibility warning: NVDA versions earlier than 2018.3 disallow braille input 
 | 1   | Review the braille buffer | &nbsp; |
 | 245 | Clear braille buffer on typo to re-enter the correct content | ㄘ of 錯（ㄘㄨㄛˋ） is represented by dots 2, 4, and 5 |
 | 123 | Enable/Disable braille input simulation in IME alphanumeric mode | The same as 視窗導盲鼠系統 |
+| 136 | Switch between the Unicode braille input translation table and any other table | The first alphabet of Unicode u is represented by dots 1, 3, and 6 |
 
 What a user just enters in native mode is stored in the braille buffer before finish of composition. For example, 135 126 is insufficient for composition, but a review of the braille buffer shows that ㄅㄛ has been entered.
 
@@ -152,7 +153,7 @@ The original proposal of design in Chinese is available in [message #3664 of nvd
 | 1235  | None | `[Ctrl]+[R]` | `[Alt]+[R]` | None |
 | 234   | `[Shift]` | `[Ctrl]+[S]` | `[Alt]+[S]` | `[Ctrl]+[Alt]+[S]` |
 | 2345  | None | `[Ctrl]+[T]` | `[Alt]+[T]` | None |
-| 136   | None | `[Ctrl]+[U]` | `[Alt]+[U]` | `[Ctrl]+[Alt]+[U]` |
+| 136   | Switch between the Unicode braille input translation table and any other table | `[Ctrl]+[U]` | `[Alt]+[U]` | `[Ctrl]+[Alt]+[U]` |
 | 1236  | None | `[Ctrl]+[V]` | `[Alt]+[V]` | None |
 | 2456  | `[Win]` | `[Ctrl]+[W]` | `[Alt]+[W]` | None |
 | 1346  | `[Alt]+[F4]` | `[Ctrl]+[X]` | `[Alt]+[X]` | None |
