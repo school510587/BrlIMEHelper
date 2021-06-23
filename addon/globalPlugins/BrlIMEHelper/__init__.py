@@ -580,19 +580,27 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         try:
             state = self.brl_composition(unichr(0x2800 | gesture.dots), mode)
         except NotImplementedError: # ENG mode, or input is rejected by brl parser.
+            done = False
             if gesture.dots == 0b01000000:
-                log.debug("BRLkeys: dot7 default")
-                scriptHandler.queueScript(globalCommands.commands.script_braille_eraseLastCell, gesture)
+                if mode & 1 or not isinstance(gesture, DummyBrailleInputGesture) or brailleInput.handler.table.fileName.lower() != "unicode-braille.utb":
+                    log.debug("BRLkeys: dot7 default")
+                    scriptHandler.queueScript(globalCommands.commands.script_braille_eraseLastCell, gesture)
+                    done = True
             elif gesture.dots == 0b10000000:
-                log.debug("BRLkeys: dot8 default")
-                scriptHandler.queueScript(globalCommands.commands.script_braille_enter, gesture)
+                if mode & 1 or not isinstance(gesture, DummyBrailleInputGesture) or brailleInput.handler.table.fileName.lower() != "unicode-braille.utb":
+                    log.debug("BRLkeys: dot8 default")
+                    scriptHandler.queueScript(globalCommands.commands.script_braille_enter, gesture)
+                    done = True
             elif gesture.dots == 0b11000000:
-                log.debug("BRLkeys: dot7+dot8 default")
-                scriptHandler.queueScript(globalCommands.commands.script_braille_translate, gesture)
+                if mode & 1 or not isinstance(gesture, DummyBrailleInputGesture) or brailleInput.handler.table.fileName.lower() != "unicode-braille.utb":
+                    log.debug("BRLkeys: dot7+dot8 default")
+                    scriptHandler.queueScript(globalCommands.commands.script_braille_translate, gesture)
+                    done = True
             elif mode & 1:
                 log.debug("BRLkeys: input rejected")
                 beep_typo()
-            else:
+                done = True
+            if not done:
                 log.debug("BRLkeys: dots default")
                 self.clear()
                 scriptHandler.queueScript(globalCommands.commands.script_braille_dots, gesture)
