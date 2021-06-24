@@ -77,6 +77,8 @@ Compatibility warning: NVDA versions earlier than 2018.3 disallow braille input 
 
 What a user just enters in native mode is stored in the braille buffer before finish of composition. For example, 135 126 is insufficient for composition, but a review of the braille buffer shows that ㄅㄛ has been entered.
 
+After press of dots 1, 3, 6 + space, the braille input translation table becomes "Unicode braille" immediately. The next press will let it become the original table selected by the user. However, if the original braille input translation table is "Unicode braille", then it will become "English (U.S.) 8 dot computer braille".
+
 <b>Document Editing</b>
 
 | Dots (+ braille space) | Function | Quick Memory |
