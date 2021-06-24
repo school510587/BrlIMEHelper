@@ -8,6 +8,12 @@ import os
 
 from logHandler import log
 
+def play_NVDA_sound(name):
+    try: from globalVars import appDir as NVDA_appDir
+    except: NVDA_appDir = "" # Earlier NVDA versions do not set this variable.
+    import nvwave
+    nvwave.playWaveFile(os.path.join(NVDA_appDir, "waves", str(name) + ".wav"))
+
 addon_dir = os.path.dirname(__file__)
 
 def _play_sound_hint(wav_path, replacement_winsound):
