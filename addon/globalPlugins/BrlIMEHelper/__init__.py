@@ -607,6 +607,8 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
                 log.debug("BRLkeys: dots default")
                 self.clear()
                 scriptHandler.queueScript(globalCommands.commands.script_braille_dots, gesture)
+            elif braille.handler.buffer is braille.handler.messageBuffer:
+                braille.handler._dismissMessage()
             return
         except:
             log.error("BRLkeys: Unexpected error.", exc_info=True)
@@ -614,6 +616,8 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
             play_NVDA_sound("error")
             return
         log.debug('BRLkeys: Done composition "{0}"'.format(state[0]))
+        if braille.handler.buffer is braille.handler.messageBuffer:
+            braille.handler._dismissMessage()
         if state[0]: # Composition completed with non-empty output.
             if state[1]: # The co-exist intermediate state.
                 self.timer = [Timer(0.25, self.send_input_and_clear, (state[0],)), state[0]]
@@ -626,8 +630,10 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
 
     def script_clearBRLbuffer(self, gesture):
         self.clear()
-    # Translators: Name of a command to clear braille buffer.
-    script_clearBRLbuffer.__doc__ = _("Clear braille buffer.")
+        if braille.handler.buffer is braille.handler.messageBuffer:
+            braille.handler._dismissMessage()
+    # Translators: Name of a command to clear braille buffer and/or dismiss NVDA braille message.
+    script_clearBRLbuffer.__doc__ = _("Clear braille buffer and/or dismiss NVDA braille message.")
     script_clearBRLbuffer.category = SCRCAT_BrlIMEHelper
 
     def script_switchIMEmode(self, gesture):
