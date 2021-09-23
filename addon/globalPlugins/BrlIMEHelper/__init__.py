@@ -568,7 +568,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
             ui.message(_('The braille input translation table has been changed to "{0}"').format(brailleInput.handler.table.displayName))
         except:
             log.error("script_toggleUnicodeBRL performs no action.", exc_info=True)
-            winsound.MessageBeep(winsound.MB_ICONHAND)
+            play_NVDA_sound("error")
     # Translators: Name of a command to switch between unicode-braille.utb and any other braille input translation table.
     script_toggleUnicodeBRL.__doc__ = _("Switches between the Unicode braille input translation table and any other input translation table.")
     script_toggleUnicodeBRL.category = SCRCAT_BrlIMEHelper
@@ -611,7 +611,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         except:
             log.error("BRLkeys: Unexpected error.", exc_info=True)
             self.clear()
-            winsound.MessageBeep(winsound.MB_ICONHAND)
+            play_NVDA_sound("error")
             return
         log.debug('BRLkeys: Done composition "{0}"'.format(state[0]))
         if state[0]: # Composition completed with non-empty output.
