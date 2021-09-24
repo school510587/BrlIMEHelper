@@ -321,3 +321,5 @@ The computer keyboard can emulate braille input from both the current working br
 * Avoid gettext warning in keyboard.py.
 * Update files obtained from AddonTemplate.
 * Various corrections and improvements of this documentation.
+
+### Version 2.2
