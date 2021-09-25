@@ -5,7 +5,10 @@
 
 from __future__ import unicode_literals
 from collections import namedtuple
-from collections import Callable
+try:
+    from collections.abc import Callable
+except:
+    from collections import Callable
 from collections import OrderedDict
 from ctypes import windll
 from sys import getwindowsversion as getWinVer

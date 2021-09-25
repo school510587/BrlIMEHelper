@@ -4,8 +4,12 @@
 # See the file LICENSE for more details.
 
 from __future__ import unicode_literals
-from collections import Iterable
-from collections import Mapping
+try:
+    from collections.abc import Iterable
+    from collections.abc import Mapping
+except:
+    from collections import Iterable
+    from collections import Mapping
 from collections import OrderedDict
 import winsound
 import wx
