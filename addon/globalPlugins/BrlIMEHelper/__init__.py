@@ -54,6 +54,7 @@ from .sounds import *
 from . import configure
 from . import hack_IME
 from . import keyboard
+from . import patch
 
 def cmpNVDAver(year, major, minor=0):
     try: from buildVersion import version_year, version_major, version_minor
@@ -678,7 +679,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
                     answer = answer[:-1]
                 answer = "".join(unichr(0x2800 | c) for c in answer)
         if answer is not None:
-            api.copyToClip(answer)
+            patch.copyToClip(answer)
         else: # Too many presses.
             play_NVDA_sound("error")
     # Translators: Name of a command to copy the braille display content to the clipboard.
