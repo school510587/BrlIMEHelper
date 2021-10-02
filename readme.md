@@ -325,3 +325,4 @@ The computer keyboard can emulate braille input from both the current working br
 
 ### Version 2.2
 * Dismiss NVDA braille message properly even if "Show messages indefinitely" option is enabled.
+* Avoid deprecated usage of "collections" module, "collections.abc" instead.
