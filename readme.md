@@ -249,6 +249,7 @@ The computer keyboard can emulate braille input from both the current working br
 ## Issues and ways of development
 - Known bugs:
     * NVDA braille does not reflect immediately as user input in "Braille Keys" and "Ignored Keys" edit controls.
+    * Under some circumstances, the addon cannot successfully update the user configuration.
 - Possible improvements in the future:
     * Allow users to customize the default state of the addon.
     * Allow users to customize dot patterns of symbols, and/or to load dot patterns from braille translation tables.
