@@ -333,6 +333,8 @@ The computer keyboard can emulate braille input from both the current working br
 * Various corrections and improvements of this documentation.
 
 ### Version 2.2
+* Implement quick switch between two braille input translation tables, the original and the Unicode braille, by dots 1, 3, 6 + space.
+* Allow ⡀ and ⢀ during Unicode BRL input by the computer keyboard.
 * Dismiss NVDA braille message properly even if "Show messages indefinitely" option is enabled.
 * Avoid deprecated usage of "collections" module, "collections.abc" instead.
 * Implement "print screen" for the braille display.
