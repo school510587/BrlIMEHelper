@@ -646,45 +646,48 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         brlbuf = braille.handler.buffer
         count = scriptHandler.getLastScriptRepeatCount()
         answer = None
-        if self.config_r["copy_raw_text_from_BRL_display"]:
-            if 0 <= count < 2:
-                answers = ["", ""]
-                for r in brlbuf.regions:
-                    answers[1] += r.rawText
-                    if not isinstance(r, braille.NVDAObjectRegion):
-                        answers[0] += r.rawText
-                if not answers[0] and brlbuf.cursorPos is None:
-                    answers[0] = brlbuf.regions[-1].rawText
-                answer = answers[count]
-            elif count == 2:
-                self.config_r["copy_raw_text_from_BRL_display"] = False
-                # Translators: Reported when the braille display PrintScreen mode becomes the Unicode Braille mode.
-                ui.message(_("Copy the braille display content in Unicode braille."))
-                return
+        if 0 <= count < 2:
+            answers = ["", ""]
+            for r in brlbuf.regions:
+                answers[1] += r.rawText
+                if not isinstance(r, braille.NVDAObjectRegion):
+                    answers[0] += r.rawText
+            if not answers[0] and brlbuf.cursorPos is None:
+                answers[0] = brlbuf.regions[-1].rawText
+            answer = answers[count]
+        if answer is not None:
             if answer.endswith(" ") and any((r.cursorPos, r.brailleSelectionStart, r.brailleSelectionEnd) != (None,) * 3 for r in brlbuf.visibleRegions):
                 answer = answer[:-1]
-        else:
-            end = -1
-            if count == 0:
-                answer, end = brlbuf.windowBrailleCells, brlbuf.windowEndPos
-            elif count == 1:
-                answer, end = brlbuf.brailleCells, len(brlbuf.brailleCells)
-            elif count == 2:
-                self.config_r["copy_raw_text_from_BRL_display"] = True
-                # Translators: Reported when the braille display PrintScreen mode becomes the Raw Text mode.
-                ui.message(_("Copy the raw text of the braille display content."))
-                return
-            if answer:
-                if end >= len(brlbuf.brailleCells) and answer[-1] == 0 and any((r.cursorPos, r.brailleSelectionStart, r.brailleSelectionEnd) != (None,) * 3 for r in brlbuf.visibleRegions):
-                    answer = answer[:-1]
-                answer = "".join(unichr(0x2800 | c) for c in answer)
+            patch.copyToClip(answer)
+        else: # Too many presses.
+            play_NVDA_sound("error")
+    # Translators: Name of a command to copy the raw text content of the braille display to the clipboard.
+    script_copyBRLdisplayContent.__doc__ = _("Copy the raw text content of the braille display to the clipboard.")
+    script_copyBRLdisplayContent.category = SCRCAT_BrlIMEHelper
+
+    def script_copyBRLdisplayContentB(self, gesture):
+        if not braille.handler.enabled:
+            log.error("The braille display is not enabled.")
+            play_NVDA_sound("error")
+            return
+        brlbuf = braille.handler.buffer
+        count = scriptHandler.getLastScriptRepeatCount()
+        answer, end = None, -1
+        if count == 0:
+            answer, end = brlbuf.windowBrailleCells, brlbuf.windowEndPos
+        elif count == 1:
+            answer, end = brlbuf.brailleCells, len(brlbuf.brailleCells)
+        if answer:
+            if end >= len(brlbuf.brailleCells) and answer[-1] == 0 and any((r.cursorPos, r.brailleSelectionStart, r.brailleSelectionEnd) != (None,) * 3 for r in brlbuf.visibleRegions):
+                answer = answer[:-1]
+            answer = "".join(unichr(0x2800 | c) for c in answer)
         if answer is not None:
             patch.copyToClip(answer)
         else: # Too many presses.
             play_NVDA_sound("error")
-    # Translators: Name of a command to copy the braille display content to the clipboard.
-    script_copyBRLdisplayContent.__doc__ = _("Copy the braille display content (raw text or Unicode braille) to the clipboard.")
-    script_copyBRLdisplayContent.category = SCRCAT_BrlIMEHelper
+    # Translators: Name of a command to copy the braille patterns on the braille display to the clipboard.
+    script_copyBRLdisplayContentB.__doc__ = _("Copy the braille patterns on the braille display to the clipboard.")
+    script_copyBRLdisplayContentB.category = SCRCAT_BrlIMEHelper
 
     def script_switchIMEmode(self, gesture):
         self.send_keys(configure.get("IME_LANGUAGE_MODE_TOGGLE_KEY"))
@@ -716,6 +719,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     __gestures = {
         "kb:NVDA+control+6": "toggleBRLsimulation",
         "kb:NVDA+printscreen": "copyBRLdisplayContent",
+        "kb:NVDA+windows+printscreen": "copyBRLdisplayContentB",
         "bk:dots": "BRLdots",
         "bk:space+dot2+dot4+dot5": "clearBRLbuffer",
         "bk:space+dot1+dot2+dot3": "toggleAlphaModeBRLsimulation",
