@@ -52,14 +52,12 @@ The addon provides both computer-keyboard and braille-keyboard gestures. Before 
     + 9: Clear uncompleted braille cell.
     + Decimal point `[.]`: Complete input of one braille cell.
     + Divide `[/]`: View uncommitted braille cell.
-* NVDA+PrintScreen: Copy braille display content (raw text or Unicode braille) to the clipboard.
-    + Raw Text mode:
-        - Press once: Copy this line.
-        - Press twice: Copy this line and the focus context presentation.
-    + Unicode Braille mode:
-        - Press once: Copy currently displayed braille cells.
-        - Press twice: Copy all braille cells of this line.
-    + Press three times: Switch between the two modes.
+* NVDA+PrintScreen: Copy the raw text content of the braille display to the clipboard.
+    + Press once: Copy this line.
+    + Press twice: Copy this line and the focus context presentation.
+* NVDA+Win+PrintScreen: Copy the braille patterns on the braille display to the clipboard.
+    + Press once: Copy currently displayed braille cells.
+    + Press twice: Copy all braille cells of this line.
 
 #### Braille Gestures
 
@@ -340,3 +338,4 @@ The computer keyboard can emulate braille input from both the current working br
 * Implement "print screen" for the braille display.
 
 ### Version 2.3
+* Assign different key shortcuts to two modes of the "copy braille display content" feature.
