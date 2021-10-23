@@ -680,10 +680,18 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         if answer:
             if end >= len(brlbuf.brailleCells) and answer[-1] == 0 and any((r.cursorPos, r.brailleSelectionStart, r.brailleSelectionEnd) != (None,) * 3 for r in brlbuf.visibleRegions):
                 answer = answer[:-1]
-            answer = "".join(unichr(0x2800 | c) for c in answer)
+            if configure.get("BRL_FORMAT_FOR_PRINTSCREEN") == "Unicode":
+                answer = "".join(unichr(0x2800 | c) for c in answer)
+            elif configure.get("BRL_FORMAT_FOR_PRINTSCREEN") == "BRF":
+                answer = b"".join(brl_tables.BRF_MAP[c % 64] for c in answer)
+            elif configure.get("BRL_FORMAT_FOR_PRINTSCREEN") == "NABCCX":
+                answer = b"".join(brl_tables.NABCCX_MAP[c] for c in answer)
+            else:
+                log.error('Invalid BRL_FORMAT_FOR_PRINTSCREEN value "{0}"'.format(configure.get("BRL_FORMAT_FOR_PRINTSCREEN")))
+                answer = None
         if answer is not None:
             patch.copyToClip(answer)
-        else: # Too many presses.
+        else: # Too many presses or other errors.
             play_NVDA_sound("error")
     # Translators: Name of a command to copy the braille patterns on the braille display to the clipboard.
     script_copyBRLdisplayContentB.__doc__ = _("Copy the braille patterns on the braille display to the clipboard.")
