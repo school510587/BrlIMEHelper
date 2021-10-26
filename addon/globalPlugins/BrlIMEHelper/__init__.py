@@ -716,6 +716,14 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     script_openControlPanel.__doc__ = _("Open the control panel.")
     script_openControlPanel.category = SCRCAT_BrlIMEHelper
 
+    def script_showMessageIndefinitely(self, gesture):
+        if braille.handler._messageCallLater:
+            braille.handler._messageCallLater.Stop()
+            braille.handler._messageCallLater = None
+    # Translators: Name of a command to force NVDA to show the current braille message indefinitely.
+    script_showMessageIndefinitely.__doc__ = _("Force NVDA to show the current braille message indefinitely.")
+    script_showMessageIndefinitely.category = SCRCAT_BrlIMEHelper
+
     __gestures = {
         "kb:NVDA+control+6": "toggleBRLsimulation",
         "kb:NVDA+printscreen": "copyBRLdisplayContent",
