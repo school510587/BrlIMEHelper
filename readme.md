@@ -202,6 +202,11 @@ The original proposal of design in Chinese is available in [message #3664 of nvd
 | 6     | Click the right mouse button once at the current mouse position | None | Set the navigator object to the current object under the mouse pointer and speak it | `[Win]+[T]` |
 | None | Braille space | `[Win]+[Space]` | `[Alt]+[Space]` | `[Win]+[Shift]+[Space]` |
 
+#### Functions without Any Predefined Input Gesture
+
+##### Force NVDA to show the current braille message indefinitely
+Most users configure NVDA to automatically dismiss the current braille message within a few seconds. If it is necessary to read some message carefully, then the user can execute this function through a self-defined input gesture. The message will stay on the braille display as if the "Show indefinitely" checkbox in the NVDA preference settings were checked. Thus, it is suggested to bind the function to a handy gesture, which may be completed within a few seconds.
+
 ### Options
 
 #### Automatically enable braille keyboard simulation when NVDA starts
