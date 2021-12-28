@@ -6,6 +6,9 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 from collections import OrderedDict
+from json import JSONDecoder
+import codecs
+import os
 import re
 
 import addonHandler
@@ -53,30 +56,10 @@ class _Symbol2KeyDict(dict):
                 return "|".join("`u%04x" % (ord(index),))
             raise # Bopomofo IME on WinXP does not support characters outside the BMP.
 
-symb2gesture = _Symbol2KeyDict([
-    (" ", " "),
-    ("※", "Control+Alt+,|r"),
-    ("←", "Control+Alt+,|b"),
-    ("↑", "Control+Alt+,|h"),
-    ("→", "Control+Alt+,|n"),
-    ("↓", "Control+Alt+,|j"),
-    ("─", "Control+Alt+,|z"),
-    ("、", "Control+'"),
-    ("。", "Control+."),
-    ("「", "Control+Alt+,|="),
-    ("」", "Control+Alt+,|\\"),
-    ("『", "Control+Alt+,|0"),
-    ("』", "Control+Alt+,|-"),
-    ("【", "Control+["),
-    ("】", "Control+]"),
-    ("！", "Control+!"),
-    ("，", "Control+,"),
-    ("：", "Control+:"),
-    ("；", "Control+;"),
-    ("？", "Control+?"),
-    ("｛", "Control+{"),
-    ("｝", "Control+}"),
-])
+with codecs.open(os.path.join(os.path.dirname(__file__), str("{B2F9C502-1742-11D4-9790-0080C882687E}.json")), encoding="UTF-8") as json_file:
+    IME_json = json_file.read()
+    IME_data_dict = JSONDecoder(object_pairs_hook=OrderedDict).decode(IME_json)
+symb2gesture = _Symbol2KeyDict(IME_data_dict.items())
 
 class Translator:
     layout_index = "ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙㄧㄨㄩㄚㄛㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦ ˊˇˋ˙"
