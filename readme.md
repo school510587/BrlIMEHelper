@@ -344,3 +344,4 @@ The computer keyboard can emulate braille input from both the current working br
 
 ### Version 2.3
 * Assign different key shortcuts to two modes of the "copy braille display content" feature.
+* Add the feature to force NVDA to show the current message indefinitely without the default gesture.
