@@ -12,6 +12,7 @@ from NVDAHelper import nvdaControllerInternal_inputLangChangeNotify
 from NVDAHelper import _setDllFuncPointer
 from logHandler import log
 
+from .msctf import *
 from .runtime_state import thread_states
 
 # Note: Monkeying handleInputConversionModeUpdate does not work.
@@ -45,3 +46,16 @@ def install():
 def uninstall():
     _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputConversionModeUpdate", nvdaControllerInternal_inputConversionModeUpdate)
     _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputLangChangeNotify", nvdaControllerInternal_inputLangChangeNotify)
+
+class IME_Manager:
+    def __init__(self):
+        self.IPP = CreateObject(CLSID_TF_InputProcessorProfiles, CLSCTX_ALL, interface=ITfInputProcessorProfiles)
+    def IMEs(self, langid=None, all=False):
+        if langid is None:
+            langid = self.IPP.GetCurrentLanguage()
+        iterator = self.IPP.EnumLanguageProfiles(langid)
+        while 1:
+            item = iterator.Next(1)
+            if item is None: break
+            if item.catid == GUID_TFCAT_TIP_KEYBOARD and (all or self.IPP.IsEnabledLanguageProfile(item.clsid, item.langid, item.guidProfile)):
+                yield item
