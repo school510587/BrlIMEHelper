@@ -290,7 +290,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             beep_disable()
 
     def _keyDown(self, vkCode, scanCode, extended, injected):
-        log.debug("keydown: vk = 0x%02X%s" % (vkCode, ", injected" if injected else ""))
+        log.debug("keydown: {0}".format(keyboard.vkdbgmsg(vkCode, extended, injected)))
         # Fix: Ctrl+X followed by X.
         try: # Check for keys that must be ignored.
             if self.ignore_injected_keys[0][0] != (vkCode, scanCode, bool(extended)):
@@ -376,7 +376,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         return False
 
     def _keyUp(self, vkCode, scanCode, extended, injected):
-        log.debug("keyup: vk = 0x%02X%s" % (vkCode, ", injected" if injected else ""))
+        log.debug("keydown: {0}".format(keyboard.vkdbgmsg(vkCode, extended, injected)))
         try:
             if self.ignore_injected_keys[1][0] != (vkCode, scanCode, bool(extended)):
                 raise ValueError

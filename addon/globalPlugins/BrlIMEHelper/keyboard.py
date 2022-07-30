@@ -12,6 +12,7 @@ import os
 import re
 
 import addonHandler
+import vkCodes
 
 try:
     addonHandler.initTranslation()
@@ -152,6 +153,22 @@ layout["TONGYONG_PINYIN"] = ([
     ], "")
 
 assert(set(mapping.keys()) == set(layout.keys()))
+
+def vkdbgmsg(vkCode, extended=None, injected=False):
+    answer = ""
+    if (vkCode, extended) in vkCodes.byCode:
+        answer = vkCodes.byCode[(vkCode, extended)]
+    elif extended is None and (vkCode, False) in vkCodes.byCode:
+        answer = vkCodes.byCode[(vkCode, False)]
+    elif (vkCode, None) in vkCodes.byCode:
+        answer = vkCodes.byCode[(vkCode, None)]
+    elif 0 <= vkCode < 128: # ASCII
+        answer = chr(vkCode)
+    else:
+        answer = "0x%02X" % (vkCode,)
+    if injected:
+        answer = "{0}, injected".format(answer)
+    return "vk: {0}".format(answer)
 
 if __name__ == "__main__":
     pass
