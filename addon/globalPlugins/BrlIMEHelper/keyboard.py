@@ -6,11 +6,14 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 from collections import OrderedDict
+from ctypes import *
 from json import JSONDecoder
 import codecs
 import os
 import re
 
+from keyboardHandler import getInputHkl
+from winUser import *
 import addonHandler
 import vkCodes
 
@@ -153,6 +156,13 @@ layout["TONGYONG_PINYIN"] = ([
     ], "")
 
 assert(set(mapping.keys()) == set(layout.keys()))
+
+def vk2str(vkCode, scanCode): # GetKeyboardState does not work as expected.
+    kst = [getKeyState(i) for i in range(256)]
+    kst = (c_byte * len(kst))(*kst)
+    b = create_unicode_buffer(32)
+    l = user32.ToUnicodeEx(vkCode, scanCode, kst, b, len(b), 0, getInputHkl())
+    return b.value if l > 0 else u""
 
 def vkdbgmsg(vkCode, extended=None, injected=False):
     answer = ""
