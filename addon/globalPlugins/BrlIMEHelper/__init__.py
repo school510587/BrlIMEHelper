@@ -183,7 +183,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             "copy_raw_text_from_BRL_display": True,
             "kbbrl_deactivated": False,
             "kbbrl_enabled": False,
-            "no_ASCII_kbbrl": configure.get("DEFAULT_NO_ALPHANUMERIC_BRL_KEY"),
+            "kbbrl_ASCII_mode": [
+                configure.get("DEFAULT_NO_ALPHANUMERIC_BRL_KEY"),
+                False,
+            ],
         }
         thread_states.cbrlkb = configure.get("AUTO_BRL_KEY")
         self.menu = wx.Menu()
@@ -393,7 +396,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if not self._trappedKeys: # A session ends.
             try: # Select an action to perform, either BRL or SEL.
                 if self.touched_mainKB_keys:
-                    if self.config_r["no_ASCII_kbbrl"] and not(self.inferBRLmode() & 1) and not(self._gesture and self._gesture.dots and self._gesture.space):
+                    if self.config_r["kbbrl_ASCII_mode"][0] and not(self.inferBRLmode() & 1) and not(self._gesture and self._gesture.dots and self._gesture.space):
                         self.send_keys(self.touched_mainKB_keys)
                     else:
                         touched_chars = set(self.touched_mainKB_keys.values())
@@ -541,8 +544,8 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     script_toggleBRLsimulation.category = SCRCAT_BrlIMEHelper
 
     def script_toggleAlphaModeBRLsimulation(self, gesture):
-        self.config_r["no_ASCII_kbbrl"] = not self.config_r["no_ASCII_kbbrl"]
-        if self.config_r["no_ASCII_kbbrl"]:
+        self.config_r["kbbrl_ASCII_mode"][0] = not self.config_r["kbbrl_ASCII_mode"][0]
+        if self.config_r["kbbrl_ASCII_mode"][0]:
             # Translators: Reported when non-braille alphanumeric input during braille keyboard simulation is enabled.
             ui.message(_("Enabled: Don't simulate braille input in IME alphanumeric mode."))
         else:
