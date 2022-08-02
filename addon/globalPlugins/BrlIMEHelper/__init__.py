@@ -349,15 +349,27 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             except:
                 pass
             return False
-        if currentModifiers or self._trappedNVDAModifiers or on_browse_mode() or self.config_r["kbbrl_deactivated"]:
-            if (vkCode, extended) not in self._trappedKeys:
-                self._modifiedKeys.add((vkCode, extended))
-                return self._oldKeyDown(vkCode, scanCode, extended, injected)
         charCode = user32.MapVirtualKeyExW(vkCode, MAPVK_VK_TO_CHAR, getInputHkl())
         if HIWORD(charCode) != 0:
             return self._oldKeyDown(vkCode, scanCode, extended, injected)
+        # In the following 2 cases, the key is seen to be modified anyway.
+        if (on_browse_mode() or self.config_r["kbbrl_deactivated"]) and (vkCode, extended) not in self._trappedKeys:
+            self._modifiedKeys.add((vkCode, extended))
+            return self._oldKeyDown(vkCode, scanCode, extended, injected)
         ch = unichr(LOWORD(charCode))
         log.debug('char code: %d' % (charCode,))
+        allModifiers = currentModifiers | self._trappedNVDAModifiers
+        if allModifiers and (vkCode, extended) not in self._trappedKeys:
+            brl_input = ""
+            if ch in self.ACC_KEYS and ch != ' ' and set(k[0] for k in allModifiers).issubset({VK_SHIFT, VK_LSHIFT, VK_RSHIFT}):
+                brl_input = self.vk2str_in_ASCII_mode(vkCode, scanCode)
+            if brl_input: # Send the input immediately for modified keys.
+                self.send_brl_input_from_str(brl_input)
+                self._trappedKeys.add((vkCode, extended))
+                return False
+            else:
+                self._modifiedKeys.add((vkCode, extended))
+                return self._oldKeyDown(vkCode, scanCode, extended, injected)
         try:
             dot = 1 << configure.get("BRAILLE_KEYS").index(ch)
         except: # not found
@@ -366,7 +378,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             dot = 0
         self._trappedKeys.add((vkCode, extended))
         if (vkCode, extended) not in self.touched_mainKB_keys:
-            self.touched_mainKB_keys[(vkCode, extended)] = ch
+            self.touched_mainKB_keys[(vkCode, extended)] = (ch, self.vk2str_in_ASCII_mode(vkCode, scanCode))
         if dot:
             if not self._gesture:
                 self._gesture = DummyBrailleInputGesture()
@@ -396,10 +408,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if not self._trappedKeys: # A session ends.
             try: # Select an action to perform, either BRL or SEL.
                 if self.touched_mainKB_keys:
-                    if self.config_r["kbbrl_ASCII_mode"][0] and not(self.inferBRLmode() & 1) and not(self._gesture and self._gesture.dots and self._gesture.space):
-                        self.send_keys(self.touched_mainKB_keys)
+                    if self.config_r["kbbrl_ASCII_mode"][self.inferBRLmode() & 1] and not(self._gesture and self._gesture.dots and self._gesture.space):
+                        brl_input = "".join(k[1] for k in self.touched_mainKB_keys.values())
+                        if brl_input:
+                            self.send_brl_input_from_str(brl_input)
+                        else:
+                            self.send_keys(self.touched_mainKB_keys)
                     else:
-                        touched_chars = set(self.touched_mainKB_keys.values())
+                        touched_chars = set(k[0] for k in self.touched_mainKB_keys.values())
                         k_brl, k_ign = set(configure.get("BRAILLE_KEYS")) & touched_chars, touched_chars
                         if self.inferBRLmode() & 1 or not configure.get("FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"):
                             k_ign = set(configure.get("IGNORED_KEYS")) & k_ign # Not &= to avoid tamper of touched_chars.
@@ -452,6 +468,33 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.timer[0] = None
         self.timer[1] = ""
         self.brl_str = ""
+
+    def send_brl_input_from_str(self, text):
+        def send_brl_input_from_str(text):
+            region = braille.TextRegion(text)
+            region.update()
+            for cell in region.brailleCells:
+                gesture = DummyBrailleInputGesture()
+                gesture.dots = cell
+                gesture.space = not cell
+                inputCore.manager.emulateGesture(gesture)
+        queueHandler.queueFunction(queueHandler.eventQueue, send_brl_input_from_str, text)
+
+    def vk2str_in_ASCII_mode(self, vkCode, scanCode):
+        IME_mode = self.inferBRLmode() & 1
+        if not self.config_r["kbbrl_ASCII_mode"][IME_mode]: # Not in ASCII mode.
+            return ""
+        unicodeBRLtable = getBRLtable("unicode-braille.utb")
+        if IME_mode == 0 and brailleInput.handler.table is not unicodeBRLtable:
+            return ""
+        try:
+            text = keyboard.vk2str(vkCode, scanCode)
+        except Exception as e:
+            log.error(str(e), exc_info=True)
+            return ""
+        if "\n" in text or "\r" in text: # Avoid newline characters.
+            return ""
+        return text
 
     def event_foreground(self, obj, nextHandler):
         fg = getForegroundWindow()
