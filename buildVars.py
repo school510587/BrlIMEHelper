@@ -40,6 +40,9 @@ addon_info = {
     "addon_updateChannel" : None,
 }
 
+# Construct the final version string.
+addon_info["addon_version"] = "-".join([addon_info["addon_version"], addon_info["addon_lastTestedNVDAVersion"]])
+
 # Define the python files that are the sources of your add-on.
 # You can either list every file (using ""/") as a path separator,
 # or use glob expressions.
