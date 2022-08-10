@@ -589,14 +589,13 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     def script_toggleAlphaModeBRLsimulation(self, gesture):
         self.config_r["kbbrl_ASCII_mode"][0] = not self.config_r["kbbrl_ASCII_mode"][0]
         if self.config_r["kbbrl_ASCII_mode"][0]:
-            # Translators: Reported when non-braille alphanumeric input during braille keyboard simulation is enabled.
-            ui.message(_("Enabled: The ASCII mode of the emulated braille keyboard (IME alphanumeric mode only)."))
+            # Translators: Reported when the emulated braille keyboard enters the ASCII mode.
+            ui.message(_("The ASCII mode (IME alphanumeric mode only)"))
         else:
-            # Translators: Reported when non-braille alphanumeric input during braille keyboard simulation is disabled.
-            ui.message(_("Disabled: The ASCII mode of the emulated braille keyboard (IME alphanumeric mode only)."))
-    # Translators: Name of a command to toggle braille simulation during alphanumeric input.
-    # This means braille input simulation is disabled in alphanumeric IME mode.
-    script_toggleAlphaModeBRLsimulation.__doc__ = _("Toggles the ASCII mode of the emulated braille keyboard (IME alphanumeric mode only).")
+            # Translators: Reported when the emulated braille keyboard enters the Perkins mode.
+            ui.message(_("The Perkins mode (IME alphanumeric mode only)"))
+    # Translators: Name of a command to switch the braille keyboard emulation mode.
+    script_toggleAlphaModeBRLsimulation.__doc__ = _("Switches the braille keyboard emulation mode (IME alphanumeric mode only).")
     script_toggleAlphaModeBRLsimulation.category = SCRCAT_BrlIMEHelper
 
     def script_toggleUnicodeBRL(self, gesture):
