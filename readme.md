@@ -260,7 +260,8 @@ It determines the key command sent by the addon when the user presses dots 4, 5,
 Note: Windows XP users, please configure the default language mode of 新注音 to native mode if you would like to use `[Ctrl]+[Space]` to switch between 美式鍵盤 and 新注音.
 
 #### Disable braille keyboard simulation by default in IME alphanumeric mode
-If checked, the user can always type characters by the current keyboard layout in IME alphanumeric mode. The option improves experience of users who are familiar to the standard computer keyboard but new to IME keyboard layout of its native mode.
+
+The option determines the default mode of braille keyboard emulation. See "Computer Keyboard" section of the gesture specification for details of the modes.
 
 #### "Braille Keys" and "Ignored Keys"
 Users can determine positions of braille dots, braille space, and ignored (reserved) keys for braille keyboard simulation in BrlIMEHelper settings dialog. Braille keyboard simulation is automatically disabled when either of the "Braille Keys" or the "Ignored Keys" edit control is focused. Exact 9 braille keys are required, but number of ignored keys is unlimited. If a key appears in both options, "Braille Keys" takes precedence. After entering all key positions by single computer keyboard strokes, `[Apply]` or `[OK]` button press is necessary to take effect. Occasionally, the "Braille Keys" option may not fully work, because simultaneous transmission of some key commands is unsupported by internal design of your computer (or notebook) keyboard. Please change your configuration to find a set of feasible braille keys.
