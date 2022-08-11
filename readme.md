@@ -387,3 +387,7 @@ The computer keyboard can emulate braille input from both the current working br
 ### Version 2.3
 * Assign different key shortcuts to two modes of the "copy braille display content" feature.
 * Add the feature to force NVDA to show the current message indefinitely without the default gesture.
+* Load keyboard-symbol mappings of IMEs from JSON files.
+* On installation, ask the user whether to automatically change the input translation table to "English (U.S.) 8 dot computer braille".
+* Adopt the new rule to determine the addon version string.
+* The design of the Perkins and the ASCII modes, and implementation in IME alphanumeric input.
