@@ -75,7 +75,7 @@ The ASCII mode also helps the user, especially who is familiar to the computer k
 Example 1:
 
 1. Set the output translation table and the input translation table to "Chinese (Taiwan, Mandarin)" and "Unicode braille", respectively.
-2. In the ASCII mode, switch 微軟注音 to the alphanumeric mode.
+2. In the ASCII mode, switch 微軟注音 to the alphanumeric input mode.
 3. On an edit control, type anything as if no braille keyboard emulation were running.
 
 After the three steps, you would find that the braille pattern of the output text is the same as your input characters, but the text actually consists of Unicode braille characters, which show the process of your braille input. That is, if the input translation table is not "Unicode braille", then these Unicode braille characters will be translated back to the ordinary alphanumeric symbols before output.
@@ -83,14 +83,14 @@ After the three steps, you would find that the braille pattern of the output tex
 Example 2: (not implemented yet)
 
 1. Set the output translation table to "Chinese (Taiwan, Mandarin)" without limit to the input translation table.
-2. In the ASCII mode, switch 微軟注音 to the native mode.
+2. In the ASCII mode, switch 微軟注音 to the native input mode.
 3. On an edit control, type 5 characters as follows: `a&'=1`
 
 After the three steps, you would find that the composition window displays 中文 or other Chinese characters read as ㄓㄨㄥㄨㄣˊ. That is, the braille pattern of `a&'=1` is ⠁⠯⠄⠿⠂, which is the same as that of 中文.
 
 Some users are used to input in braille, but not enough flexibility of their finger joints makes them commit many mistakes during the process of operating the physical braille keyboard or the Perkins mode. The design of the ASCII mode attempts to facilitate their input process. On touching the braille cells, the reader usually thinks of the characters they represent rather than the numbers of the dots. Conversely, it's just as easy for the user to express the desired braille cells with characters. In this mode, the addon translates the computer keyboard presses into the braille input according to the current braille output translation table. For example, "f" is translated into ⠋, which is determined by the current braille output translation table. Then, a key press on a computer keyboard generating a lowercase f represents the braille input of ⠋. In other words, to type "f" by the computer keyboard is equivalent to simultaneous presses of the dots 1, 2, and 4 on the braille keyboard.
 
-As shown in the explanation of the two examples, the ASCII mode has no effect in the IME alphanumeric mode with the usual configuration. Therefore, it is the extension of "Disable braille keyboard simulation in IME alphanumeric mode" prior to version 2.3 of the addon.
+As shown in the explanation of the two examples, the ASCII mode has no effect in the IME alphanumeric input mode with the usual configuration. Therefore, it is the extension of "Disable braille keyboard simulation in IME alphanumeric mode" prior to version 2.3 of the addon.
 
 Note: The method to generate a braille gesture in this mode follows that in the Perkins mode, i.e. to hold down the braille space along with the other dot 1 to dot 8 simultaneously.
 
@@ -116,13 +116,13 @@ Compatibility warning: NVDA versions earlier than 2018.3 disallow braille input 
 
 | Dots (+ braille space) | Function | Quick Memory |
 | :--------------------- | :------- | :----------- |
-| 456 | Toggle between alphanumeric and native modes | The same as 視窗導盲鼠系統 |
+| 456 | Switch between IME alphanumeric and native input modes | The same as 視窗導盲鼠系統 |
 | 1   | Review the braille buffer | &nbsp; |
 | 245 | Clear braille buffer on typo to re-enter the correct content | ㄘ of 錯（ㄘㄨㄛˋ） is represented by dots 2, 4, and 5 |
 | 123 | Switch between braille keyboard emulation modes in IME alphanumeric input | The same as 視窗導盲鼠系統 |
 | 136 | Switch between the Unicode braille input translation table and any other table | The first alphabet of Unicode u is represented by dots 1, 3, and 6 |
 
-What a user just enters in native mode is stored in the braille buffer before finish of composition. For example, 135 126 is insufficient for composition, but a review of the braille buffer shows that ㄅㄛ has been entered.
+What a user just enters in native input mode is stored in the braille buffer before finish of composition. For example, 135 126 is insufficient for composition, but a review of the braille buffer shows that ㄅㄛ has been entered.
 
 2, 4, 5 + space has an additional effect. It makes NVDA dismiss braille message without update of any control content.
 
@@ -225,7 +225,7 @@ The original proposal of design in Chinese is available in [message #3664 of nvd
 | 34    | `[Tab]` | `[Ctrl]+[Tab]` | `[Alt]+[Tab]` | None |
 | 126   | `[`&larr;`]` | `[Ctrl]+[`&larr;`]` | `[Alt]+[`&larr;`]` | `[Ctrl]+[Alt]+[`&larr;`]` |
 | 345   | `[`&rarr;`]` | `[Ctrl]+[`&rarr;`]` | `[Alt]+[`&rarr;`]` | `[Ctrl]+[Alt]+[`&rarr;`]` |
-| 456   | Toggle between alphanumeric and native modes | None | None | None |
+| 456   | Switch between IME alphanumeric and native input modes | None | None | None |
 | 2     | Move the review cursor to the previous character of the current navigator object and speak it | `[F1]` | Switch to the previous review mode | `[Win]+[A]` |
 | 23    | Report the character of the current navigator object where the review cursor is situated | `[F2]` | Move the navigator object to the first object inside it | `[Win]+[B]` |
 | 25    | Move the review cursor to the next character of the current navigator object and speak it | `[F3]` | None | `[Win]+[X]` |
@@ -253,11 +253,11 @@ Most users configure NVDA to automatically dismiss the current braille message w
 #### Automatically enable braille keyboard simulation when NVDA starts
 If checked, braille keyboard simulation is enabled automatically when NVDA starts.
 
-#### The key shortcut to toggle IME alphanumeric/native mode
+#### The key shortcut to toggle IME alphanumeric/native input
 
 It determines the key command sent by the addon when the user presses dots 4, 5, and 6 along with the braille space. To keep the behavior consistent, the default is left shift.
 
-Note: Windows XP users, please configure the default language mode of 新注音 to native mode if you would like to use `[Ctrl]+[Space]` to switch between 美式鍵盤 and 新注音.
+Note: Windows XP users, please configure the default input mode of 新注音 to native input if you would like to use `[Ctrl]+[Space]` to switch between 美式鍵盤 and 新注音.
 
 #### Use the ASCII mode as the default on IME alphanumeric input
 
@@ -266,11 +266,11 @@ The option is an extension from "Disable braille keyboard simulation by default 
 #### "Braille Keys" and "Ignored Keys"
 Users can determine positions of braille dots, braille space, and ignored (reserved) keys for braille keyboard simulation in BrlIMEHelper settings dialog. Braille keyboard simulation is automatically disabled when either of the "Braille Keys" or the "Ignored Keys" edit control is focused. Exact 9 braille keys are required, but number of ignored keys is unlimited. If a key appears in both options, "Braille Keys" takes precedence. After entering all key positions by single computer keyboard strokes, `[Apply]` or `[OK]` button press is necessary to take effect. Occasionally, the "Braille Keys" option may not fully work, because simultaneous transmission of some key commands is unsupported by internal design of your computer (or notebook) keyboard. Please change your configuration to find a set of feasible braille keys.
 
-#### Free all non-braille keys during braille keyboard simulation in IME alphanumeric mode
-If checked, all keys, except the braille keys, are ignored during braille keyboard simulation in IME alphanumeric mode.
+#### Free all non-braille keys during braille keyboard simulation in IME alphanumeric input mode
+If checked, all keys, except the braille keys, are ignored during braille keyboard simulation in IME alphanumeric input mode.
 
 #### Keyboard Mapping
-The option corresponds to the configuration of keyboard layout in IME native mode.
+The option corresponds to the configuration of keyboard layout in IME native input mode.
 
 #### Allow dot-by-dot braille input via numpad during braille keyboard simulation
 If checked, the user can input braille cells dot by dot via the numpad with Num Lock on.
@@ -285,7 +285,7 @@ If checked, there is only one single state of braille keyboard simulation toggle
 The computer keyboard can emulate braille input from both the current working braille display and "No braille". When conflict happens, the precedence is determined by this option. On default, gestures provided by the addon take precedence.
 
 ### Remarks
-1. In alphanumeric mode, the effect is determined by NVDA's braille input table.
+1. In IME alphanumeric input mode, the effect of the braille input is determined by NVDA's braille input translation table.
 2. The original NVDA behavior of dot 7, dot 8, and dot 7 + dot 8 is preserved in both modes.
 3. The addon do not influence other buttons on a braille display, such as buttons for scrolling and positioning.
 4. Users may manage all above shortcuts via NVDA input gestures dialog and BrlIMEHelper settings dialog.

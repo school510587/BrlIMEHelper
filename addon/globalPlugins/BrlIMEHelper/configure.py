@@ -40,7 +40,7 @@ profile["AUTO_BRL_KEY"] = ItemSpec(
     allowed_values = None,
 )
 profile["IME_LANGUAGE_MODE_TOGGLE_KEY"] = ItemSpec(
-    label = _("The key shortcut to toggle IME alphanumeric/native mode:"),
+    label = _("The key shortcut to toggle IME alphanumeric/native input:"),
     default_value = "leftshift" if (6, 0, 0) <= (getWinVer().major, getWinVer().minor, getWinVer().build) < WIN10_2004 else "control+space",
     allowed_values = OrderedDict([
         ("control+space", KeyboardInputGesture.fromName("control+space").displayName),
@@ -66,7 +66,7 @@ profile["IGNORED_KEYS"] = ItemSpec(
         all(ord(k) == windll.user32.MapVirtualKeyExW(VkKeyScanEx(k, getInputHkl())[1], MAPVK_VK_TO_CHAR, getInputHkl()) for k in ik),
 )
 profile["FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"] = ItemSpec(
-    label = _("Free all non-braille keys during braille keyboard simulation in IME alphanumeric mode."),
+    label = _("Free all non-braille keys during braille keyboard simulation in IME alphanumeric input mode."),
     default_value = False,
     allowed_values = None,
 )
