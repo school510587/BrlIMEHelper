@@ -482,7 +482,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def vk2str_in_ASCII_mode(self, vkCode, scanCode):
         IME_mode = self.inferBRLmode() & 1
-        if not self.config_r["kbbrl_ASCII_mode"][IME_mode]: # Not in ASCII mode.
+        if not self.config_r["kbbrl_ASCII_mode"][IME_mode]: # Not in the general input mode.
             return ""
         unicodeBRLtable = getBRLtable("unicode-braille.utb")
         if IME_mode == 0 and brailleInput.handler.table is not unicodeBRLtable:
@@ -589,11 +589,11 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     def script_toggleAlphaModeBRLsimulation(self, gesture):
         self.config_r["kbbrl_ASCII_mode"][0] = not self.config_r["kbbrl_ASCII_mode"][0]
         if self.config_r["kbbrl_ASCII_mode"][0]:
-            # Translators: Reported when the emulated braille keyboard enters the ASCII mode.
-            ui.message(_("The ASCII mode (IME alphanumeric input only)"))
+            # Translators: Reported when the emulated braille keyboard enters the general input mode.
+            ui.message(_("The general input mode (IME alphanumeric input only)"))
         else:
-            # Translators: Reported when the emulated braille keyboard enters the Perkins mode.
-            ui.message(_("The Perkins mode (IME alphanumeric input only)"))
+            # Translators: Reported when the emulated braille keyboard enters the braille input mode.
+            ui.message(_("The braille input mode (IME alphanumeric input only)"))
     # Translators: Name of a command to switch the braille keyboard emulation mode.
     script_toggleAlphaModeBRLsimulation.__doc__ = _("Switches the braille keyboard emulation mode (IME alphanumeric input only).")
     script_toggleAlphaModeBRLsimulation.category = SCRCAT_BrlIMEHelper

@@ -49,7 +49,7 @@ profile["IME_LANGUAGE_MODE_TOGGLE_KEY"] = ItemSpec(
     ]),
 )
 profile["DEFAULT_NO_ALPHANUMERIC_BRL_KEY"] = ItemSpec(
-    label = _("Use the ASCII mode as the default on IME alphanumeric input."),
+    label = _("Use the general input mode as the default on IME alphanumeric input."),
     default_value = False,
     allowed_values = None,
 )

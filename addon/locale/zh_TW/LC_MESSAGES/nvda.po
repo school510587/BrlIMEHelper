@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 'BrlIMEHelper' '2.3'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
-"POT-Creation-Date: 2022-08-14 03:02+0800\n"
-"PO-Revision-Date: 2022-08-14 03:13+0800\n"
+"POT-Creation-Date: 2022-08-19 23:40+0800\n"
+"PO-Revision-Date: 2022-08-19 23:41+0800\n"
 "Last-Translator: Sponge Jhan <school510587@yahoo.com.tw>\n"
 "Language-Team: NVDA-Taiwan Volunteers Team\n"
 "Language: zh_TW\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #. Translators: Dialog text shown to ask whether to change the braille input translation table.
-#: addon\installTasks.py:25
+#: addon\installTasks.py:29
 #, python-brace-format
 msgid ""
 "The current braille input translation table is \"{0}\". Would you like to "
@@ -27,12 +27,12 @@ msgid ""
 msgstr "目前的點字輸入轉譯表是「{0}」，您要不要把它改成「{1}」？"
 
 #. Translators: Title of the dialog shown to ask whether to change the braille input translation table.
-#: addon\installTasks.py:27
+#: addon\installTasks.py:31
 msgid "Change the braille input translation table"
 msgstr "改變點字輸入轉譯表"
 
 #. Translators: Dialog text shown to ask whether to save the user configuration.
-#: addon\installTasks.py:35
+#: addon\installTasks.py:39
 msgid ""
 "The user configuration of NVDA has been changed. If it is not the first "
 "installation, then the reason would be the change of the option names/values "
@@ -42,7 +42,7 @@ msgstr ""
 "手選項的名稱或值有所改變。您要不要現在儲存此修改？"
 
 #. Translators: Title of the dialog shown to ask whether to save the user configuration.
-#: addon\installTasks.py:37
+#: addon\installTasks.py:41
 msgid "Save the user configuration"
 msgstr "儲存使用者設定"
 
@@ -115,15 +115,15 @@ msgstr "關於點字輸入法助手"
 msgid "Toggles braille input from a computer keyboard."
 msgstr "開啟或關閉來自電腦鍵盤的點字輸入。"
 
-#. Translators: Reported when the emulated braille keyboard enters the ASCII mode.
+#. Translators: Reported when the emulated braille keyboard enters the general input mode.
 #: addon\globalPlugins\BrlIMEHelper\__init__.py:593
-msgid "The ASCII mode (IME alphanumeric input only)"
-msgstr "ASCII 模式（僅限於輸入法英數輸入）"
+msgid "The general input mode (IME alphanumeric input only)"
+msgstr "一般輸入模式（僅限於輸入法英數輸入）"
 
-#. Translators: Reported when the emulated braille keyboard enters the Perkins mode.
+#. Translators: Reported when the emulated braille keyboard enters the braille input mode.
 #: addon\globalPlugins\BrlIMEHelper\__init__.py:596
-msgid "The Perkins mode (IME alphanumeric input only)"
-msgstr "柏金斯模式（僅限於輸入法英數輸入）"
+msgid "The braille input mode (IME alphanumeric input only)"
+msgstr "點字輸入模式（僅限於輸入法英數輸入）"
 
 #. Translators: Name of a command to switch the braille keyboard emulation mode.
 #: addon\globalPlugins\BrlIMEHelper\__init__.py:598
@@ -193,8 +193,8 @@ msgid "The key shortcut to toggle IME alphanumeric/native input:"
 msgstr "切換輸入法英數、中文輸入模式所用的快速鍵"
 
 #: addon\globalPlugins\BrlIMEHelper\configure.py:52
-msgid "Use the ASCII mode as the default on IME alphanumeric input."
-msgstr "在輸入法英數輸入中模擬點字鍵盤時預設為 ASCII 模式。"
+msgid "Use the general input mode as the default on IME alphanumeric input."
+msgstr "在輸入法英數輸入中模擬點字鍵盤時預設為一般輸入模式。"
 
 #: addon\globalPlugins\BrlIMEHelper\configure.py:57
 msgid "Braille Keys:"
