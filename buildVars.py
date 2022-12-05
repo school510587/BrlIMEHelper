@@ -23,7 +23,7 @@ addon_info = {
     # Translators: Long description to be shown for this add-on on add-on information from add-ons manager.
     "addon_description" : _("""Converts braille input into IME operations."""),
     # Version
-    "addon_version" : "2.3",
+    "addon_version" : "2.4",
     # Author(s)
     "addon_author" : u"Bo-Cheng Jhan <school510587@yahoo.com.tw>",
     # URL for the add-on documentation support

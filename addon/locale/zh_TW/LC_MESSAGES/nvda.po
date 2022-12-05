@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 'BrlIMEHelper' '2.3'\n"
+"Project-Id-Version: 'BrlIMEHelper' '2.4'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
 "POT-Creation-Date: 2022-08-19 23:40+0800\n"
-"PO-Revision-Date: 2022-08-19 23:41+0800\n"
+"PO-Revision-Date: 2022-12-06 05:42+0800\n"
 "Last-Translator: Sponge Jhan <school510587@yahoo.com.tw>\n"
 "Language-Team: NVDA-Taiwan Volunteers Team\n"
 "Language: zh_TW\n"
