@@ -8,6 +8,7 @@ from collections import OrderedDict
 from json import JSONDecoder
 import codecs
 import re
+import struct
 
 char_exp = "[\u2800-\u28FF]|\\\\u28[0-9A-F]{2}"
 char_pattern = re.compile("({char})|\\[\\^?(({char})(-({char}))?)+\\]".format(char=char_exp), re.I | re.U)
@@ -72,3 +73,31 @@ class brl_buf_state:
             return default_message
         s = "-".join("0" if ord(c) == 0x2800 else "".join(str(i + 1) if ord(c) & (1 << i) else "" for i in range(8)) for c in brl)
         return "{0} ({1})".format(brl, s)
+
+# The BRF encoding map
+# 6-dot Braille [P]attern (The 6 LSBs of a Unicode Braille Pattern character) <=> Braille [A]SCII
+# Reference: liblouis table en-us-brf.dis
+BRF_P2A, BRF_A2P = [0] * 64, {}
+for k, v in zip(range(64), map(ord, " A1B'K2L@CIF/MSP\"E3H9O6R^DJG>NTQ,*5<-U8V.%[$+X!&;:4\\0Z7(_?W]#Y)=")):
+    BRF_P2A[k] = struct.pack("B", v)
+    BRF_A2P[BRF_P2A[k]] = k
+if len(BRF_A2P) != len(BRF_P2A): raise RuntimeError
+
+# The extended NABCC encoding map
+# 8-dot Braille [P]attern (The low byte of a Unicode Braille Pattern character) <=> Arbitrary [B]yte
+# The extended NABCC has the following additional mapping rules:
+# Output     | Input
+#------------+----------------------------------------------
+# [128, 159] | Input of [96, 126] and 95 along with dot 7
+# [160, 191] | Input of [32, 63] along with dot 7
+# [192, 223] | Input of [32, 63] along with dot 7 and dot 8
+# [224, 255] | Input of [32, 63] along with dot 8
+# Reference: liblouis table en-nabcc.utb
+NABCCX_P2B, NABCCX_B2P = [0] * 256, {}
+_inverse_BRF = dict((ord(k) % 64, v) for k, v in BRF_A2P.items())
+for i in range(len(NABCCX_P2B)):
+    NABCCX_P2B[int("30102132"[i >> 5]) << 6 | _inverse_BRF[int("01000111"[i >> 5]) << 5 | (i % 32)]] = struct.pack("B", i)
+NABCCX_P2B[0b00111000], NABCCX_P2B[0b01111000] = NABCCX_P2B[0b01111000], NABCCX_P2B[0b00111000]
+del _inverse_BRF 
+NABCCX_B2P = dict((v, k) for k, v in enumerate(NABCCX_P2B))
+if len(NABCCX_B2P) != len(NABCCX_P2B): raise RuntimeError
