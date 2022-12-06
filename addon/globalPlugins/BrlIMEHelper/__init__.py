@@ -717,18 +717,39 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
             return
         brlbuf = braille.handler.buffer
         count = scriptHandler.getLastScriptRepeatCount()
-        answer, end = None, -1
+        data, end, answer = None, -1, None
         if count == 0:
-            answer, end = brlbuf.windowBrailleCells, brlbuf.windowEndPos
+            data, end = brlbuf.windowBrailleCells, brlbuf.windowEndPos
         elif count == 1:
-            answer, end = brlbuf.brailleCells, len(brlbuf.brailleCells)
-        if answer:
-            if end >= len(brlbuf.brailleCells) and answer[-1] == 0 and any((r.cursorPos, r.brailleSelectionStart, r.brailleSelectionEnd) != (None,) * 3 for r in brlbuf.visibleRegions):
-                answer = answer[:-1]
-            answer = "".join(unichr(0x2800 | c) for c in answer)
+            data, end = brlbuf.brailleCells, len(brlbuf.brailleCells)
+        if data:
+            if end >= len(brlbuf.brailleCells) and data[-1] == 0 and any((r.cursorPos, r.brailleSelectionStart, r.brailleSelectionEnd) != (None,) * 3 for r in brlbuf.visibleRegions):
+                data = data[:-1]
+            if configure.get("BRL_FORMAT_FOR_PRINTSCREEN") == "Unicode":
+                answer = "".join(unichr(0x2800 | i) for i in data)
+            elif configure.get("BRL_FORMAT_FOR_PRINTSCREEN") == "BRF":
+                answer = ""
+                for i in data:
+                    try:
+                        answer += brl_tables.BRF_P2A[i].decode("ASCII")
+                    except IndexError:
+                        answer += unichr(0x2800 | i)
+            elif configure.get("BRL_FORMAT_FOR_PRINTSCREEN") == "NABCC":
+                data, answer = b"".join(brl_tables.NABCCX_P2B[i] for i in data), ""
+                while data:
+                    try:
+                        answer += data.decode("ASCII")
+                    except UnicodeDecodeError as e:
+                        answer += e.object[:e.start].decode("ASCII")
+                        answer += "".join(unichr(0x2800 | brl_tables.NABCCX_B2P[c]) for c in e.object[e.start:e.end])
+                        data = e.object[e.end:]
+                    else:
+                        data = ""
+            else:
+                log.error('Invalid BRL_FORMAT_FOR_PRINTSCREEN value "{0}"'.format(configure.get("BRL_FORMAT_FOR_PRINTSCREEN")))
         if answer is not None:
             patch.copyToClip(answer)
-        else: # Too many presses.
+        else: # Too many presses or other errors.
             play_NVDA_sound("error")
     # Translators: Name of a command to copy the braille patterns on the braille display to the clipboard.
     script_copyBRLdisplayContentB.__doc__ = _("Copy the braille patterns on the braille display to the clipboard.")
