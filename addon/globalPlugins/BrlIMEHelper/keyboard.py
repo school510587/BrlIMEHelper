@@ -66,7 +66,7 @@ with codecs.open(os.path.join(os.path.dirname(__file__), str("{B2F9C502-1742-11D
 symb2gesture = _Symbol2KeyDict(IME_data_dict.items())
 
 class Translator:
-    layout_index = "ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙㄧㄨㄩㄚㄛㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦ ˊˇˋ˙"
+    layout_index = ""
     def __init__(self, default_mapping, special_rules=None, sepchar="|"):
         split = lambda s: list(s if sepchar == "" else s.split(sepchar))
         self.default_map = dict(zip(Translator.layout_index, (split(k) for k in default_mapping)))
@@ -99,61 +99,9 @@ class Translator:
 # Layouts of keyboard mappings.
 # Each layout is required to be a dict with all keys listed in layout_index.
 layout = OrderedDict()
-layout["STANDARD"] = ("1qaz2wsxedcrfv5tgbyhnujm8ik,9ol.0p;/- 6347",)
-layout["E_TIAN"] = ("bpmfdtnlvkhg7c,./j;'sexuaorwiqzy890-= 2341",)
-layout["IBM"] = ("1234567890-qwertyuiopasdfghjkl;zxcvbn m,./",)
-layout["JING_YE"] = ("2wsx3edcrfvtgb6yhnujm8ik,9ol.0p;/-['= qaz1",)
-layout["HANYU_PINYIN"] = ([
-        "b", "p", "m", "f", "d", "t", "n", "l", "g", "k", "h", "j", "q", "x", "zh", "ch", "sh", "r", "z", "c", "s",
-        "yi", "wu", "yu", "a", "o", "e", "e", "ai", "ei", "ao", "ou", "an", "en", "ang", "eng", "er",
-        "1", "2", "3", "4", "5",
-    ], [
-        (r"(?<=[ㄓㄔㄕㄖㄗㄘㄙ])(?![ㄨㄚㄜㄞㄟㄠㄡㄢㄣㄤㄥ])", "i"),
-        (r"(?<=[ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒ])ㄧ", "i"),
-        (r"ㄧ(?=[ㄚㄛㄝㄞㄠㄡㄢㄤ])", "y"),
-        (r"(?<=[ㄉㄊㄋㄌㄍㄎㄏㄓㄔㄕㄖㄗㄘㄙ])ㄨ(?=ㄥ)", "o"),
-        (r"(?<=[ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄓㄔㄕㄖㄗㄘㄙ])ㄨ", "u"),
-        (r"ㄨ(?=[ㄚㄛㄞㄟㄢㄣㄤㄥ])", "w"),
-        (r"(?<=[ㄋㄌ])ㄩ(?![ㄝㄢㄣㄥ])", "v"),
-        (r"(?<=[ㄐㄑㄒ])ㄩ(?=ㄥ)", "io"),
-        (r"(?<=[ㄋㄌㄐㄑㄒ])ㄩ", "u"),
-        (r"ㄩ(?=ㄥ)", "yo"),
-        (r"(?<=[ㄧㄩ])ㄣ", "n"),
-        (r"(?<=[ㄧㄨㄩ])ㄥ", "ng"),
-    ], "")
-layout["SECONDARY_BOPOMOFO_PINYIN"] = ([
-        "b", "p", "m", "f", "d", "t", "n", "l", "g", "k", "h", "j", "ch", "sh", "j", "ch", "sh", "r", "tz", "ts", "s",
-        "yi", "wu", "yu", "a", "o", "e", "e", "ai", "ei", "au", "ou", "an", "en", "ang", "eng", "er",
-        "1", "2", "3", "4", "5",
-    ], [
-        (r"(?<=[ㄓㄔㄕ])(?![ㄨㄚㄜㄞㄟㄠㄡㄢㄣㄤㄥ])", "r"),
-        (r"(?<=[ㄘㄙ])(?![ㄨㄚㄜㄞㄟㄠㄡㄢㄣㄤㄥ])", "z"),
-        (r"(?<=[ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒ])ㄧ", "i"),
-        (r"ㄧ(?=[ㄚㄛㄝㄞㄠㄡㄢㄤ])", "y"),
-        (r"(?<![ㄉㄊㄋㄌㄍㄎㄏㄓㄔㄕㄖㄗㄘㄙ])ㄨ(?=ㄥ)", "we"),
-        (r"(?<=[ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄓㄔㄕㄖㄗㄘㄙ])ㄨ", "u"),
-        (r"ㄨ(?=[ㄚㄛㄞㄟㄢㄣㄤㄥ])", "w"),
-        (r"(?<=[ㄋㄌㄐㄑㄒ])ㄩ", "iu"),
-        (r"(?<=[ㄧㄩ])ㄣ", "n"),
-        (r"(?<=[ㄧㄨㄩ])ㄥ", "ng"),
-    ], "")
-layout["TONGYONG_PINYIN"] = ([
-        "b", "p", "m", "f", "d", "t", "n", "l", "g", "k", "h", "j", "c", "s", "jh", "ch", "sh", "r", "z", "c", "s",
-        "yi", "wu", "yu", "a", "o", "e", "e", "ai", "ei", "ao", "ou", "an", "en", "ang", "eng", "er",
-        "1", "2", "3", "4", "5",
-    ], [
-        (r"(?<=[ㄓㄔㄕㄖㄗㄘㄙ])(?![ㄨㄚㄜㄞㄟㄠㄡㄢㄣㄤㄥ])", "ih"),
-        (r"(?<=[ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒ])ㄧ", "i"),
-        (r"ㄧ(?=[ㄚㄛㄝㄞㄠㄡㄢㄤ])", "y"),
-        (r"(?<=[ㄉㄊㄋㄌㄍㄎㄏㄓㄔㄕㄖㄗㄘㄙ])ㄨ(?=ㄥ)", "o"),
-        (r"(?<=[ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄓㄔㄕㄖㄗㄘㄙ])ㄨ", "u"),
-        (r"ㄨ(?=[ㄚㄛㄞㄟㄢㄤ])", "w"),
-        (r"ㄨ(?=ㄥ)", "wo"),
-        (r"ㄩ(?=ㄥ)", "yo"),
-        (r"(?<=[ㄧㄨㄩ])ㄣ", "n"),
-        (r"(?<=ㄈ)ㄥ", "ong"),
-        (r"(?<=[ㄧㄨㄩ])ㄥ", "ng"),
-    ], "")
+with codecs.open(os.path.join(os.path.dirname(__file__), str("keyboard_mappings.json")), encoding="UTF-8-SIG") as json_file:
+    kbmaps_json = json_file.read()
+    Translator.layout_index, layout = JSONDecoder(object_pairs_hook=OrderedDict).decode(kbmaps_json)
 
 assert(set(mapping.keys()) == set(layout.keys()))
 
