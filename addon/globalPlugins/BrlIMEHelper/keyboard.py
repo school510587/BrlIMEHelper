@@ -19,6 +19,8 @@ from winUser import *
 import addonHandler
 import vkCodes
 
+from . import configure
+
 try:
     addonHandler.initTranslation()
 except:
@@ -40,15 +42,7 @@ except NameError: # NVDA-independent execution.
 MICROSOFT_BOPOMOFO = GUID("{B2F9C502-1742-11D4-9790-0080C882687E}")
 
 # Display names of keyboard mappings.
-# It must be ordered to keep the order of dialog options constant.
-mapping = OrderedDict()
-mapping["STANDARD"] = _("Standard")
-mapping["E_TIAN"] = _("E Tian")
-mapping["IBM"] = _("IBM")
-mapping["JING_YE"] = _("Jing Ye")
-mapping["HANYU_PINYIN"] = _("Hanyu Pinyin")
-mapping["SECONDARY_BOPOMOFO_PINYIN"] = _("Secondary Bopomofo Pinyin")
-mapping["TONGYONG_PINYIN"] = _("Tongyong Pinyin")
+mapping = configure.profile["KEYBOARD_MAPPING"].allowed_values
 
 class _Symbol2KeyDict(dict):
     def __init__(self, *args, **kwargs):

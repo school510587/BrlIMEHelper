@@ -19,8 +19,6 @@ from winUser import *
 import addonHandler
 import config
 
-from . import keyboard
-
 try: unicode
 except NameError: unicode = str
 
@@ -73,7 +71,15 @@ profile["FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"] = ItemSpec(
 profile["KEYBOARD_MAPPING"] = ItemSpec(
     label = _("Keyboard Mapping:"),
     default_value = "STANDARD",
-    allowed_values = keyboard.mapping,
+    allowed_values = OrderedDict([
+        ("STANDARD", _("Standard")),
+        ("E_TIAN", _("E Tian")),
+        ("IBM", _("IBM")),
+        ("JING_YE", _("Jing Ye")),
+        ("HANYU_PINYIN", _("Hanyu Pinyin")),
+        ("SECONDARY_BOPOMOFO_PINYIN", _("Secondary Bopomofo Pinyin")),
+        ("TONGYONG_PINYIN", _("Tongyong Pinyin")),
+    ]),
 )
 profile["ALLOW_DOT_BY_DOT_BRL_INPUT_VIA_NUMPAD"] = ItemSpec(
     label = _("Allow dot-by-dot braille input via numpad during braille keyboard simulation."),
