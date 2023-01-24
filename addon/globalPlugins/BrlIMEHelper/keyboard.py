@@ -6,6 +6,7 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 from collections import OrderedDict
+from comtypes import GUID
 from ctypes import *
 from json import JSONDecoder
 import codecs
@@ -34,6 +35,9 @@ except NameError: # NVDA-independent execution.
     import gettext
     gettext.install("") # Install _() into builtins namespace.
 
+# The profile ID of the Microsoft Bopomofo IME.
+MICROSOFT_BOPOMOFO = GUID("{B2F9C502-1742-11D4-9790-0080C882687E}")
+
 # Display names of keyboard mappings.
 # It must be ordered to keep the order of dialog options constant.
 mapping = OrderedDict()
@@ -60,7 +64,7 @@ class _Symbol2KeyDict(dict):
                 return "|".join("`u%04x" % (ord(index),))
             raise # Bopomofo IME on WinXP does not support characters outside the BMP.
 
-with codecs.open(os.path.join(os.path.dirname(__file__), str("{B2F9C502-1742-11D4-9790-0080C882687E}.json")), encoding="UTF-8") as json_file:
+with codecs.open(os.path.join(os.path.dirname(__file__), "{0}.json".format(MICROSOFT_BOPOMOFO)), encoding="UTF-8") as json_file:
     IME_json = json_file.read()
     IME_data_dict = JSONDecoder(object_pairs_hook=OrderedDict).decode(IME_json)
 symb2gesture = _Symbol2KeyDict(IME_data_dict.items())
