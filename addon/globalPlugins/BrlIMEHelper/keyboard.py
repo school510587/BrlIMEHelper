@@ -7,6 +7,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from collections import OrderedDict
 from comtypes import GUID
+from comtypes.GUID import GUID_null
 from ctypes import *
 from json import JSONDecoder
 import codecs
@@ -66,8 +67,9 @@ class _Symbol2KeyDict(dict):
 
 with codecs.open(os.path.join(os.path.dirname(__file__), "{0}.json".format(MICROSOFT_BOPOMOFO)), encoding="UTF-8") as json_file:
     IME_json = json_file.read()
-    IME_data_dict = JSONDecoder(object_pairs_hook=OrderedDict).decode(IME_json)
-symb2gesture = _Symbol2KeyDict(IME_data_dict.items())
+    IME_data = dict((GUID(g), d) for g, d in JSONDecoder(object_pairs_hook=OrderedDict).decode(IME_json).items())
+    IME_data_dict = IME_data[GUID_null]
+symb2gesture = _Symbol2KeyDict(IME_data_dict["SYMBOLS"].items())
 
 class Translator:
     layout_index = ""

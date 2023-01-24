@@ -1,24 +1,34 @@
 {
-    "※": "Control+Alt+,|r",
-    "←": "Control+Alt+,|b",
-    "↑": "Control+Alt+,|h",
-    "→": "Control+Alt+,|n",
-    "↓": "Control+Alt+,|j",
-    "─": "Control+Alt+,|z",
-    "、": "Control+'",
-    "。": "Control+.",
-    "「": "Control+Alt+,|=",
-    "」": "Control+Alt+,|\\",
-    "『": "Control+Alt+,|0",
-    "』": "Control+Alt+,|-",
-    "【": "Control+[",
-    "】": "Control+]",
-    "！": "Control+!",
-    "，": "Control+,",
-    "：": "Control+:",
-    "；": "Control+;",
-    "？": "Control+?",
-    "｛": "Control+{",
-    "｝": "Control+}",
-    " ": " "
+    "{00000000-0000-0000-0000-000000000000}": {
+        "UNDEFINED_SYMBOL": "`u%x ",
+        "ALLOW_NON_BMP_SYMBOLS": 1,
+        "SYMBOLS": {
+            "※": "Control+Alt+,|r",
+            "←": "Control+Alt+,|b",
+            "↑": "Control+Alt+,|h",
+            "→": "Control+Alt+,|n",
+            "↓": "Control+Alt+,|j",
+            "─": "Control+Alt+,|z",
+            "、": "Control+'",
+            "。": "Control+.",
+            "「": "Control+Alt+,|=",
+            "」": "Control+Alt+,|\\",
+            "『": "Control+Alt+,|0",
+            "』": "Control+Alt+,|-",
+            "【": "Control+[",
+            "】": "Control+]",
+            "！": "Control+!",
+            "，": "Control+,",
+            "：": "Control+:",
+            "；": "Control+;",
+            "？": "Control+?",
+            "｛": "Control+{",
+            "｝": "Control+}",
+            " ": " "
+        }
+    },
+    "{531FDEBF-9B4C-4A43-A2AA-960E8FCDC732}": {
+        "UNDEFINED_SYMBOL": "`u%04x",
+        "ALLOW_NON_BMP_SYMBOLS": 0
+    }
 }
