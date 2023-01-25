@@ -6,8 +6,11 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 from collections import OrderedDict
+from comtypes import COMError
+from comtypes import CLSCTX_ALL
 from comtypes import GUID
 from comtypes.GUID import GUID_null
+from comtypes.client import CreateObject
 from ctypes import *
 from json import JSONDecoder
 import codecs
@@ -20,6 +23,7 @@ import addonHandler
 import vkCodes
 
 from . import configure
+from .msctf import *
 
 try:
     addonHandler.initTranslation()
@@ -63,6 +67,30 @@ with codecs.open(os.path.join(os.path.dirname(__file__), "{0}.json".format(MICRO
     IME_json = json_file.read()
     IME_data = dict((GUID(g), d) for g, d in JSONDecoder(object_pairs_hook=OrderedDict).decode(IME_json).items())
     IME_data_dict = IME_data[GUID_null]
+    try:
+        oIPP = CreateObject(CLSID_TF_InputProcessorProfiles, CLSCTX_ALL, interface=ITfInputProcessorProfiles)
+        gtr = oIPP.EnumLanguageProfiles(0x0404)
+        while 1:
+            profile = gtr.Next()
+            if profile is None:
+                break
+            elif profile.guidProfile != MICROSOFT_BOPOMOFO or profile.clsid not in IME_data:
+                continue
+            for k, v in IME_data[profile.clsid].items():
+                if k in IME_data_dict:
+                    if v is None:
+                        del IME_data_dict[k]
+                    else:
+                        try:
+                            IME_data_dict[k].update(v)
+                        except:
+                            IME_data_dict[k] = v
+                elif v is not None:
+                    IME_data_dict[k] = v
+            if not oIPP.IsEnabledLanguageProfile(profile.clsid, 0x0404, MICROSOFT_BOPOMOFO):
+                log.warning("Microsoft Bopomofo IME is not enabled now.")
+    except COMError:
+        log.error("Some COM error occurred.", exc_info=True)
 symb2gesture = _Symbol2KeyDict(IME_data_dict["SYMBOLS"].items())
 
 class Translator:
