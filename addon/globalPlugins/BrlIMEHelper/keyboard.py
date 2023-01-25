@@ -49,19 +49,19 @@ MICROSOFT_BOPOMOFO = GUID("{B2F9C502-1742-11D4-9790-0080C882687E}")
 mapping = configure.profile["KEYBOARD_MAPPING"].allowed_values
 
 class _Symbol2KeyDict(dict):
-    def __init__(self, *args, **kwargs):
-        type(self).__base__.__init__(self, *args, **kwargs)
+    def __init__(self, IME_data_dict):
+        type(self).__base__.__init__(self, IME_data_dict["SYMBOLS"].items())
+        self.undefined_symbol_pattern = IME_data_dict["UNDEFINED_SYMBOL"]
+        self.allow_non_bmp_symbols = bool(IME_data_dict["ALLOW_NON_BMP_SYMBOLS"])
     def __getitem__(self, index):
         try:
             return type(self).__base__.__getitem__(self, index)
         except KeyError:
             if len(index) != 1:
                 raise
-            if winVersion.major >= 6: # Vista or later.
-                return "|".join("`u%04x " % (ord(index),))
-            elif ord(index) < 0x10000:
-                return "|".join("`u%04x" % (ord(index),))
-            raise # Bopomofo IME on WinXP does not support characters outside the BMP.
+            elif ord(index) >= 0x10000 and not self.allow_non_bmp_symbols:
+                raise
+            return "|".join(self.undefined_symbol_pattern % (ord(index),))
 
 with codecs.open(os.path.join(os.path.dirname(__file__), "{0}.json".format(MICROSOFT_BOPOMOFO)), encoding="UTF-8") as json_file:
     IME_json = json_file.read()
@@ -91,7 +91,7 @@ with codecs.open(os.path.join(os.path.dirname(__file__), "{0}.json".format(MICRO
                 log.warning("Microsoft Bopomofo IME is not enabled now.")
     except COMError:
         log.error("Some COM error occurred.", exc_info=True)
-symb2gesture = _Symbol2KeyDict(IME_data_dict["SYMBOLS"].items())
+symb2gesture = _Symbol2KeyDict(IME_data_dict)
 
 class Translator:
     layout_index = ""
