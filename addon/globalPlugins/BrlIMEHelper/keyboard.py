@@ -46,10 +46,10 @@ mapping = configure.profile["KEYBOARD_MAPPING"].allowed_values
 
 class _Symbol2KeyDict(dict):
     def __init__(self, *args, **kwargs):
-        self.__class__.__base__.__init__(self, *args, **kwargs)
+        type(self).__base__.__init__(self, *args, **kwargs)
     def __getitem__(self, index):
         try:
-            return self.__class__.__base__.__getitem__(self, index)
+            return type(self).__base__.__getitem__(self, index)
         except KeyError:
             if len(index) != 1:
                 raise
