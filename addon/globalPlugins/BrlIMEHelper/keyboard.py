@@ -12,12 +12,19 @@ from comtypes import GUID
 from comtypes.GUID import GUID_null
 from comtypes.client import CreateObject
 from ctypes import *
+from ctypes.wintypes import *
 from json import JSONDecoder
 import codecs
+import itertools
 import os
 import re
+try:
+    import winreg
+except:
+    import _winreg as winreg
 
 from keyboardHandler import getInputHkl
+from logHandler import log
 from winUser import *
 import addonHandler
 import vkCodes
@@ -43,7 +50,12 @@ except NameError: # NVDA-independent execution.
     gettext.install("") # Install _() into builtins namespace.
 
 # The profile ID of the Microsoft Bopomofo IME.
-MICROSOFT_BOPOMOFO = GUID("{B2F9C502-1742-11D4-9790-0080C882687E}")
+MICROSOFT_BOPOMOFO = {
+    "profile": GUID("{B2F9C502-1742-11D4-9790-0080C882687E}"),
+    "processor": GUID_null,
+    "keyboard-layout": HANDLE(),
+    "description": "",
+}
 
 # Display names of keyboard mappings.
 mapping = configure.profile["KEYBOARD_MAPPING"].allowed_values
@@ -63,7 +75,7 @@ class _Symbol2KeyDict(dict):
                 raise
             return "|".join(self.undefined_symbol_pattern % (ord(index),))
 
-with codecs.open(os.path.join(os.path.dirname(__file__), "{0}.json".format(MICROSOFT_BOPOMOFO)), encoding="UTF-8") as json_file:
+with codecs.open(os.path.join(os.path.dirname(__file__), "{0}.json".format(MICROSOFT_BOPOMOFO["profile"])), encoding="UTF-8") as json_file:
     IME_json = json_file.read()
     IME_data = dict((GUID(g), d) for g, d in JSONDecoder(object_pairs_hook=OrderedDict).decode(IME_json).items())
     IME_data_dict = IME_data[GUID_null]
@@ -74,7 +86,11 @@ with codecs.open(os.path.join(os.path.dirname(__file__), "{0}.json".format(MICRO
             profile = gtr.Next()
             if profile is None:
                 break
-            elif profile.guidProfile != MICROSOFT_BOPOMOFO or profile.clsid not in IME_data:
+            elif profile.guidProfile != MICROSOFT_BOPOMOFO["profile"]:
+                continue
+            MICROSOFT_BOPOMOFO["processor"] = profile.clsid
+            MICROSOFT_BOPOMOFO["description"] = oIPP.GetLanguageProfileDescription(profile.clsid, profile.langid, profile.guidProfile)
+            if profile.clsid not in IME_data:
                 continue
             for k, v in IME_data[profile.clsid].items():
                 if k in IME_data_dict:
@@ -87,10 +103,25 @@ with codecs.open(os.path.join(os.path.dirname(__file__), "{0}.json".format(MICRO
                             IME_data_dict[k] = v
                 elif v is not None:
                     IME_data_dict[k] = v
-            if not oIPP.IsEnabledLanguageProfile(profile.clsid, 0x0404, MICROSOFT_BOPOMOFO):
+            if not oIPP.IsEnabledLanguageProfile(profile.clsid, 0x0404, MICROSOFT_BOPOMOFO["profile"]):
                 log.warning("Microsoft Bopomofo IME is not enabled now.")
     except COMError:
         log.error("Some COM error occurred.", exc_info=True)
+try:
+    with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Control\Keyboard Layouts") as kls:
+        log.debug("Scanning HKLM")
+        for i in itertools.count():
+            kl_hex = winreg.EnumKey(kls, i)
+            with winreg.OpenKey(kls, kl_hex) as kl:
+                log.debug("Scanning {0}".format(kl_hex))
+                try:
+                    _name, _type = winreg.QueryValueEx(kl, "Layout Text")
+                    if _type == winreg.REG_SZ and _name == MICROSOFT_BOPOMOFO["description"]:
+                        MICROSOFT_BOPOMOFO["keyboard-layout"] = type(MICROSOFT_BOPOMOFO["keyboard-layout"])(int(kl_hex, 16))
+                except WindowsError as w:
+                    if w.winerror != 2: raise
+except WindowsError as w:
+    if w.winerror != 259: raise
 symb2gesture = _Symbol2KeyDict(IME_data_dict)
 
 class Translator:
