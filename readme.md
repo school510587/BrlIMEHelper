@@ -398,3 +398,9 @@ The format of the braille, including Unicode Braille Pattern, Braille ASCII, and
 * On installation, ask the user whether to automatically change the input translation table to "English (U.S.) 8 dot computer braille".
 * Adopt the new rule to determine the addon version string.
 * The design of the braille input and the general input modes, and implementation in IME alphanumeric input.
+
+### Version 2.4
+* Support NVDA version 2023.1.
+* Add "The format to copy the braille display content" option.
+* Code refactoring, and to separate the data from the code files.
+* Add the msctf module, which may contribute to development of the oncoming features.
