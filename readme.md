@@ -284,6 +284,13 @@ If checked, there is only one single state of braille keyboard simulation toggle
 #### Behavior of the simulated braille keyboard
 The computer keyboard can emulate braille input from both the current working braille display and "No braille". When conflict happens, the precedence is determined by this option. On default, gestures provided by the addon take precedence.
 
+#### The format to copy the braille display content
+The format of the braille, including Unicode Braille Pattern, Braille ASCII, and North American Braille Computer Code (NABCC), of the copied braille display content. 
+
+- [Unicode Braille Pattern](https://en.wikipedia.org/wiki/Braille_Patterns): The set of characters that are displayed as 8 braille dots.
+- [Braille ASCII](https://en.wikipedia.org/wiki/Braille_ASCII): The file format of the braille documents with .brf extension.
+- [North American Braille Computer Code (NABCC)](https://brltty.app/doc/Manual-BRLTTY/English/BRLTTY-14.html): See the reference web page. Note that only the braille patterns corresponding to characters 0 to 127 can be successfully copied.
+
 ### Remarks
 1. In IME alphanumeric input mode, the effect of the braille input is determined by NVDA's braille input translation table.
 2. The original NVDA behavior of dot 7, dot 8, and dot 7 + dot 8 is preserved in both modes.
