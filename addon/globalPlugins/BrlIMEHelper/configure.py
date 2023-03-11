@@ -123,7 +123,7 @@ profile["BRL_FORMAT_FOR_PRINTSCREEN"] = ItemSpec(
     default_value = "Unicode",
     allowed_values = OrderedDict([
         ("Unicode", _("Unicode Braille Pattern")),
-        ("BRF", _("Braille ASCII (BRF)")),
+        ("BRF", _("Braille ASCII")),
         ("NABCC", _("North American Braille Computer Code (NABCC)")),
     ]),
 )

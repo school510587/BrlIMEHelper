@@ -74,7 +74,7 @@ class brl_buf_state:
         s = "-".join("0" if ord(c) == 0x2800 else "".join(str(i + 1) if ord(c) & (1 << i) else "" for i in range(8)) for c in brl)
         return "{0} ({1})".format(brl, s)
 
-# The BRF encoding map
+# The BRaille ASCII encoding map
 # 6-dot Braille [P]attern (The 6 LSBs of a Unicode Braille Pattern character) <=> Braille [A]SCII
 # Reference: liblouis table en-us-brf.dis
 BRF_P2A, BRF_A2P = [0] * 64, {}

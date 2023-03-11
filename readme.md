@@ -288,7 +288,7 @@ The computer keyboard can emulate braille input from both the current working br
 The format of the braille, including Unicode Braille Pattern, Braille ASCII, and North American Braille Computer Code (NABCC), of the copied braille display content. 
 
 - [Unicode Braille Pattern](https://en.wikipedia.org/wiki/Braille_Patterns): The set of characters that are displayed as 8 braille dots.
-- [Braille ASCII](https://en.wikipedia.org/wiki/Braille_ASCII): The file format of the braille documents with .brf extension.
+- [Braille ASCII](https://en.wikipedia.org/wiki/Braille_ASCII): The representation to express the braille patterns consisting of dot 1 to dot 6 with ASCII characters adopted by the braille documents with .brf extension.
 - [North American Braille Computer Code (NABCC)](https://brltty.app/doc/Manual-BRLTTY/English/BRLTTY-14.html): See the reference web page. Note that only the braille patterns corresponding to characters 0 to 127 can be successfully copied.
 
 ### Remarks

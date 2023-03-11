@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 'BrlIMEHelper' '2.5'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
-"POT-Creation-Date: 2023-02-18 04:15+0800\n"
-"PO-Revision-Date: 2023-03-11 23:49+0800\n"
+"POT-Creation-Date: 2023-03-12 00:04+0800\n"
+"PO-Revision-Date: 2023-03-12 00:05+0800\n"
 "Last-Translator: Sponge Jhan <school510587@yahoo.com.tw>\n"
 "Language-Team: NVDA-Taiwan Volunteers Team\n"
 "Language: zh_TW\n"
@@ -303,8 +303,8 @@ msgid "Unicode Braille Pattern"
 msgstr "Unicode 點字圖案"
 
 #: addon\globalPlugins\BrlIMEHelper\configure.py:126
-msgid "Braille ASCII (BRF)"
-msgstr "點字 ASCII (BRF)"
+msgid "Braille ASCII"
+msgstr "Braille ASCII"
 
 #: addon\globalPlugins\BrlIMEHelper\configure.py:127
 msgid "North American Braille Computer Code (NABCC)"

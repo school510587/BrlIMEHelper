@@ -289,7 +289,7 @@
 複製下來的點字內容所使用的格式，包含 Unicode 點字圖案、點字 ASCII、以及北美英文電腦點字 (NABCC)。
 
 - [Unicode 點字圖案](https://en.wikipedia.org/wiki/Braille_Patterns): 會顯示成八點的字元。
-- [點字 ASCII](https://en.wikipedia.org/wiki/Braille_ASCII): 副檔名為 .brf 的點字檔所使用的格式。
+- [點字 ASCII](https://en.wikipedia.org/wiki/Braille_ASCII): 副檔名為 .brf 的點字檔所採用的表示方式，將第 1 點到第 6 點組成的點字圖案以 ASCII 字元表示。
 - [北美英文電腦點字 (NABCC)](https://brltty.app/doc/Manual-BRLTTY/English/BRLTTY-14.html): 請見參考網頁。注意只有對應到字元 0 至 127 的點字能被成功複製下來。（譯註：「北美英文電腦點字」即啟明學校與淡江大學視障資源中心「點字檔」之格式。）
 
 ### 備註
