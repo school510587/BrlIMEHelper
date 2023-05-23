@@ -797,6 +797,24 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     script_showMessageIndefinitely.__doc__ = _("Force NVDA to show the current braille message indefinitely.")
     script_showMessageIndefinitely.category = SCRCAT_BrlIMEHelper
 
+    def script_translateClip(self, gesture):
+        try:
+            text = api.getClipData()
+        except:
+            # Translators: Reported when reading the clipboard has failed.
+            ui.message(_("Failed to read the clipboard."))
+            return
+        brl_lines = []
+        for line in re.split(r"\r*\n|\r", text):
+            region = braille.TextRegion(line)
+            region.update()
+            brl_lines.append("".join(unichr(0x2800 | cell) for cell in region.brailleCells))
+        answer = os.linesep.join(brl_lines)
+        patch.copyToClip(answer)
+    # Translators: Name of a command to translate the clipboard content into Unicode braille patterns.
+    script_translateClip.__doc__ = _("Translate the clipboard content into Unicode braille patterns.")
+    script_translateClip.category = SCRCAT_BrlIMEHelper
+
     __gestures = {
         "kb:NVDA+control+6": "toggleBRLsimulation",
         "kb:NVDA+printscreen": "copyBRLdisplayContent",
