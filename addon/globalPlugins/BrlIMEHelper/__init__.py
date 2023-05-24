@@ -810,7 +810,13 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
             region.update()
             brl_lines.append("".join(unichr(0x2800 | cell) for cell in region.brailleCells))
         answer = os.linesep.join(brl_lines)
-        patch.copyToClip(answer)
+        if cmpNVDAver(2020, 4) < 0: # api.copyToClip of earlier NVDA versions reports no message.
+            if api.copyToClip(answer):
+                winsound.MessageBeep(winsound.MB_ICONASTERISK)
+            else:
+                play_NVDA_sound("error")
+        else:
+            api.copyToClip(answer, notify=True)
     # Translators: Name of a command to translate the clipboard content into Unicode braille patterns.
     script_translateClip.__doc__ = _("Translate the clipboard content into Unicode braille patterns.")
     script_translateClip.category = SCRCAT_BrlIMEHelper
