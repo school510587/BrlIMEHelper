@@ -710,7 +710,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     script_copyBRLdisplayContent.__doc__ = _("Copy the raw text content of the braille display to the clipboard.")
     script_copyBRLdisplayContent.category = SCRCAT_BrlIMEHelper
 
-    def script_copyBRLdisplayContentB(self, gesture):
+    def script_copyBRLdisplayContentB(self, gesture, brl_format=None):
         if not braille.handler.enabled:
             log.error("The braille display is not enabled.")
             play_NVDA_sound("error")
@@ -726,9 +726,11 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
             if end >= len(brlbuf.brailleCells) and data[-1] == 0 and any((r.cursorPos, r.brailleSelectionStart, r.brailleSelectionEnd) != (None,) * 3 for r in brlbuf.visibleRegions):
                 data = data[:-1]
             error_log = []
-            if configure.get("BRL_FORMAT_FOR_PRINTSCREEN") == "Unicode":
+            if brl_format is None:
+                brl_format = configure.get("BRL_FORMAT_FOR_PRINTSCREEN")
+            if brl_format == "Unicode":
                 answer = "".join(unichr(0x2800 | i) for i in data)
-            elif configure.get("BRL_FORMAT_FOR_PRINTSCREEN") == "BRF":
+            elif brl_format == "BRF":
                 answer = ""
                 for p, i in enumerate(data):
                     try:
@@ -736,7 +738,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
                     except IndexError:
                         answer += unichr(0x2800 | i)
                         error_log.append((p, "".join(str(j + 1) if i & 1 << j else "" for j in range(8))))
-            elif configure.get("BRL_FORMAT_FOR_PRINTSCREEN") == "NABCC":
+            elif brl_format == "NABCC":
                 data, answer = b"".join(brl_tables.NABCCX_P2B[i] for i in data), ""
                 while data:
                     try:
@@ -749,7 +751,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
                     else:
                         data = ""
             else:
-                log.error('Invalid BRL_FORMAT_FOR_PRINTSCREEN value "{0}"'.format(configure.get("BRL_FORMAT_FOR_PRINTSCREEN")))
+                log.error('Invalid BRL_FORMAT_FOR_PRINTSCREEN value "{0}"'.format(brl_format))
             if error_log:
                 play_NVDA_sound("textError")
                 error_log = "\n".join("At: %d, Braille: %s" % e for e in error_log)
