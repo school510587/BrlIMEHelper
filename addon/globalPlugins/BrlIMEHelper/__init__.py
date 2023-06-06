@@ -764,6 +764,21 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     script_copyBRLdisplayContentB.__doc__ = _("Copy the braille patterns on the braille display to the clipboard.")
     script_copyBRLdisplayContentB.category = SCRCAT_BrlIMEHelper
 
+    script_copyBRLdisplayContentB_Unicode = lambda self, gesture: self.script_copyBRLdisplayContentB(gesture, "Unicode")
+    # Translators: Name of a command to copy the braille patterns on the braille display to the clipboard in Unicode format.
+    script_copyBRLdisplayContentB_Unicode.__doc__ = _("Copy the braille patterns on the braille display to the clipboard in Unicode format.")
+    script_copyBRLdisplayContentB_Unicode.category = SCRCAT_BrlIMEHelper
+
+    script_copyBRLdisplayContentB_BRF = lambda self, gesture: self.script_copyBRLdisplayContentB(gesture, "BRF")
+    # Translators: Name of a command to copy the braille patterns on the braille display to the clipboard in BRF format.
+    script_copyBRLdisplayContentB_BRF.__doc__ = _("Copy the braille patterns on the braille display to the clipboard in BRF format.")
+    script_copyBRLdisplayContentB_BRF.category = SCRCAT_BrlIMEHelper
+
+    script_copyBRLdisplayContentB_NABCC = lambda self, gesture: self.script_copyBRLdisplayContentB(gesture, "NABCC")
+    # Translators: Name of a command to copy the braille patterns on the braille display to the clipboard in NABCC format.
+    script_copyBRLdisplayContentB_NABCC.__doc__ = _("Copy the braille patterns on the braille display to the clipboard in NABCC format.")
+    script_copyBRLdisplayContentB_NABCC.category = SCRCAT_BrlIMEHelper
+
     def script_switchIMEmode(self, gesture):
         self.send_keys(configure.get("IME_LANGUAGE_MODE_TOGGLE_KEY"))
     # Translators: Name of a command to switch IME input mode.
