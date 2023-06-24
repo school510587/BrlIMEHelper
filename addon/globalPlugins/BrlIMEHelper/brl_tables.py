@@ -10,6 +10,11 @@ import codecs
 import re
 import struct
 
+try: unichr
+except NameError: unichr = chr
+
+from logHandler import log
+
 char_exp = "[\u2800-\u28FF]|\\\\u28[0-9A-F]{2}"
 char_pattern = re.compile("({char})|\\[\\^?(({char})(-({char}))?)+\\]".format(char=char_exp), re.I | re.U)
 
@@ -101,3 +106,32 @@ NABCCX_P2B[0b00111000], NABCCX_P2B[0b01111000] = NABCCX_P2B[0b01111000], NABCCX_
 del _inverse_BRF 
 NABCCX_B2P = dict((v, k) for k, v in enumerate(NABCCX_P2B))
 if len(NABCCX_B2P) != len(NABCCX_P2B): raise RuntimeError
+
+def encode_brl_values(data, format, dead_message):
+    if format == "Unicode":
+        return ("".join(unichr(0x2800 | i) for i in data), [])
+    elif format == "BRF":
+        answer, error_log = "", []
+        for p, i in enumerate(data):
+            try:
+                answer += BRF_P2A[i].decode("ASCII")
+            except IndexError:
+                answer += unichr(0x2800 | i)
+                error_log.append((p, "".join(str(j + 1) if i & 1 << j else "" for j in range(8))))
+        return (answer, error_log)
+    elif format == "NABCC":
+        data, answer, error_log = b"".join(NABCCX_P2B[i] for i in data), "", []
+        while data:
+            try:
+                answer += data.decode("ASCII")
+            except UnicodeDecodeError as e:
+                answer += e.object[:e.start].decode("ASCII")
+                answer += "".join(unichr(0x2800 | NABCCX_B2P[c]) for c in e.object[e.start:e.end])
+                data = e.object[e.end:]
+                error_log.extend((p, "".join(str(j + 1) if NABCCX_B2P[e.object[p]] & 1 << j else "" for j in range(8))) for p in range(e.start, e.end))
+            else:
+                data = ""
+        return (answer, error_log)
+    else:
+        log.error(dead_message.format(format))
+    return ("", [])

@@ -725,33 +725,9 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         if data:
             if end >= len(brlbuf.brailleCells) and data[-1] == 0 and any((r.cursorPos, r.brailleSelectionStart, r.brailleSelectionEnd) != (None,) * 3 for r in brlbuf.visibleRegions):
                 data = data[:-1]
-            error_log = []
             if brl_format is None:
                 brl_format = configure.get("BRL_FORMAT_FOR_PRINTSCREEN")
-            if brl_format == "Unicode":
-                answer = "".join(unichr(0x2800 | i) for i in data)
-            elif brl_format == "BRF":
-                answer = ""
-                for p, i in enumerate(data):
-                    try:
-                        answer += brl_tables.BRF_P2A[i].decode("ASCII")
-                    except IndexError:
-                        answer += unichr(0x2800 | i)
-                        error_log.append((p, "".join(str(j + 1) if i & 1 << j else "" for j in range(8))))
-            elif brl_format == "NABCC":
-                data, answer = b"".join(brl_tables.NABCCX_P2B[i] for i in data), ""
-                while data:
-                    try:
-                        answer += data.decode("ASCII")
-                    except UnicodeDecodeError as e:
-                        answer += e.object[:e.start].decode("ASCII")
-                        answer += "".join(unichr(0x2800 | brl_tables.NABCCX_B2P[c]) for c in e.object[e.start:e.end])
-                        data = e.object[e.end:]
-                        error_log.extend((p, "".join(str(j + 1) if brl_tables.NABCCX_B2P[e.object[p]] & 1 << j else "" for j in range(8))) for p in range(e.start, e.end))
-                    else:
-                        data = ""
-            else:
-                log.error('Invalid BRL_FORMAT_FOR_PRINTSCREEN value "{0}"'.format(brl_format))
+            answer, error_log = brl_tables.encode_brl_values(data, brl_format, 'Invalid BRL_FORMAT_FOR_PRINTSCREEN value "{0}"')
             if error_log:
                 play_NVDA_sound("textError")
                 error_log = "\n".join("At: %d, Braille: %s" % e for e in error_log)
