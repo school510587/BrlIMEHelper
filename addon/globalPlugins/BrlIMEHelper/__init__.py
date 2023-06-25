@@ -814,6 +814,16 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     script_translateClip.__doc__ = _("Translate the clipboard content into Unicode braille patterns.")
     script_translateClip.category = SCRCAT_BrlIMEHelper
 
+    script_translateClip_BRF = lambda self, gesture: self.script_translateClip(gesture, "BRF")
+    # Translators: Name of a command to translate the clipboard content into braille in BRF format.
+    script_translateClip_BRF.__doc__ = _("Translate the clipboard content into braille in BRF format.")
+    script_translateClip_BRF.category = SCRCAT_BrlIMEHelper
+
+    script_translateClip_NABCC = lambda self, gesture: self.script_translateClip(gesture, "NABCC")
+    # Translators: Name of a command to translate the clipboard content into braille in NABCC format.
+    script_translateClip_NABCC.__doc__ = _("Translate the clipboard content into braille in NABCC format.")
+    script_translateClip_NABCC.category = SCRCAT_BrlIMEHelper
+
     __gestures = {
         "kb:NVDA+control+6": "toggleBRLsimulation",
         "kb:NVDA+printscreen": "copyBRLdisplayContent",
