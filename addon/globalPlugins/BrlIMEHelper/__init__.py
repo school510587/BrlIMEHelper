@@ -783,19 +783,26 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     script_showMessageIndefinitely.__doc__ = _("Force NVDA to show the current braille message indefinitely.")
     script_showMessageIndefinitely.category = SCRCAT_BrlIMEHelper
 
-    def script_translateClip(self, gesture):
+    def script_translateClip(self, gesture, brl_format="Unicode"):
         try:
             text = api.getClipData()
         except:
             # Translators: Reported when reading the clipboard has failed.
             ui.message(_("Failed to read the clipboard."))
             return
-        brl_lines = []
+        brl_lines, error_logs = [], []
         for line in re.split(r"\r*\n|\r", text):
             region = braille.TextRegion(line)
             region.update()
-            brl_lines.append("".join(unichr(0x2800 | cell) for cell in region.brailleCells))
+            answer, error_log = brl_tables.encode_brl_values(region.brailleCells, brl_format, 'Invalid brl_format value "{0}". Please report the bug.')
+            if answer is not None:
+                brl_lines.append(answer)
+            if error_log: # The condition is to prevent blank lines.
+                error_logs.append("\n".join("Line: %d, At: %d, Braille: %s" % ((len(brl_lines),) + e) for e in error_log))
         answer = os.linesep.join(brl_lines)
+        if error_logs:
+            play_NVDA_sound("textError")
+            log.warning("Encoding failed at the following cell(s):\n" + "\n".join(error_logs))
         if cmpNVDAver(2020, 4) < 0: # api.copyToClip of earlier NVDA versions reports no message.
             if api.copyToClip(answer):
                 winsound.MessageBeep(winsound.MB_ICONASTERISK)
