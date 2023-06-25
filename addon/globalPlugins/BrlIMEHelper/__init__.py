@@ -726,8 +726,9 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
             if end >= len(brlbuf.brailleCells) and data[-1] == 0 and any((r.cursorPos, r.brailleSelectionStart, r.brailleSelectionEnd) != (None,) * 3 for r in brlbuf.visibleRegions):
                 data = data[:-1]
             if brl_format is None:
-                brl_format = configure.get("BRL_FORMAT_FOR_PRINTSCREEN")
-            answer, error_log = brl_tables.encode_brl_values(data, brl_format, 'Invalid BRL_FORMAT_FOR_PRINTSCREEN value "{0}"')
+                answer, error_log = brl_tables.encode_brl_values(data, configure.get("BRL_FORMAT_FOR_PRINTSCREEN"), 'Invalid BRL_FORMAT_FOR_PRINTSCREEN value "{0}"')
+            else:
+                answer, error_log = brl_tables.encode_brl_values(data, brl_format, 'Invalid brl_format value "{0}". Please report the bug.')
             if error_log:
                 play_NVDA_sound("textError")
                 error_log = "\n".join("At: %d, Braille: %s" % e for e in error_log)
