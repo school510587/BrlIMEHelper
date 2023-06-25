@@ -710,7 +710,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     script_copyBRLdisplayContent.__doc__ = _("Copy the raw text content of the braille display to the clipboard.")
     script_copyBRLdisplayContent.category = SCRCAT_BrlIMEHelper
 
-    def script_copyBRLdisplayContentB(self, gesture, brl_format=None):
+    def script_copyBRLdisplayContentB(self, gesture, brl_format="Unicode"):
         if not braille.handler.enabled:
             log.error("The braille display is not enabled.")
             play_NVDA_sound("error")
@@ -725,10 +725,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         if data:
             if end >= len(brlbuf.brailleCells) and data[-1] == 0 and any((r.cursorPos, r.brailleSelectionStart, r.brailleSelectionEnd) != (None,) * 3 for r in brlbuf.visibleRegions):
                 data = data[:-1]
-            if brl_format is None:
-                answer, error_log = brl_tables.encode_brl_values(data, configure.get("BRL_FORMAT_FOR_PRINTSCREEN"), 'Invalid BRL_FORMAT_FOR_PRINTSCREEN value "{0}"')
-            else:
-                answer, error_log = brl_tables.encode_brl_values(data, brl_format, 'Invalid brl_format value "{0}". Please report the bug.')
+            answer, error_log = brl_tables.encode_brl_values(data, brl_format, 'Invalid brl_format value "{0}". Please report the bug.')
             if error_log:
                 play_NVDA_sound("textError")
                 error_log = "\n".join("At: %d, Braille: %s" % e for e in error_log)
@@ -740,11 +737,6 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     # Translators: Name of a command to copy the braille patterns on the braille display to the clipboard.
     script_copyBRLdisplayContentB.__doc__ = _("Copy the braille patterns on the braille display to the clipboard.")
     script_copyBRLdisplayContentB.category = SCRCAT_BrlIMEHelper
-
-    script_copyBRLdisplayContentB_Unicode = lambda self, gesture: self.script_copyBRLdisplayContentB(gesture, "Unicode")
-    # Translators: Name of a command to copy the braille patterns on the braille display to the clipboard in Unicode format.
-    script_copyBRLdisplayContentB_Unicode.__doc__ = _("Copy the braille patterns on the braille display to the clipboard in Unicode format.")
-    script_copyBRLdisplayContentB_Unicode.category = SCRCAT_BrlIMEHelper
 
     script_copyBRLdisplayContentB_BRF = lambda self, gesture: self.script_copyBRLdisplayContentB(gesture, "BRF")
     # Translators: Name of a command to copy the braille patterns on the braille display to the clipboard in BRF format.

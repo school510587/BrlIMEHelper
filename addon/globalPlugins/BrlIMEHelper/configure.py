@@ -118,15 +118,6 @@ profile["REL_PHYSICAL_DUMMY_BRLKB"] = ItemSpec(
         ("independent", _("Independent of behavior of the physical braille keyboard.")),
     ]),
 )
-profile["BRL_FORMAT_FOR_PRINTSCREEN"] = ItemSpec(
-    label = _("The format to copy the braille display content:"),
-    default_value = "Unicode",
-    allowed_values = OrderedDict([
-        ("Unicode", _("Unicode Braille Pattern")),
-        ("BRF", _("Braille ASCII")),
-        ("NABCC", _("North American Braille Computer Code (NABCC)")),
-    ]),
-)
 runtime_conf = None
 
 _allowed = lambda value, allowed_values: True if allowed_values is None \
