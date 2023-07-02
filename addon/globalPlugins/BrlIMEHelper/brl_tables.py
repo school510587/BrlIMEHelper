@@ -126,9 +126,11 @@ def encode_brl_values(data, format, dead_message):
                 answer += data.decode("ASCII")
             except UnicodeDecodeError as e:
                 answer += e.object[:e.start].decode("ASCII")
-                answer += "".join(unichr(0x2800 | NABCCX_B2P[c]) for c in e.object[e.start:e.end])
+                for i in range(e.start, e.end):
+                    b = e.object[i:i+1] # b is ensured to b a byte.
+                    answer += unichr(0x2800 | NABCCX_B2P[b])
+                    error_log.append((i, "".join(str(j + 1) if NABCCX_B2P[b] & 1 << j else "" for j in range(8))))
                 data = e.object[e.end:]
-                error_log.extend((p, "".join(str(j + 1) if NABCCX_B2P[e.object[p]] & 1 << j else "" for j in range(8))) for p in range(e.start, e.end))
             else:
                 data = ""
         return (answer, error_log)
