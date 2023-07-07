@@ -120,19 +120,21 @@ def encode_brl_values(data, format, dead_message):
                 error_log.append((p, "".join(str(j + 1) if i & 1 << j else "" for j in range(8))))
         return (answer, error_log)
     elif format == "NABCC":
-        data, answer, error_log = b"".join(NABCCX_P2B[i] for i in data), "", []
+        data, answer, error_log, offset = b"".join(NABCCX_P2B[i] for i in data), "", [], 0
         while data:
             try:
                 answer += data.decode("ASCII")
+                offset += len(data)
+                data = ""
             except UnicodeDecodeError as e:
                 answer += e.object[:e.start].decode("ASCII")
+                offset += e.start
                 for i in range(e.start, e.end):
                     b = e.object[i:i+1] # b is ensured to b a byte.
                     answer += unichr(0x2800 | NABCCX_B2P[b])
-                    error_log.append((i, "".join(str(j + 1) if NABCCX_B2P[b] & 1 << j else "" for j in range(8))))
+                    error_log.append((offset, "".join(str(j + 1) if NABCCX_B2P[b] & 1 << j else "" for j in range(8))))
+                    offset += 1
                 data = e.object[e.end:]
-            else:
-                data = ""
         return (answer, error_log)
     else:
         log.error(dead_message.format(format))
