@@ -39,6 +39,11 @@ class _Runtime_States(defaultdict):
         self._cbrlkb = bool(value)
         if not configure.get("ONE_CBRLKB_TOGGLE_STATE"):
             self.update_foreground(cbrlkb=self._cbrlkb)
+    @property
+    def foreground(self):
+        pid = getWindowThreadProcessID(getForegroundWindow())[0]
+        log.debug("Performing some operation on pid={0}".format(pid))
+        return self[pid]
     def reset_cbrlkb_state(self):
         old_cbrlkb_state = self._cbrlkb
         if configure.get("ONE_CBRLKB_TOGGLE_STATE"):
@@ -73,9 +78,9 @@ class _Runtime_States(defaultdict):
             self.scanner.join()
             self.scanner = None
     def update_foreground(self, **kwargs):
-        pid = getWindowThreadProcessID(getForegroundWindow())[0]
-        log.debug("Update entry {0} for pid={1}".format(kwargs, pid))
-        self[pid].update(kwargs)
-        return self[pid]
+        fg = self.foreground
+        log.debug("Update entry {0} for the pid".format(kwargs))
+        fg.update(kwargs)
+        return fg
 
 thread_states = _Runtime_States()
