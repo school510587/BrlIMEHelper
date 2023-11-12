@@ -11,6 +11,7 @@ from comtypes import CLSCTX_ALL
 from comtypes import GUID
 from comtypes.GUID import GUID_null
 from comtypes.client import CreateObject
+from copy import deepcopy
 from ctypes import *
 from ctypes.wintypes import *
 from json import JSONDecoder
@@ -31,6 +32,7 @@ import vkCodes
 
 from . import configure
 from .msctf import *
+from .runtime_state import thread_states
 
 try:
     addonHandler.initTranslation()
@@ -60,25 +62,29 @@ MICROSOFT_BOPOMOFO = {
 # Display names of keyboard mappings.
 mapping = configure.profile["KEYBOARD_MAPPING"].allowed_values
 
-class _Symbol2KeyDict(dict):
-    def __init__(self, IME_data_dict):
-        type(self).__base__.__init__(self, IME_data_dict["SYMBOLS"].items())
-        self.undefined_symbol_pattern = IME_data_dict["UNDEFINED_SYMBOL"]
-        self.allow_non_bmp_symbols = bool(IME_data_dict["ALLOW_NON_BMP_SYMBOLS"])
-    def __getitem__(self, index):
-        try:
-            return type(self).__base__.__getitem__(self, index)
-        except KeyError:
-            if len(index) != 1:
-                raise
-            elif ord(index) >= 0x10000 and not self.allow_non_bmp_symbols:
-                raise
-            return "|".join(self.undefined_symbol_pattern % (ord(index),))
+kl2name = {}
+lookup_IME = {}
+_name2clsid = {}
+def symbol2gesture(index):
+    try:
+        IME_data = lookup_IME[thread_states.foreground["layout"]]
+    except KeyError:
+        pid, tid = getWindowThreadProcessID(getForegroundWindow())
+        kl = getKeyboardLayout(tid)
+        IME_data = lookup_IME[kl2name[DWORD(kl).value]]
+    try:
+        return IME_data[index]
+    except KeyError:
+        if len(index) != 1:
+            raise
+        elif ord(index) >= 0x10000 and not bool(IME_data["ALLOW_NON_BMP_SYMBOLS"]):
+            raise
+        return "|".join(IME_data["UNDEFINED_SYMBOL"] % (ord(index),))
 
 with codecs.open(os.path.join(os.path.dirname(__file__), "{0}.json".format(MICROSOFT_BOPOMOFO["profile"])), encoding="UTF-8") as json_file:
     IME_json = json_file.read()
     IME_data = dict((GUID(g), d) for g, d in JSONDecoder(object_pairs_hook=OrderedDict).decode(IME_json).items())
-    IME_data_dict = IME_data[GUID_null]
+    default_dict = IME_data[GUID_null]
     try:
         oIPP = CreateObject(CLSID_TF_InputProcessorProfiles, CLSCTX_ALL, interface=ITfInputProcessorProfiles)
         gtr = oIPP.EnumLanguageProfiles(0x0404)
@@ -86,43 +92,40 @@ with codecs.open(os.path.join(os.path.dirname(__file__), "{0}.json".format(MICRO
             profile = gtr.Next()
             if profile is None:
                 break
-            elif profile.guidProfile != MICROSOFT_BOPOMOFO["profile"]:
+            log.debug("IME: clsid={0.clsid}, langid={0.langid}, guidProfile={0.guidProfile}".format(profile))
+            if profile.guidProfile != MICROSOFT_BOPOMOFO["profile"]:
+                log.debug("Skipped.")
                 continue
-            MICROSOFT_BOPOMOFO["processor"] = profile.clsid
-            MICROSOFT_BOPOMOFO["description"] = oIPP.GetLanguageProfileDescription(profile.clsid, profile.langid, profile.guidProfile)
+            IME_name = oIPP.GetLanguageProfileDescription(profile.clsid, profile.langid, profile.guidProfile)
+            log.debug("IME name: {0}".format(IME_name))
+            lookup_IME[IME_name] = deepcopy(default_dict)
+            _name2clsid[IME_name] = profile.clsid
             if profile.clsid not in IME_data:
                 continue
             for k, v in IME_data[profile.clsid].items():
-                if k in IME_data_dict:
+                if k in lookup_IME[IME_name]:
                     if v is None:
-                        del IME_data_dict[k]
+                        del lookup_IME[IME_name][k]
                     else:
                         try:
-                            IME_data_dict[k].update(v)
+                            lookup_IME[IME_name][k].update(v)
                         except:
-                            IME_data_dict[k] = v
+                            lookup_IME[IME_name][k] = v
                 elif v is not None:
-                    IME_data_dict[k] = v
+                    lookup_IME[IME_name][k] = v
             if not oIPP.IsEnabledLanguageProfile(profile.clsid, 0x0404, MICROSOFT_BOPOMOFO["profile"]):
                 log.warning("Microsoft Bopomofo IME is not enabled now.")
     except COMError:
         log.error("Some COM error occurred.", exc_info=True)
-try:
-    with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Control\Keyboard Layouts") as kls:
-        log.debug("Scanning HKLM")
-        for i in itertools.count():
-            kl_hex = winreg.EnumKey(kls, i)
-            with winreg.OpenKey(kls, kl_hex) as kl:
-                log.debug("Scanning {0}".format(kl_hex))
-                try:
-                    _name, _type = winreg.QueryValueEx(kl, "Layout Text")
-                    if _type == winreg.REG_SZ and _name == MICROSOFT_BOPOMOFO["description"]:
-                        MICROSOFT_BOPOMOFO["keyboard-layout"] = type(MICROSOFT_BOPOMOFO["keyboard-layout"])(int(kl_hex, 16))
-                except WindowsError as w:
-                    if w.winerror != 2: raise
-except WindowsError as w:
-    if w.winerror != 259: raise
-symb2gesture = _Symbol2KeyDict(IME_data_dict)
+for n, cls in _name2clsid.items():
+    try:
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\CTF\TIP\{clsid}\LanguageProfile\0x00000404\{guidProfile}".format(clsid=cls, guidProfile=MICROSOFT_BOPOMOFO["profile"])) as IME_i:
+            hKLstr, _type = winreg.QueryValueEx(IME_i, "SubstituteLayout")
+            if _type == winreg.REG_SZ:
+                kl = int(hKLstr, 16)
+                kl2name[kl] = n
+    except WindowsError as w:
+        if w.winerror != 259: raise
 
 class Translator:
     layout_index = ""
@@ -135,7 +138,7 @@ class Translator:
                 self.special_rules.append((re.compile(p[0], re.U), split(p[1])))
     def convert(self, subject):
         try: # Single-character cases.
-            return [symb2gesture[subject]]
+            return [symbol2gesture(subject)]
         except:
             pass
         answer, skip = [], 0
@@ -143,7 +146,7 @@ class Translator:
             if skip > 0:
                 skip -= 1
                 continue
-            prefix, sub = [], self.default_map.get(subject[i], [symb2gesture[subject[i]]])
+            prefix, sub = [], self.default_map.get(subject[i], [symbol2gesture(subject[i])])
             for r in self.special_rules:
                 m = r[0].match(subject, i)
                 if m:
