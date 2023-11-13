@@ -55,7 +55,7 @@ except NameError: # NVDA-independent execution.
 MICROSOFT_BOPOMOFO = {
     "profile": GUID("{B2F9C502-1742-11D4-9790-0080C882687E}"),
     "processor": GUID_null,
-    "keyboard-layout": HANDLE(),
+    "keyboard-layout": 0,
     "description": "",
 }
 
@@ -64,14 +64,17 @@ mapping = configure.profile["KEYBOARD_MAPPING"].allowed_values
 
 kl2name = {}
 lookup_IME = {}
-_name2clsid = {}
+_name2clsid = OrderedDict()
 def symbol2gesture(index):
     try:
         IME_data = lookup_IME[thread_states.foreground["layout"]]
     except KeyError:
-        pid, tid = getWindowThreadProcessID(getForegroundWindow())
-        kl = getKeyboardLayout(tid)
-        IME_data = lookup_IME[kl2name[DWORD(kl).value]]
+        try:
+            pid, tid = getWindowThreadProcessID(getForegroundWindow())
+            kl = getKeyboardLayout(tid)
+            IME_data = lookup_IME[kl2name[DWORD(kl).value]]
+        except: # Use the default bopomofo IME.
+            IME_data = lookup_IME[MICROSOFT_BOPOMOFO["description"]]
     try:
         return IME_data[index]
     except KeyError:
@@ -124,8 +127,27 @@ for n, cls in _name2clsid.items():
             if _type == winreg.REG_SZ:
                 kl = int(hKLstr, 16)
                 kl2name[kl] = n
-    except WindowsError as w:
-        if w.winerror != 259: raise
+    except WindowsError as w: # The newer Python raises FileNotFoundError, i.e. w.winerror == 2.
+        if w.winerror not in (2, 259): raise
+MICROSOFT_BOPOMOFO["processor"], profile = oIPP.GetDefaultLanguageProfile(0x0404, GUID_TFCAT_TIP_KEYBOARD)
+if profile == MICROSOFT_BOPOMOFO["profile"]:
+    try:
+        MICROSOFT_BOPOMOFO["description"] = next(name for name, cls in _name2clsid.items() if cls == MICROSOFT_BOPOMOFO["processor"])
+    except:
+        log.warning("Exception occurred on searching the default bopomofo IME.", exc_info=True)
+        profile = GUID_null # The value will pass the following condition.
+if profile != MICROSOFT_BOPOMOFO["profile"]: # The default bopomofo IME is not supported.
+    try: # Select a (new version) supported bopomofo IME as the default.
+        MICROSOFT_BOPOMOFO["description"], MICROSOFT_BOPOMOFO["processor"] = next((name, cls) for name, cls in _name2clsid.items() if name not in kl2name.values())
+    except StopIteration: # Each bopomofo IME has a corresponding keyboard layout.
+        try:
+            MICROSOFT_BOPOMOFO["keyboard-layout"] = max(kl2name.keys())
+            MICROSOFT_BOPOMOFO["description"] = kl2name[MICROSOFT_BOPOMOFO["keyboard-layout"]]
+            MICROSOFT_BOPOMOFO["processor"] = _name2clsid[MICROSOFT_BOPOMOFO["description"]]
+        except:
+            log.warning("Exception occurred on searching the default bopomofo IME by KL.", exc_info=True)
+if not MICROSOFT_BOPOMOFO["description"]:
+    raise RuntimeError("Failed to find a supported default bopomofo IME.")
 
 class Translator:
     layout_index = ""
