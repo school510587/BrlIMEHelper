@@ -530,16 +530,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def inferBRLmode(self):
         global thread_states
         pid, tid = getWindowThreadProcessID(getForegroundWindow())
-        kl = getKeyboardLayout(tid)
-        if sys.getwindowsversion().major < 6 and kl == 0x04040404: # WinXP
-            return 0
-        elif pid not in thread_states or thread_states[pid]["mode"] is None:
-            if sys.getwindowsversion().major < 6 and configure.get("IME_LANGUAGE_MODE_TOGGLE_KEY") == "control+space":
-                return 3 # On WinXP, use Ctrl+Space to toggle IME mode.
-            return 2
-        elif thread_states[pid]["mode"] & 1 and LOWORD(kl) == 0x0404:
-            return 1
-        return 0 # ENG
+        kl = DWORD(getKeyboardLayout(tid)).value
+        fg = thread_states.foreground
+        if kl in keyboard.kl2name:
+            log.debug("Recognized keyboard layout.")
+            return (2 + (sys.getwindowsversion().major < 6)) if fg["mode"] is None else (fg["mode"] & 1)
+        IME_name = fg["layout"] if fg["layout"] else keyboard.MICROSOFT_BOPOMOFO["description"]
+        if IME_name in keyboard.lookup_IME:
+            log.debug("Recognized IME description.")
+            return 2 if fg["mode"] is None else (fg["mode"] & 1)
+        log.debug("Guess the alphanumeric input mode.")
+        return 0
 
     def brl_composition(self, ubrl, mode):
         try: # Normal input progress.
