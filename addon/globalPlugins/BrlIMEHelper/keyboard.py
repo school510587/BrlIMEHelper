@@ -51,6 +51,9 @@ except NameError: # NVDA-independent execution.
     import gettext
     gettext.install("") # Install _() into builtins namespace.
 
+# The default keyboard profiles of all languages (LANGID -> (CLSID, GUID)).
+DEFAULT_PROFILE = {}
+
 # The profile ID of the Microsoft Bopomofo IME.
 MICROSOFT_BOPOMOFO = {
     "profile": GUID("{B2F9C502-1742-11D4-9790-0080C882687E}"),
@@ -129,7 +132,9 @@ for n, cls in _name2clsid.items():
                 kl2name[kl] = n
     except WindowsError as w: # The newer Python raises FileNotFoundError, i.e. w.winerror == 2.
         if w.winerror not in (2, 259): raise
-MICROSOFT_BOPOMOFO["processor"], profile = oIPP.GetDefaultLanguageProfile(0x0404, GUID_TFCAT_TIP_KEYBOARD)
+for l in oIPP.GetLanguageList():
+    DEFAULT_PROFILE[l] = oIPP.GetDefaultLanguageProfile(l, GUID_TFCAT_TIP_KEYBOARD)
+MICROSOFT_BOPOMOFO["processor"], profile = DEFAULT_PROFILE[0x0404]
 if profile == MICROSOFT_BOPOMOFO["profile"]:
     try:
         MICROSOFT_BOPOMOFO["description"] = next(name for name, cls in _name2clsid.items() if cls == MICROSOFT_BOPOMOFO["processor"])
