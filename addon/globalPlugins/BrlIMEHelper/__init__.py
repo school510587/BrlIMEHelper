@@ -540,7 +540,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             log.debug("The default language profile is not an IME.")
             return 2
         else:
-            IME_name = fg["layout"] if fg["layout"] else keyboard.MICROSOFT_BOPOMOFO["description"]
+            IME_name = fg["layout"] if fg["layout"] else keyboard.guess_IME_name(LOWORD(kl))
             if IME_name in keyboard.lookup_IME:
                 log.debug("Recognized IME description.")
                 return (2 + (keyboard.DEFAULT_PROFILE[0x0404][0] == GUID_null)) if fg["mode"] is None else (fg["mode"] & 1)

@@ -11,6 +11,7 @@ from comtypes import CLSCTX_ALL
 from comtypes import GUID
 from comtypes.GUID import GUID_null
 from comtypes.client import CreateObject
+from comtypes.hresult import E_NOINTERFACE
 from copy import deepcopy
 from ctypes import *
 from ctypes.wintypes import *
@@ -153,6 +154,19 @@ if profile != MICROSOFT_BOPOMOFO["profile"]: # The default bopomofo IME is not s
             log.warning("Exception occurred on searching the default bopomofo IME by KL.", exc_info=True)
 if not MICROSOFT_BOPOMOFO["description"]:
     raise RuntimeError("Failed to find a supported default bopomofo IME.")
+
+def guess_IME_name(langid):
+    if configure.get("ONE_CBRLKB_TOGGLE_STATE"):
+        try:
+            oIPPMgr = oIPP.QueryInterface(ITfInputProcessorProfileMgr)
+            profile = oIPPMgr.GetActiveProfile(GUID_TFCAT_TIP_KEYBOARD)
+            return oIPP.GetLanguageProfileDescription(profile.clsid, profile.langid, profile.guidProfile)
+        except COMError as e:
+            if e.hresult != E_NOINTERFACE:
+                log.error("guess_IME_name failed", exc_info=True)
+        except Exception as e:
+            log.error("guess_IME_name failed", exc_info=True)
+    return MICROSOFT_BOPOMOFO["description"]
 
 class Translator:
     layout_index = ""
