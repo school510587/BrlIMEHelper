@@ -161,13 +161,19 @@ def guess_IME_name(langid):
         try:
             oIPPMgr = oIPP.QueryInterface(ITfInputProcessorProfileMgr)
             profile = oIPPMgr.GetActiveProfile(GUID_TFCAT_TIP_KEYBOARD)
-            return oIPP.GetLanguageProfileDescription(profile.clsid, profile.langid, profile.guidProfile)
+            if langid == profile.langid:
+                if profile.dwProfileType == TF_PROFILETYPE_INPUTPROCESSOR:
+                    return oIPP.GetLanguageProfileDescription(profile.clsid, profile.langid, profile.guidProfile)
+                elif profile.dwProfileType == TF_PROFILETYPE_KEYBOARDLAYOUT:
+                    return "%08X" % (profile.hkl,)
+                else:
+                    raise ValueError("Invalid dwProfileType value: {0.dwProfileType}".format(profile))
         except COMError as e:
             if e.hresult != E_NOINTERFACE:
                 log.error("guess_IME_name failed", exc_info=True)
         except Exception as e:
             log.error("guess_IME_name failed", exc_info=True)
-    return MICROSOFT_BOPOMOFO["description"]
+    return MICROSOFT_BOPOMOFO["description"] if langid == MICROSOFT_BOPOMOFO["language"] else None
 
 class Translator:
     layout_index = ""
