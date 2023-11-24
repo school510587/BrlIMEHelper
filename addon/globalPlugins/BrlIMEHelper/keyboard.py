@@ -57,6 +57,7 @@ DEFAULT_PROFILE = {}
 
 # The profile ID of the Microsoft Bopomofo IME.
 MICROSOFT_BOPOMOFO = {
+    "language": 0x0404, # MAKELANGID(LANG_CHINESE, SUBLANG_CHINESE_TRADITIONAL), not LANG_CHINESE_TRADITIONAL.
     "profile": GUID("{B2F9C502-1742-11D4-9790-0080C882687E}"),
     "processor": GUID_null,
     "keyboard-layout": 0,
@@ -94,7 +95,7 @@ with codecs.open(os.path.join(os.path.dirname(__file__), "{0}.json".format(MICRO
     default_dict = IME_data[GUID_null]
     try:
         oIPP = CreateObject(CLSID_TF_InputProcessorProfiles, CLSCTX_ALL, interface=ITfInputProcessorProfiles)
-        gtr = oIPP.EnumLanguageProfiles(0x0404)
+        gtr = oIPP.EnumLanguageProfiles(MICROSOFT_BOPOMOFO["language"])
         while 1:
             profile = gtr.Next()
             if profile is None:
@@ -120,13 +121,13 @@ with codecs.open(os.path.join(os.path.dirname(__file__), "{0}.json".format(MICRO
                             lookup_IME[IME_name][k] = v
                 elif v is not None:
                     lookup_IME[IME_name][k] = v
-            if not oIPP.IsEnabledLanguageProfile(profile.clsid, 0x0404, MICROSOFT_BOPOMOFO["profile"]):
+            if not oIPP.IsEnabledLanguageProfile(profile.clsid, MICROSOFT_BOPOMOFO["language"], MICROSOFT_BOPOMOFO["profile"]):
                 log.warning("Microsoft Bopomofo IME is not enabled now.")
     except COMError:
         log.error("Some COM error occurred.", exc_info=True)
 for n, cls in _name2clsid.items():
     try:
-        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\CTF\TIP\{clsid}\LanguageProfile\0x00000404\{guidProfile}".format(clsid=cls, guidProfile=MICROSOFT_BOPOMOFO["profile"])) as IME_i:
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\CTF\TIP\{clsid}\LanguageProfile\0x0000{langid:04X}\{guidProfile}".format(clsid=cls, langid=MICROSOFT_BOPOMOFO["language"], guidProfile=MICROSOFT_BOPOMOFO["profile"])) as IME_i:
             hKLstr, _type = winreg.QueryValueEx(IME_i, "SubstituteLayout")
             if _type == winreg.REG_SZ:
                 kl = int(hKLstr, 16)
@@ -135,7 +136,7 @@ for n, cls in _name2clsid.items():
         if w.winerror not in (2, 259): raise
 for l in oIPP.GetLanguageList():
     DEFAULT_PROFILE[l] = oIPP.GetDefaultLanguageProfile(l, GUID_TFCAT_TIP_KEYBOARD)
-MICROSOFT_BOPOMOFO["processor"], profile = DEFAULT_PROFILE[0x0404]
+MICROSOFT_BOPOMOFO["processor"], profile = DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]]
 if profile == MICROSOFT_BOPOMOFO["profile"]:
     try:
         MICROSOFT_BOPOMOFO["description"] = next(name for name, cls in _name2clsid.items() if cls == MICROSOFT_BOPOMOFO["processor"])

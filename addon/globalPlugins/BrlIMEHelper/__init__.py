@@ -535,15 +535,15 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         fg = thread_states.foreground
         if kl in keyboard.kl2name:
             log.debug("Recognized keyboard layout.")
-            return (2 + (keyboard._name2clsid[keyboard.kl2name[kl]] != keyboard.DEFAULT_PROFILE[0x0404][0])) if fg["mode"] is None else (fg["mode"] & 1)
-        if keyboard.DEFAULT_PROFILE[0x0404][0] == GUID_null and not fg["layout"]:
+            return (2 + (keyboard._name2clsid[keyboard.kl2name[kl]] != keyboard.DEFAULT_PROFILE[keyboard.MICROSOFT_BOPOMOFO["language"]][0])) if fg["mode"] is None else (fg["mode"] & 1)
+        if keyboard.DEFAULT_PROFILE[keyboard.MICROSOFT_BOPOMOFO["language"]][0] == GUID_null and not fg["layout"]:
             log.debug("The default language profile is not an IME.")
             return 2
         else:
             IME_name = fg["layout"] if fg["layout"] else keyboard.guess_IME_name(LOWORD(kl))
             if IME_name in keyboard.lookup_IME:
                 log.debug("Recognized IME description.")
-                return (2 + (keyboard.DEFAULT_PROFILE[0x0404][0] == GUID_null)) if fg["mode"] is None else (fg["mode"] & 1)
+                return (2 + (keyboard.DEFAULT_PROFILE[keyboard.MICROSOFT_BOPOMOFO["language"]][0] == GUID_null)) if fg["mode"] is None else (fg["mode"] & 1)
         log.debug("Guess the alphanumeric input mode.")
         return 0
 
