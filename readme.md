@@ -410,3 +410,9 @@ The computer keyboard can emulate braille input from both the current working br
 * Add "The format to copy the braille display content" option.
 * Code refactoring, and to separate the data from the code files.
 * Add the msctf module, which may contribute to development of the oncoming features.
+
+### Version 2.5
+* Support NVDA version 2023.3.
+* Replace "The format to copy the braille display content" option with 3 individual scripts.
+* Add scripts to translate the clipboard content into braille patterns.
+* Improve the input mode inference rules.
