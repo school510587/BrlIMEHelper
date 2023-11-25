@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: 'BrlIMEHelper' '2.5'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
 "POT-Creation-Date: 2023-11-21 05:44+0800\n"
-"PO-Revision-Date: 2023-11-21 05:57+0800\n"
+"PO-Revision-Date: 2023-11-26 04:45+0800\n"
 "Last-Translator: Bo-Cheng Jhan <school510587@yahoo.com.tw>\n"
 "Language-Team: NVDA-Taiwan Volunteers Team\n"
 "Language: zh_TW\n"
@@ -168,14 +168,14 @@ msgstr "複製點字顯示器上呈現的點字內容到剪貼簿。"
 msgid ""
 "Copy the braille patterns on the braille display to the clipboard in BRF "
 "format."
-msgstr "將點字顯示器上的點字圖案用 BRF 格式複製到剪貼簿。"
+msgstr "用 BRF 格式複製點字顯示器上呈現的點字內容到剪貼簿。"
 
 #. Translators: Name of a command to copy the braille patterns on the braille display to the clipboard in NABCC format.
 #: addon\globalPlugins\BrlIMEHelper\__init__.py:749
 msgid ""
 "Copy the braille patterns on the braille display to the clipboard in NABCC "
 "format."
-msgstr "將點字顯示器上的點字圖案用 NABCC 格式複製到剪貼簿。"
+msgstr "用 NABCC 格式複製點字顯示器上呈現的點字內容到剪貼簿。"
 
 #. Translators: Name of a command to switch IME input mode.
 #: addon\globalPlugins\BrlIMEHelper\__init__.py:755
@@ -338,15 +338,3 @@ msgstr "點字輸入法助手設定"
 #: buildVars.py:24
 msgid "Converts braille input into IME operations."
 msgstr "將點字輸入轉換成輸入法的操作。"
-
-#~ msgid "The format to copy the braille display content:"
-#~ msgstr "複製點字顯示器內容時所使用的格式："
-
-#~ msgid "Unicode Braille Pattern"
-#~ msgstr "Unicode 點字圖案"
-
-#~ msgid "Braille ASCII"
-#~ msgstr "Braille ASCII"
-
-#~ msgid "North American Braille Computer Code (NABCC)"
-#~ msgstr "北美英文電腦點字 (NABCC)"
