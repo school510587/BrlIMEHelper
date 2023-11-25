@@ -256,6 +256,11 @@ The two functions are variants of "Copy the braille patterns on the braille disp
 - [Braille ASCII](https://en.wikipedia.org/wiki/Braille_ASCII): The representation to express the braille patterns consisting of dot 1 to dot 6 with ASCII characters adopted by the braille documents with .brf extension.
 - [North American Braille Computer Code (NABCC)](https://brltty.app/doc/Manual-BRLTTY/English/BRLTTY-14.html): See the reference web page. Note that only the braille patterns corresponding to characters 0 to 127 can be successfully copied.
 
+##### Translate the clipboard content into Unicode braille patterns
+##### Translate the clipboard content into braille in BRF format
+##### Translate the clipboard content into braille in NABCC format
+Translate the textual clipboard content into the specified format, and write it back into the clipboard. If the clipboard contains data in the other format, e.g. moving or copying a file, then these functions do not work.
+
 ### Options
 
 #### Automatically enable braille keyboard simulation when NVDA starts
