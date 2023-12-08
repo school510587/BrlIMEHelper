@@ -3,6 +3,13 @@
 # This file is covered by the GNU General Public License.
 # See the file LICENSE for more details.
 
+try:
+    from functools import partialmethod
+    monkey_method = lambda m, cls: partialmethod(m)
+except: # Python 2 does not have partialmethod.
+    from types import MethodType
+    monkey_method = lambda m, cls: MethodType(m, None, cls)
+
 # api.copyToClip
 try: # NVDA 2019.3 and later. The code only runs on Python 3 (and later).
     from winUser import openClipboard, emptyClipboard, setClipboardData, CF_UNICODETEXT

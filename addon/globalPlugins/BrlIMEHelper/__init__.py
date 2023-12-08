@@ -9,12 +9,6 @@ from comtypes.GUID import GUID_null
 from ctypes import *
 from ctypes.wintypes import *
 from functools import partial
-try:
-    from functools import partialmethod
-    monkey_method = lambda m, cls: partialmethod(m)
-except: # Python 2 does not have partialmethod.
-    from types import MethodType
-    monkey_method = lambda m, cls: MethodType(m, None, cls)
 from serial.win32 import INVALID_HANDLE_VALUE
 from threading import Timer
 import os
@@ -211,7 +205,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self.real_bd_driver_init = braille.BrailleDisplayDriver.__init__
         except: # Python 2
             self.real_bd_driver_init = None
-        braille.BrailleDisplayDriver.__init__ = monkey_method(partial(hack_bd_driver_init, self.real_bd_driver_init), braille.BrailleDisplayDriver)
+        braille.BrailleDisplayDriver.__init__ = patch.monkey_method(partial(hack_bd_driver_init, self.real_bd_driver_init), braille.BrailleDisplayDriver)
         DummyBrailleInputGesture.update_brl_display_gesture_map() # The current built one.
         hack_IME.install()
 
@@ -270,7 +264,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 addon.ignore_injected_keys[1].append(addon.ignore_injected_keys[0][-1])
             return addon.real_kb_send(*args)
         self.real_kb_send = KeyboardInputGesture.send
-        KeyboardInputGesture.send = monkey_method(partial(hack_kb_send, self), KeyboardInputGesture)
+        KeyboardInputGesture.send = patch.monkey_method(partial(hack_kb_send, self), KeyboardInputGesture)
         # Monkey patch keyboard handling callbacks.
         # This is pretty evil, but we need low level keyboard handling.
         self._oldKeyDown = winInputHook.keyDownCallback
