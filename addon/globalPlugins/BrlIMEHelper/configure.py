@@ -46,6 +46,11 @@ profile["IME_LANGUAGE_MODE_TOGGLE_KEY"] = ItemSpec(
         ("rightshift", KeyboardInputGesture.fromName("rightshift").displayName),
     ]),
 )
+profile["NO_ANNOUNCEMENT_TYPING_PROCESS"] = ItemSpec(
+    label = _("Prevent redundant announcement of the composition string change."),
+    default_value = True,
+    allowed_values = None,
+)
 profile["DEFAULT_NO_ALPHANUMERIC_BRL_KEY"] = ItemSpec(
     label = _("Use the general input mode as the default on IME alphanumeric input."),
     default_value = False,
