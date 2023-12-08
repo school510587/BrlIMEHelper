@@ -25,6 +25,7 @@ try:
 except:
     import _winreg as winreg
 
+from NVDAObjects.inputComposition import InputComposition
 from keyboardHandler import getInputHkl
 from logHandler import log
 from winUser import *
@@ -32,6 +33,7 @@ import addonHandler
 import vkCodes
 
 from . import configure
+from . import patch
 from .msctf import *
 from .runtime_state import thread_states
 
@@ -174,6 +176,18 @@ def guess_IME_name(langid):
         except Exception as e:
             log.error("guess_IME_name failed", exc_info=True)
     return MICROSOFT_BOPOMOFO["description"] if langid == MICROSOFT_BOPOMOFO["language"] else None
+
+def hack_compositionUpdate(self, compositionString, *args, **kwargs):
+    global _real_compositionUpdate
+    pid = getWindowThreadProcessID(self.windowHandle)[0]
+    log.debug("IME = {0}".format(thread_states[pid]["layout"]))
+    log.debug("composition {0} -> {1}, announce={2}".format(repr(self.compositionString), repr(compositionString), kwargs.get("announce", True)))
+    if configure.get("NO_ANNOUNCEMENT_TYPING_PROCESS") and compositionString.startswith(self.compositionString) and re.match("^[`0-9A-Za-z\u3100-\u312F]*$", compositionString[len(self.compositionString):]):
+        log.debug("Do not announce the process during typing.")
+        kwargs["announce"] = False
+    return _real_compositionUpdate(self, compositionString, *args, **kwargs)
+_real_compositionUpdate = InputComposition.compositionUpdate
+InputComposition.compositionUpdate = patch.monkey_method(hack_compositionUpdate, InputComposition)
 
 class Translator:
     layout_index = ""
