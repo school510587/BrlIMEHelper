@@ -17,6 +17,7 @@ from ctypes import *
 from ctypes.wintypes import *
 from json import JSONDecoder
 import codecs
+import difflib
 import itertools
 import os
 import re
@@ -31,6 +32,7 @@ from keyboardHandler import getInputHkl
 from logHandler import log
 from winUser import *
 import addonHandler
+import queueHandler
 import vkCodes
 
 from . import configure
@@ -178,8 +180,13 @@ def guess_IME_name(langid):
             log.error("guess_IME_name failed", exc_info=True)
     return MICROSOFT_BOPOMOFO["description"] if langid == MICROSOFT_BOPOMOFO["language"] else None
 
+hack_compositionUpdate_lock = False
 def hack_compositionUpdate(self, compositionString, *args, **kwargs):
-    global _real_compositionUpdate
+    global _real_compositionUpdate, hack_compositionUpdate_lock
+    if hack_compositionUpdate_lock:
+        queueHandler.queueFunction(queueHandler.eventQueue, hack_compositionUpdate, self, compositionString, *args, **kwargs)
+        return
+    hack_compositionUpdate_lock = True
     pid = getWindowThreadProcessID(self.windowHandle)[0]
     log.debug("IME = {0}".format(thread_states[pid]["layout"]))
     log.debug("compositionUpdate: selection=({0}, {1}), isReading={2}, announce={announce}".format(*args, announce=kwargs.get("announce", True)))
@@ -187,10 +194,24 @@ def hack_compositionUpdate(self, compositionString, *args, **kwargs):
         log.debug("compositionString '{0}' -> '{1}'".format(self.compositionString.replace("'", r"\'"), compositionString.replace("'", r"\'")))
     else:
         log.debug("compositionString {0} -> {1}".format(repr(self.compositionString), repr(compositionString)))
-    if configure.get("NO_ANNOUNCEMENT_TYPING_PROCESS") and compositionString.startswith(self.compositionString) and re.match("^[`0-9A-Za-z\u3100-\u312F]*$", compositionString[len(self.compositionString):]):
-        log.debug("Do not announce the process during typing.")
-        kwargs["announce"] = False
-    return _real_compositionUpdate(self, compositionString, *args, **kwargs)
+    selectionStart, selectionEnd, isReading = args
+    if not isReading and configure.get("NO_ANNOUNCEMENT_TYPING_PROCESS"):
+        str_d = {"-": "", "+": "", None: ""}
+        for s in difflib.ndiff(self.compositionString, compositionString):
+            try: str_d[s[0]] += s[-1]
+            except KeyError: str_d[None] += s[-1]
+        if re.match("^[`0-9A-Za-z]+$", str_d["-"]):
+            kwargs["announce"] = not bool(re.match("^[`0-9A-Za-z]*$", str_d["+"]))
+        elif re.match("^[`0-9A-Za-z]+$", str_d["+"]):
+            kwargs["announce"] = False
+        elif re.match("^[\u3100-\u312F]+$", str_d["+"]):
+            kwargs["announce"] = bool(str_d["-"])
+        #log.debug("Do not announce the process during typing.")
+        #kwargs["announce"] = False
+    log.debug("Final announce={0}".format(kwargs.get("announce")))
+    result = _real_compositionUpdate(self, compositionString, *args, **kwargs)
+    hack_compositionUpdate_lock = False
+    return result
 _real_compositionUpdate = InputComposition.compositionUpdate
 InputComposition.compositionUpdate = patch.monkey_method(hack_compositionUpdate, InputComposition)
 
