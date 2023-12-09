@@ -20,6 +20,7 @@ import codecs
 import itertools
 import os
 import re
+import sys
 try:
     import winreg
 except:
@@ -181,7 +182,11 @@ def hack_compositionUpdate(self, compositionString, *args, **kwargs):
     global _real_compositionUpdate
     pid = getWindowThreadProcessID(self.windowHandle)[0]
     log.debug("IME = {0}".format(thread_states[pid]["layout"]))
-    log.debug("composition {0} -> {1}, announce={2}".format(repr(self.compositionString), repr(compositionString), kwargs.get("announce", True)))
+    log.debug("compositionUpdate: selection=({0}, {1}), isReading={2}, announce={announce}".format(*args, announce=kwargs.get("announce", True)))
+    if sys.version_info.major < 3:
+        log.debug("compositionString '{0}' -> '{1}'".format(self.compositionString.replace("'", r"\'"), compositionString.replace("'", r"\'")))
+    else:
+        log.debug("compositionString {0} -> {1}".format(repr(self.compositionString), repr(compositionString)))
     if configure.get("NO_ANNOUNCEMENT_TYPING_PROCESS") and compositionString.startswith(self.compositionString) and re.match("^[`0-9A-Za-z\u3100-\u312F]*$", compositionString[len(self.compositionString):]):
         log.debug("Do not announce the process during typing.")
         kwargs["announce"] = False
