@@ -180,6 +180,27 @@ def guess_IME_name(langid):
             log.error("guess_IME_name failed", exc_info=True)
     return MICROSOFT_BOPOMOFO["description"] if langid == MICROSOFT_BOPOMOFO["language"] else None
 
+def infer_IME_mode(hwnd=None):
+    global thread_states
+    if hwnd is None:
+        hwnd = getForegroundWindow()
+    pid, tid = getWindowThreadProcessID(hwnd)
+    kl = DWORD(getKeyboardLayout(tid)).value
+    fg = thread_states[pid]
+    if kl in kl2name:
+        log.debug("Recognized keyboard layout.")
+        return (2 + (_name2clsid[kl2name[kl]] != DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0])) if fg["mode"] is None else (fg["mode"] & 1)
+    if DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null and not fg["layout"]:
+        log.debug("The default language profile is not an IME.")
+        return 2
+    else:
+        IME_name = fg["layout"] if fg["layout"] else guess_IME_name(LOWORD(kl))
+        if IME_name in lookup_IME:
+            log.debug("Recognized IME description.")
+            return (2 + (DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null)) if fg["mode"] is None else (fg["mode"] & 1)
+    log.debug("Guess the alphanumeric input mode.")
+    return 0
+
 hack_compositionUpdate_lock = False
 def hack_compositionUpdate(self, compositionString, *args, **kwargs):
     global _real_compositionUpdate, hack_compositionUpdate_lock

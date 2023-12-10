@@ -5,7 +5,6 @@
 
 from __future__ import unicode_literals
 from collections import OrderedDict
-from comtypes.GUID import GUID_null
 from ctypes import *
 from ctypes.wintypes import *
 from functools import partial
@@ -403,7 +402,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if not self._trappedKeys: # A session ends.
             try: # Select an action to perform, either BRL or SEL.
                 if self.touched_mainKB_keys:
-                    if self.config_r["kbbrl_ASCII_mode"][self.inferBRLmode() & 1] and not(self._gesture and self._gesture.dots and self._gesture.space):
+                    if self.config_r["kbbrl_ASCII_mode"][keyboard.infer_IME_mode() & 1] and not(self._gesture and self._gesture.dots and self._gesture.space):
                         brl_input = "".join(k[1] for k in self.touched_mainKB_keys.values())
                         if brl_input:
                             self.send_brl_input_from_str(brl_input)
@@ -412,7 +411,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     else:
                         touched_chars = set(k[0] for k in self.touched_mainKB_keys.values())
                         k_brl, k_ign = set(configure.get("BRAILLE_KEYS")) & touched_chars, touched_chars
-                        if self.inferBRLmode() & 1 or not configure.get("FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"):
+                        if keyboard.infer_IME_mode() & 1 or not configure.get("FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"):
                             k_ign = set(configure.get("IGNORED_KEYS")) & k_ign # Not &= to avoid tamper of touched_chars.
                         if k_brl == touched_chars:
                             log.debug("keyup: send dot {0:08b} {1}".format(self._gesture.dots, self._gesture.space))
@@ -476,7 +475,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         queueHandler.queueFunction(queueHandler.eventQueue, send_brl_input_from_str, text)
 
     def vk2str_in_ASCII_mode(self, vkCode, scanCode):
-        IME_mode = self.inferBRLmode() & 1
+        IME_mode = keyboard.infer_IME_mode() & 1
         if not self.config_r["kbbrl_ASCII_mode"][IME_mode]: # Not in the general input mode.
             return ""
         unicodeBRLtable = getBRLtable("unicode-braille.utb")
@@ -521,25 +520,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                         ui.message(_("Disabled: Simulating braille keyboard by a computer keyboard."))
         except:
             pass
-
-    def inferBRLmode(self):
-        global thread_states
-        pid, tid = getWindowThreadProcessID(getForegroundWindow())
-        kl = DWORD(getKeyboardLayout(tid)).value
-        fg = thread_states.foreground
-        if kl in keyboard.kl2name:
-            log.debug("Recognized keyboard layout.")
-            return (2 + (keyboard._name2clsid[keyboard.kl2name[kl]] != keyboard.DEFAULT_PROFILE[keyboard.MICROSOFT_BOPOMOFO["language"]][0])) if fg["mode"] is None else (fg["mode"] & 1)
-        if keyboard.DEFAULT_PROFILE[keyboard.MICROSOFT_BOPOMOFO["language"]][0] == GUID_null and not fg["layout"]:
-            log.debug("The default language profile is not an IME.")
-            return 2
-        else:
-            IME_name = fg["layout"] if fg["layout"] else keyboard.guess_IME_name(LOWORD(kl))
-            if IME_name in keyboard.lookup_IME:
-                log.debug("Recognized IME description.")
-                return (2 + (keyboard.DEFAULT_PROFILE[keyboard.MICROSOFT_BOPOMOFO["language"]][0] == GUID_null)) if fg["mode"] is None else (fg["mode"] & 1)
-        log.debug("Guess the alphanumeric input mode.")
-        return 0
 
     def brl_composition(self, ubrl, mode):
         try: # Normal input progress.
@@ -621,7 +601,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     script_toggleUnicodeBRL.category = SCRCAT_BrlIMEHelper
 
     def script_BRLdots(self, gesture):
-        mode, mode_msgs, new_brl = self.inferBRLmode(), [], ""
+        mode, mode_msgs, new_brl = keyboard.infer_IME_mode(), [], ""
         if mode & 2: mode_msgs.append("assumed")
         mode_msgs.append(("ENG", "CHI")[mode & 1])
         log.debug("BRLkeys: Mode is " + (" ".join(mode_msgs)))
