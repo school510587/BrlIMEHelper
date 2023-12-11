@@ -32,7 +32,6 @@ from keyboardHandler import getInputHkl
 from logHandler import log
 from winUser import *
 import addonHandler
-import queueHandler
 import vkCodes
 
 from . import configure
@@ -201,13 +200,9 @@ def infer_IME_mode(hwnd=None):
     log.debug("Guess the alphanumeric input mode.")
     return 0
 
-hack_compositionUpdate_lock = False
 def hack_compositionUpdate(self, compositionString, *args, **kwargs):
-    global _real_compositionUpdate, hack_compositionUpdate_lock
-    if hack_compositionUpdate_lock:
-        queueHandler.queueFunction(queueHandler.eventQueue, hack_compositionUpdate, self, compositionString, *args, **kwargs)
-        return
-    hack_compositionUpdate_lock = True
+    global _real_compositionUpdate
+    call, result = True, None
     log.debug("compositionUpdate: selection=({0}, {1}), isReading={2}, announce={announce}".format(*args, announce=kwargs.get("announce", True)))
     if sys.version_info.major < 3:
         log.debug("compositionString '{0}' -> '{1}'".format(self.compositionString.replace("'", r"\'"), compositionString.replace("'", r"\'")))
@@ -219,17 +214,19 @@ def hack_compositionUpdate(self, compositionString, *args, **kwargs):
         for s in difflib.ndiff(self.compositionString, compositionString):
             try: str_d[s[0]] += s[-1]
             except KeyError: str_d[None] += s[-1]
-        if re.match("^[`0-9A-Za-z]+$", str_d["-"]):
-            kwargs["announce"] = not bool(re.match("^[`0-9A-Za-z]*$", str_d["+"]))
-        elif re.match("^[`0-9A-Za-z]+$", str_d["+"]):
-            kwargs["announce"] = False
-        elif re.match("^[\u3100-\u312F]+$", str_d["+"]):
+        m = re.match("(^[\u3100-\u312F]+$)|(^[`0-9A-Za-z]+$)|", str_d["+"])
+        if m.group(1):
             kwargs["announce"] = bool(str_d["-"])
-        #log.debug("Do not announce the process during typing.")
-        #kwargs["announce"] = False
-    log.debug("Final announce={0}".format(kwargs.get("announce")))
-    result = _real_compositionUpdate(self, compositionString, *args, **kwargs)
-    hack_compositionUpdate_lock = False
+        elif m.group(2):
+            if str_d["-"] == "" and str_d["+"] == "`":
+                kwargs["announce"] = False
+            else:
+                call = False
+    if call:
+        log.debug("Call compositionUpdate() with announce={0}.".format(kwargs.get("announce")))
+        result = _real_compositionUpdate(self, compositionString, *args, **kwargs)
+    else:
+        log.debug("Do not call compositionUpdate().")
     return result
 _real_compositionUpdate = InputComposition.compositionUpdate
 InputComposition.compositionUpdate = patch.monkey_method(hack_compositionUpdate, InputComposition)
