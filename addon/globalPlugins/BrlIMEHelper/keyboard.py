@@ -183,22 +183,23 @@ def infer_IME_mode(hwnd=None):
     global thread_states
     if hwnd is None:
         hwnd = getForegroundWindow()
+    mode = (TF_CONVERSIONMODE_ALPHANUMERIC, TF_CONVERSIONMODE_NATIVE)
     pid, tid = getWindowThreadProcessID(hwnd)
     kl = DWORD(getKeyboardLayout(tid)).value
     fg = thread_states[pid]
     if kl in kl2name:
         log.debug("Recognized keyboard layout.")
-        return (2 + (_name2clsid[kl2name[kl]] != DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0])) if fg["mode"] is None else (fg["mode"] & 1)
+        return (TF_CONVERSIONMODE_NOCONVERSION | mode[_name2clsid[kl2name[kl]] != DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0]]) if fg["mode"] is None else fg["mode"]
     if DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null and not fg["layout"]:
         log.debug("The default language profile is not an IME.")
-        return 2
+        return TF_CONVERSIONMODE_NOCONVERSION
     else:
         IME_name = fg["layout"] if fg["layout"] else guess_IME_name(LOWORD(kl))
         if IME_name in lookup_IME:
             log.debug("Recognized IME description.")
-            return (2 + (DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null)) if fg["mode"] is None else (fg["mode"] & 1)
+            return (TF_CONVERSIONMODE_NOCONVERSION | mode[DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null]) if fg["mode"] is None else fg["mode"]
     log.debug("Guess the alphanumeric input mode.")
-    return 0
+    return mode[0] # TF_CONVERSIONMODE_ALPHANUMERIC
 
 def hack_compositionUpdate(self, compositionString, *args, **kwargs):
     global _real_compositionUpdate
@@ -209,7 +210,7 @@ def hack_compositionUpdate(self, compositionString, *args, **kwargs):
     else:
         log.debug("compositionString {0} -> {1}".format(repr(self.compositionString), repr(compositionString)))
     selectionStart, selectionEnd, isReading = args
-    if not isReading and configure.get("NO_ANNOUNCEMENT_TYPING_PROCESS") and (infer_IME_mode(self.windowHandle) & 1):
+    if not isReading and configure.get("NO_ANNOUNCEMENT_TYPING_PROCESS") and (infer_IME_mode(self.windowHandle) & TF_CONVERSIONMODE_NATIVE):
         str_d = {"-": "", "+": "", None: ""}
         for s in difflib.ndiff(self.compositionString, compositionString):
             try: str_d[s[0]] += s[-1]
