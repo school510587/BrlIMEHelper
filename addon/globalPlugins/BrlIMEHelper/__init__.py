@@ -403,7 +403,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if not self._trappedKeys: # A session ends.
             try: # Select an action to perform, either BRL or SEL.
                 if self.touched_mainKB_keys:
-                    if self.config_r["kbbrl_ASCII_mode"][bool(keyboard.infer_IME_mode() & TF_CONVERSIONMODE_NATIVE)] and not(self._gesture and self._gesture.dots and self._gesture.space):
+                    if self.config_r["kbbrl_ASCII_mode"][bool(keyboard.infer_IME_state().mode & TF_CONVERSIONMODE_NATIVE)] and not(self._gesture and self._gesture.dots and self._gesture.space):
                         brl_input = "".join(k[1] for k in self.touched_mainKB_keys.values())
                         if brl_input:
                             self.send_brl_input_from_str(brl_input)
@@ -412,7 +412,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     else:
                         touched_chars = set(k[0] for k in self.touched_mainKB_keys.values())
                         k_brl, k_ign = set(configure.get("BRAILLE_KEYS")) & touched_chars, touched_chars
-                        if (keyboard.infer_IME_mode() & TF_CONVERSIONMODE_NATIVE) or not configure.get("FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"):
+                        if (keyboard.infer_IME_state().mode & TF_CONVERSIONMODE_NATIVE) or not configure.get("FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"):
                             k_ign = set(configure.get("IGNORED_KEYS")) & k_ign # Not &= to avoid tamper of touched_chars.
                         if k_brl == touched_chars:
                             log.debug("keyup: send dot {0:08b} {1}".format(self._gesture.dots, self._gesture.space))
@@ -476,7 +476,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         queueHandler.queueFunction(queueHandler.eventQueue, send_brl_input_from_str, text)
 
     def vk2str_in_ASCII_mode(self, vkCode, scanCode):
-        IME_mode = bool(keyboard.infer_IME_mode() & TF_CONVERSIONMODE_NATIVE)
+        IME_mode = bool(keyboard.infer_IME_state().mode & TF_CONVERSIONMODE_NATIVE)
         if not self.config_r["kbbrl_ASCII_mode"][IME_mode]: # Not in the general input mode.
             return ""
         unicodeBRLtable = getBRLtable("unicode-braille.utb")
@@ -602,7 +602,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     script_toggleUnicodeBRL.category = SCRCAT_BrlIMEHelper
 
     def script_BRLdots(self, gesture):
-        mode, mode_msgs, new_brl = keyboard.infer_IME_mode(), [], ""
+        mode, mode_msgs, new_brl = keyboard.infer_IME_state().mode, [], ""
         if mode & TF_CONVERSIONMODE_NOCONVERSION: mode_msgs.append("assumed")
         mode_msgs.append(("ENG", "CHI")[bool(mode & TF_CONVERSIONMODE_NATIVE)])
         log.debug("BRLkeys: Mode is " + (" ".join(mode_msgs)))

@@ -6,6 +6,7 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 from collections import OrderedDict
+from collections import namedtuple
 from comtypes import COMError
 from comtypes import CLSCTX_ALL
 from comtypes import GUID
@@ -179,7 +180,8 @@ def guess_IME_name(langid):
             log.error("guess_IME_name failed", exc_info=True)
     return MICROSOFT_BOPOMOFO["description"] if langid == MICROSOFT_BOPOMOFO["language"] else None
 
-def infer_IME_mode(hwnd=None):
+_IME_State = namedtuple("_IME_State", ["mode", "name"])
+def infer_IME_state(hwnd=None):
     global thread_states
     if hwnd is None:
         hwnd = getForegroundWindow()
@@ -187,19 +189,21 @@ def infer_IME_mode(hwnd=None):
     pid, tid = getWindowThreadProcessID(hwnd)
     kl = DWORD(getKeyboardLayout(tid)).value
     fg = thread_states[pid]
+    IME_name = "%08X" % (kl,)
     if kl in kl2name:
         log.debug("Recognized keyboard layout.")
-        return (TF_CONVERSIONMODE_NOCONVERSION | mode[_name2clsid[kl2name[kl]] != DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0]]) if fg["mode"] is None else fg["mode"]
+        IME_name = kl2name[kl]
+        return _IME_State(mode=(TF_CONVERSIONMODE_NOCONVERSION | mode[_name2clsid[IME_name] != DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0]]) if fg["mode"] is None else fg["mode"], name=IME_name)
     if DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null and not fg["layout"]:
         log.debug("The default language profile is not an IME.")
-        return TF_CONVERSIONMODE_NOCONVERSION
+        return _IME_State(mode=TF_CONVERSIONMODE_NOCONVERSION, name=IME_name)
     else:
         IME_name = fg["layout"] if fg["layout"] else guess_IME_name(LOWORD(kl))
         if IME_name in lookup_IME:
             log.debug("Recognized IME description.")
-            return (TF_CONVERSIONMODE_NOCONVERSION | mode[DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null]) if fg["mode"] is None else fg["mode"]
+            return _IME_State(mode=(TF_CONVERSIONMODE_NOCONVERSION | mode[DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null]) if fg["mode"] is None else fg["mode"], name=IME_name)
     log.debug("Guess the alphanumeric input mode.")
-    return mode[0] # TF_CONVERSIONMODE_ALPHANUMERIC
+    return _IME_State(mode=mode[0], name=IME_name) # TF_CONVERSIONMODE_ALPHANUMERIC
 
 def hack_compositionUpdate(self, compositionString, *args, **kwargs):
     global _real_compositionUpdate
@@ -210,7 +214,7 @@ def hack_compositionUpdate(self, compositionString, *args, **kwargs):
     else:
         log.debug("compositionString {0} -> {1}".format(repr(self.compositionString), repr(compositionString)))
     selectionStart, selectionEnd, isReading = args
-    if not isReading and configure.get("NO_ANNOUNCEMENT_TYPING_PROCESS") and (infer_IME_mode(self.windowHandle) & TF_CONVERSIONMODE_NATIVE):
+    if not isReading and configure.get("NO_ANNOUNCEMENT_TYPING_PROCESS") and (infer_IME_state(self.windowHandle).mode & TF_CONVERSIONMODE_NATIVE):
         str_d = {"-": "", "+": "", None: ""}
         for s in difflib.ndiff(self.compositionString, compositionString):
             try: str_d[s[0]] += s[-1]
