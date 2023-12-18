@@ -1,6 +1,11 @@
 {
     "{00000000-0000-0000-0000-000000000000}": {
         "UNDEFINED_SYMBOL": "`u%x ",
+        "WRDCMPS_DISPLAY": {
+            "NATIVE": "[ˇˊˋ˙㄀-ㄯ]",
+            "SYMBOL_HEAD": "`",
+            "SYMBOL_BODY": "[0-9A-FUa-fu]"
+        },
         "ALLOW_NON_BMP_SYMBOLS": 1,
         "SYMBOLS": {
             "※": "Control+Alt+,|r",

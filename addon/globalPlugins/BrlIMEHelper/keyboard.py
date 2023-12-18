@@ -130,6 +130,28 @@ with codecs.open(os.path.join(os.path.dirname(__file__), "{0}.json".format(MICRO
                 log.warning("Microsoft Bopomofo IME is not enabled now.")
     except COMError:
         log.error("Some COM error occurred.", exc_info=True)
+for name, data in lookup_IME.items():
+    try:
+        p = "(?P<NC>^({NATIVE})+$)|(?P<SH>^(({SYMBOL_HEAD})({SYMBOL_BODY})*)$)|(?P<SB>^({SYMBOL_BODY})+$)|".format(**data["WRDCMPS_DISPLAY"])
+    except:
+        data["WRDCMPS_DISPLAY"] = re.compile("|(?P<NC>)|(?P<SH>)|(?P<SB>)")
+        log.error("Incomplete WRDCMPS_DISPLAY: {0}".format(name))
+        continue
+    try:
+        data["WRDCMPS_DISPLAY"] = re.compile(p)
+    except:
+        data["WRDCMPS_DISPLAY"] = re.compile("|(?P<NC>)|(?P<SH>)|(?P<SB>)")
+        log.error("Bad WRDCMPS_DISPLAY: {0} => {1}".format(name, p))
+    m = data["WRDCMPS_DISPLAY"].match("")
+    if m.group("NC") is not None:
+        data["WRDCMPS_DISPLAY"] = re.compile("|(?P<NC>)|(?P<SH>)|(?P<SB>)")
+        log.error("Bad WRDCMPS_DISPLAY: <NC> group accepts '': {0} => {1}".format(name, p))
+    if m.group("SH") is not None:
+        data["WRDCMPS_DISPLAY"] = re.compile("|(?P<NC>)|(?P<SH>)|(?P<SB>)")
+        log.error("Bad WRDCMPS_DISPLAY: <SH> group accepts '': {0} => {1}".format(name, p))
+    if m.group("SB") is not None:
+        data["WRDCMPS_DISPLAY"] = re.compile("|(?P<NC>)|(?P<SH>)|(?P<SB>)")
+        log.error("Bad WRDCMPS_DISPLAY: <SB> group accepts '': {0} => {1}".format(name, p))
 for n, cls in _name2clsid.items():
     try:
         with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\CTF\TIP\{clsid}\LanguageProfile\0x0000{langid:04X}\{guidProfile}".format(clsid=cls, langid=MICROSOFT_BOPOMOFO["language"], guidProfile=MICROSOFT_BOPOMOFO["profile"])) as IME_i:
@@ -214,21 +236,23 @@ def hack_compositionUpdate(self, compositionString, *args, **kwargs):
     else:
         log.debug("compositionString {0} -> {1}".format(repr(self.compositionString), repr(compositionString)))
     selectionStart, selectionEnd, isReading = args
-    if not isReading and configure.get("NO_ANNOUNCEMENT_TYPING_PROCESS") and (infer_IME_state(self.windowHandle).mode & TF_CONVERSIONMODE_NATIVE):
-        str_d = {"-": "", "+": "", None: ""}
-        for s in difflib.ndiff(self.compositionString, compositionString):
-            try: str_d[s[0]] += s[-1]
-            except KeyError: str_d[None] += s[-1]
-        m = re.match("(^[\u3100-\u312F]+$)|(^`[0-9A-Za-z]*$)|(^[0-9A-Za-z]+$)|", str_d["+"])
-        if m.group(1):
-            kwargs["announce"] = bool(str_d["-"])
-        elif m.group(2):
-            if str_d["-"] == "":
-                kwargs["announce"] = False
-            else:
+    if not isReading and configure.get("NO_ANNOUNCEMENT_TYPING_PROCESS"):
+        IME_state = infer_IME_state(self.windowHandle)
+        if (IME_state.mode & TF_CONVERSIONMODE_NATIVE) and IME_state.name in lookup_IME:
+            str_d = {"-": "", "+": "", None: ""}
+            for s in difflib.ndiff(self.compositionString, compositionString):
+                try: str_d[s[0]] += s[-1]
+                except KeyError: str_d[None] += s[-1]
+            m = lookup_IME[IME_state.name]["WRDCMPS_DISPLAY"].match(str_d["+"])
+            if m.group("NC"):
+                kwargs["announce"] = bool(str_d["-"])
+            elif m.group("SH"):
+                if str_d["-"] == "":
+                    kwargs["announce"] = False
+                else:
+                    call = False
+            elif m.group("SB"):
                 call = False
-        elif m.group(3):
-            call = False
     if call:
         log.debug("Call compositionUpdate() with announce={0}.".format(kwargs.get("announce")))
         result = _real_compositionUpdate(self, compositionString, *args, **kwargs)
