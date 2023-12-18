@@ -219,14 +219,16 @@ def hack_compositionUpdate(self, compositionString, *args, **kwargs):
         for s in difflib.ndiff(self.compositionString, compositionString):
             try: str_d[s[0]] += s[-1]
             except KeyError: str_d[None] += s[-1]
-        m = re.match("(^[\u3100-\u312F]+$)|(^[`0-9A-Za-z]+$)|", str_d["+"])
+        m = re.match("(^[\u3100-\u312F]+$)|(^`[0-9A-Za-z]*$)|(^[0-9A-Za-z]+$)|", str_d["+"])
         if m.group(1):
             kwargs["announce"] = bool(str_d["-"])
         elif m.group(2):
-            if str_d["-"] == "" and str_d["+"] == "`":
+            if str_d["-"] == "":
                 kwargs["announce"] = False
             else:
                 call = False
+        elif m.group(3):
+            call = False
     if call:
         log.debug("Call compositionUpdate() with announce={0}.".format(kwargs.get("announce")))
         result = _real_compositionUpdate(self, compositionString, *args, **kwargs)
