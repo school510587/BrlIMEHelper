@@ -18,6 +18,7 @@ import winsound
 import wx
 try: unichr
 except NameError: unichr = chr
+from NVDAHelper import _lookupKeyboardLayoutNameWithHexString
 from brailleDisplayDrivers.noBraille import BrailleDisplayDriver as NoBrailleDisplayDriver
 from brailleTables import getTable as getBRLtable
 from keyboardHandler import KeyboardInputGesture, getInputHkl, isNVDAModifierKey, currentModifiers
@@ -322,7 +323,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     self._gesture.dots = self._uncommittedDots >> 1
                 elif key_id == 0x0F: # VK_DIVIDE = 0x6F
                     dots = self._uncommittedDots
-                    scriptHandler.queueScript(self.script_viewBRLbuffer, None)
+                    scriptHandler.queueScript(self.script_viewAddonState, None)
                 else:
                     raise NotImplementedError # Unused numpad keys.
             except NotImplementedError:
@@ -735,17 +736,44 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     script_switchIMEmode.__doc__ = _("Switches IME input mode.")
     script_switchIMEmode.category = SCRCAT_BrlIMEHelper
 
-    def script_viewBRLbuffer(self, gesture):
+    def script_viewAddonState(self, gesture):
         hint = self.brl_state.hint_msg(self.brl_str, "")
         numpad_state = "".join(str(i) for i in range(configure.NUM_BRAILLE_KEYS) if self._uncommittedDots & (1 << i))
-        info = (("{0} ", "")[hint == ""] + ("#{1}", "")[numpad_state == ""]).format(hint, numpad_state)
-        if info:
-            queueHandler.queueFunction(queueHandler.eventQueue, ui.message, info)
-        else:
-            winsound.MessageBeep()
-    # Translators: Name of a command to view braille buffer.
-    script_viewBRLbuffer.__doc__ = _("View braille buffer.")
-    script_viewBRLbuffer.category = SCRCAT_BrlIMEHelper
+        dots_info = (("{0} ", "")[hint == ""] + ("#{1}", "")[numpad_state == ""]).format(hint, numpad_state).strip()
+        if gesture is None:
+            if dots_info:
+                ui.message(dots_info)
+            else:
+                winsound.MessageBeep()
+            return
+        mode_info, name_info = _("alphanumeric braille translation"), _("unknown input method")
+        IME_state = keyboard.infer_IME_state()
+        if IME_state.mode & TF_CONVERSIONMODE_NATIVE:
+            LOCALE_SNATIVELANGNAME = 4
+            langid = LOWORD(getInputHkl())
+            bufferLength = windll.kernel32.GetLocaleInfoW(langid, LOCALE_SNATIVELANGNAME, None, 0)
+            if bufferLength > 0:
+                buffer = create_unicode_buffer("", bufferLength)
+                windll.kernel32.GetLocaleInfoW(langid, LOCALE_SNATIVELANGNAME, buffer, bufferLength)
+                mode_info = (_("{language} braille translation"), _("possible {language} braille translation"))[bool(IME_state.mode & TF_CONVERSIONMODE_NOCONVERSION)].format(language=buffer.value)
+            else:
+                mode_info = _("possible native braille translation") if IME_state.mode & TF_CONVERSIONMODE_NOCONVERSION else _("native braille translation")
+        if IME_state.name:
+            try:
+                int(IME_state.name, 16)
+                kl_name = _lookupKeyboardLayoutNameWithHexString(IME_state.name)
+                if not kl_name:
+                    kl_name = _lookupKeyboardLayoutNameWithHexString(IME_state.name[-4:].rjust(8, "0"))
+                name_info = kl_name if kl_name else IME_state.name
+            except:
+                name_info = IME_state.name
+        info = _("{IME_mode}, {IME_name}").format(IME_mode=mode_info, IME_name=name_info)
+        if dots_info:
+            info = "{0}, {1}".format(dots_info, info)
+        ui.message(info)
+    # Translators: Name of a command to view the state of the addon.
+    script_viewAddonState.__doc__ = _("View the state of the addon.")
+    script_viewAddonState.category = SCRCAT_BrlIMEHelper
 
     def script_openControlPanel(self, gesture): # os.system("control") is inefficient.
         l = windll.Kernel32.GetSystemDirectoryA(None, 0)
@@ -813,7 +841,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         "bk:space+dot2+dot4+dot5": "clearBRLbuffer",
         "bk:space+dot1+dot2+dot3": "toggleAlphaModeBRLsimulation",
         "bk:space+dot4+dot5+dot6": "switchIMEmode",
-        "bk:space+dot1": "viewBRLbuffer",
+        "bk:space+dot1": "viewAddonState",
         "bk:space+dot1+dot3+dot6": "toggleUnicodeBRL",
     }
 
