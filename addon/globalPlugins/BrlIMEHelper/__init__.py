@@ -502,6 +502,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 self.synchronize_cbrlkb_states(configure.get("CBRLKB_AUTO_TOGGLE_HINT"))
         nextHandler()
 
+    def event_interruptBRLcomposition(self, obj, nextHandler):
+        log.debug("Running event_interruptBRLcomposition")
+        self.clear()
+        nextHandler()
+
     def synchronize_cbrlkb_states(self, feedback):
         try:
             if thread_states.cbrlkb:

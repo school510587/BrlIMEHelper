@@ -10,7 +10,9 @@ from NVDAHelper import localLib
 from NVDAHelper import nvdaControllerInternal_inputConversionModeUpdate
 from NVDAHelper import nvdaControllerInternal_inputLangChangeNotify
 from NVDAHelper import _setDllFuncPointer
+from eventHandler import queueEvent
 from logHandler import log
+import api
 
 from .runtime_state import thread_states
 
@@ -25,7 +27,9 @@ def hack_nvdaControllerInternal_inputConversionModeUpdate(oldFlags, newFlags, lc
         log.debug("IME status: {0}".format(item))
     except:
         log.error("IME conversion mode update failure", exc_info=True)
-    return nvdaControllerInternal_inputConversionModeUpdate(c_long(oldFlags), c_long(newFlags), c_ulong(lcid))
+    result = nvdaControllerInternal_inputConversionModeUpdate(c_long(oldFlags), c_long(newFlags), c_ulong(lcid))
+    queueEvent("interruptBRLcomposition", api.getFocusObject())
+    return result
 
 @WINFUNCTYPE(c_long, c_long, c_ulong, c_wchar_p)
 def hack_nvdaControllerInternal_inputLangChangeNotify(threadID, hkl, layoutString):
@@ -36,7 +40,9 @@ def hack_nvdaControllerInternal_inputLangChangeNotify(threadID, hkl, layoutStrin
         log.debug("IME status: {0}".format(item))
     except:
         log.error("IME language change failure", exc_info=True)
-    return nvdaControllerInternal_inputLangChangeNotify(threadID, hkl, layoutString)
+    result = nvdaControllerInternal_inputLangChangeNotify(threadID, hkl, layoutString)
+    queueEvent("interruptBRLcomposition", api.getFocusObject())
+    return result
 
 def install():
     _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputConversionModeUpdate", hack_nvdaControllerInternal_inputConversionModeUpdate)
