@@ -776,6 +776,12 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         if dots_info:
             info = "{0}, {1}".format(dots_info, info)
         ui.message(info)
+        langid, profile = keyboard.oIPP.GetActiveLanguageProfile(GUID_TFCAT_TIP_KEYBOARD)
+        log.info("oIPP: {0}, {1}".format(langid, profile))
+        try:
+            data = keyboard.oIPPMgr.GetActiveProfile(GUID_TFCAT_TIP_KEYBOARD)
+            log.info("oIPPMgr: {0}".format(data))
+        except: pass
     # Translators: Name of a command to view the state of the addon.
     script_viewAddonState.__doc__ = _("View the state of the addon.")
     script_viewAddonState.category = SCRCAT_BrlIMEHelper
