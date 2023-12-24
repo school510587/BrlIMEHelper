@@ -14,6 +14,7 @@ from logHandler import log
 from winUser import *
 
 from . import configure
+from . import patch
 
 class _Runtime_States(defaultdict):
     def __init__(self):
@@ -77,8 +78,14 @@ class _Runtime_States(defaultdict):
             self.scanning = False
             self.scanner.join()
             self.scanner = None
-    def update_foreground(self, **kwargs):
-        fg = self.foreground
+    def update_foreground(self, thread=None, **kwargs):
+        if thread is None:
+            fg = self.foreground
+        else:
+            pid = patch.getProcessIdOfThread(thread)
+            if not pid: raise RunTimeError("Failed to get the process ID from thread ID {0}.".format(thread))
+            log.debug("Update the state for pid={0}, tid={1}".format(pid, thread))
+            fg = self[pid]
         log.debug("Update entry {0} for the pid".format(kwargs))
         fg.update(kwargs)
         return fg
