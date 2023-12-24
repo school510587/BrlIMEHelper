@@ -3,6 +3,9 @@
 # This file is covered by the GNU General Public License.
 # See the file LICENSE for more details.
 
+from ctypes import *
+from ctypes.wintypes import *
+
 try:
     from functools import partialmethod
     monkey_method = lambda m, cls: partialmethod(m)
@@ -34,3 +37,37 @@ except ImportError: # Earlier versions of NVDA (Python 2).
                 win32clipboard.SetClipboardData(CF_TEXT if isinstance(text, bytes) else CF_UNICODETEXT, text)
         finally:
             win32clipboard.CloseClipboard()
+
+class _CLIENT_ID(Structure):
+    _fields_ = [
+        ("UniqueProcess", HANDLE),
+        ("UniqueThread", HANDLE),
+    ]
+
+class _THREAD_BASIC_INFORMATION(Structure):
+    _fields_ = [
+        ("ExitStatus", LONG),
+        ("TebBaseAddress", LPVOID),
+        ("ClientId", _CLIENT_ID),
+        ("AffinityMask", POINTER(ULONG)),
+        ("Priority", LONG),
+        ("BasePriority", LONG),
+    ]
+
+def getProcessIdOfThread(threadID):
+    hThread, pid = windll.kernel32.OpenThread(0x40, False, threadID), 0
+    if not hThread: raise WinError() # OpenThread() failed.
+    try:
+        pid = windll.kernel32.GetProcessIdOfThread(hThread)
+    except: # Alternative implementation for GetProcessIdOfThread().
+        tbi = _THREAD_BASIC_INFORMATION()
+        status = LONG(windll.ntdll.NtQueryInformationThread(hThread, 0, byref(tbi), sizeof(tbi), None)).value
+        if status < 0:
+            raise WindowsError("NtQueryInformationThread() returns NTSTATUS({0}).".format(status))
+        pid = DWORD(tbi.ClientId.UniqueProcess).value
+        if not pid: raise WindowsError("NtQueryInformationThread() got invalid process ID.")
+    else:
+        if not pid: raise WinError() # GetProcessIdOfThread() failed.
+    finally:
+        if not windll.kernel32.CloseHandle(hThread): raise WinError()
+    return pid
