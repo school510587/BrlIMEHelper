@@ -5,7 +5,9 @@
 
 from __future__ import unicode_literals
 from ctypes import *
+from functools import partial
 
+from NVDAHelper import handleInputConversionModeUpdate
 from NVDAHelper import localLib
 from NVDAHelper import nvdaControllerInternal_inputConversionModeUpdate
 from NVDAHelper import nvdaControllerInternal_inputLangChangeNotify
@@ -13,8 +15,48 @@ from NVDAHelper import _setDllFuncPointer
 from eventHandler import queueEvent
 from logHandler import log
 import api
+import config
+import queueHandler
+import ui
 
 from .runtime_state import thread_states
+
+try:
+    from config.configFlags import ShowMessages
+    class _confMessageTimeout:
+        key = "showMessages"
+        show_indefinitely = ShowMessages.SHOW_INDEFINITELY
+        use_timeout = ShowMessages.USE_TIMEOUT
+except: # The old NVDA versions.
+    class _confMessageTimeout:
+        key = "noMessageTimeout"
+        show_indefinitely = True
+        use_timeout = False
+
+def hack_queueHandler_queueFunction(hacked_func, queue, func, *args, **kwargs):
+    if func is handleInputConversionModeUpdate:
+        log.debug("Replace handleInputConversionModeUpdate() with hack_handleInputConversionModeUpdate().")
+        def hack_handleInputConversionModeUpdate(*args, **kwargs):
+            log.debug("Call handleInputConversionModeUpdate() after monkeying queueHandler.queueFunction().")
+            def _hack_queueHandler_queueFunction(hacked_func, queue, func, *args, **kwargs):
+                if func is ui.message:
+                    log.debug("Replace ui.message() by hack_ui_message().")
+                    def hack_ui_message(*args, **kwargs):
+                        log.debug("Call ui.message() with USE_TIMEOUT.")
+                        old_value = config.conf["braille"][_confMessageTimeout.key]
+                        if config.conf["braille"][_confMessageTimeout.key] == _confMessageTimeout.show_indefinitely:
+                            config.conf["braille"][_confMessageTimeout.key] = _confMessageTimeout.use_timeout
+                        result = ui.message(*args, **kwargs)
+                        config.conf["braille"][_confMessageTimeout.key] = old_value
+                        return result
+                    func = hack_ui_message
+                return hacked_func(queue, func, *args, **kwargs)
+            old_func, queueHandler.queueFunction = queueHandler.queueFunction, partial(_hack_queueHandler_queueFunction, queueHandler.queueFunction)
+            result = handleInputConversionModeUpdate(*args, **kwargs)
+            queueHandler.queueFunction = old_func
+            return result
+        func = hack_handleInputConversionModeUpdate
+    return hacked_func(queue, func, *args, **kwargs)
 
 # Note: Monkeying handleInputConversionModeUpdate does not work.
 
@@ -27,7 +69,9 @@ def hack_nvdaControllerInternal_inputConversionModeUpdate(oldFlags, newFlags, lc
         log.debug("IME status: {0}".format(item))
     except:
         log.error("IME conversion mode update failure", exc_info=True)
+    old_func, queueHandler.queueFunction = queueHandler.queueFunction, partial(hack_queueHandler_queueFunction, queueHandler.queueFunction)
     result = nvdaControllerInternal_inputConversionModeUpdate(c_long(oldFlags), c_long(newFlags), c_ulong(lcid))
+    queueHandler.queueFunction = old_func
     queueEvent("interruptBRLcomposition", api.getFocusObject())
     return result
 
