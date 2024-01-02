@@ -15,10 +15,12 @@ from NVDAHelper import _setDllFuncPointer
 from eventHandler import queueEvent
 from logHandler import log
 import api
+import braille
 import config
 import queueHandler
 import ui
 
+from . import patch
 from .runtime_state import thread_states
 
 try:
@@ -32,6 +34,13 @@ except: # The old NVDA versions.
         key = "noMessageTimeout"
         show_indefinitely = True
         use_timeout = False
+
+def hack_resetMessageTimer(real_resetMessageTimer, self, *args, **kwargs):
+    if config.conf["braille"][_confMessageTimeout.key] == _confMessageTimeout.show_indefinitely and self._messageCallLater:
+        self._messageCallLater.Stop()
+        self._messageCallLater = None
+    return real_resetMessageTimer(self, *args, **kwargs)
+type(braille.handler)._resetMessageTimer = patch.monkey_method(partial(hack_resetMessageTimer, type(braille.handler)._resetMessageTimer), type(braille.handler))
 
 def hack_queueHandler_queueFunction(hacked_func, queue, func, *args, **kwargs):
     if func is handleInputConversionModeUpdate:
