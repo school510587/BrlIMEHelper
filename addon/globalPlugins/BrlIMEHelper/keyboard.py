@@ -30,6 +30,7 @@ except:
 
 from NVDAObjects.inputComposition import InputComposition
 from keyboardHandler import getInputHkl
+from languageHandler import localeNameToWindowsLCID
 from logHandler import log
 from winUser import *
 import addonHandler
@@ -62,7 +63,7 @@ DEFAULT_PROFILE = {}
 
 # The profile ID of the Microsoft Bopomofo IME.
 MICROSOFT_BOPOMOFO = {
-    "language": 0x0404, # MAKELANGID(LANG_CHINESE, SUBLANG_CHINESE_TRADITIONAL), not LANG_CHINESE_TRADITIONAL.
+    "language": localeNameToWindowsLCID("zh_TW"), # 0x0404
     "profile": GUID("{B2F9C502-1742-11D4-9790-0080C882687E}"),
     "processor": GUID_null,
     "keyboard-layout": 0,
