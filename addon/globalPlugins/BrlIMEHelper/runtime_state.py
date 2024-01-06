@@ -11,10 +11,20 @@ from time import sleep
 import os
 
 from logHandler import log
+from treeInterceptorHandler import DocumentTreeInterceptor
 from winUser import *
+import api
 
 from . import configure
 from . import patch
+
+def on_browse_mode():
+    try:
+        obj = api.getFocusObject()
+        return (isinstance(obj.treeInterceptor, DocumentTreeInterceptor) and not obj.treeInterceptor.passThrough)
+    except:
+        pass
+    return False
 
 class _Runtime_States(defaultdict):
     def __init__(self):

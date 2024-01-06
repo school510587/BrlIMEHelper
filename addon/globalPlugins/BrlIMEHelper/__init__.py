@@ -23,7 +23,6 @@ from brailleDisplayDrivers.noBraille import BrailleDisplayDriver as NoBrailleDis
 from brailleTables import getTable as getBRLtable
 from keyboardHandler import KeyboardInputGesture, getInputHkl, isNVDAModifierKey, currentModifiers
 from logHandler import log
-from treeInterceptorHandler import DocumentTreeInterceptor
 from winUser import *
 import addonHandler
 import api
@@ -45,7 +44,7 @@ except:
 
 from .brl_tables import *
 from .msctf import *
-from .runtime_state import thread_states
+from .runtime_state import *
 from .sounds import *
 from . import configure
 from . import hack_IME
@@ -338,13 +337,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         # (1) Any modifier key is held down.
         # (2) NVDA is in browse mode.
         # (3) The "kbbrl_deactivated" flag is set.
-        def on_browse_mode():
-            try:
-                obj = api.getFocusObject()
-                return (isinstance(obj.treeInterceptor, DocumentTreeInterceptor) and not obj.treeInterceptor.passThrough)
-            except:
-                pass
-            return False
         charCode = user32.MapVirtualKeyExW(vkCode, MAPVK_VK_TO_CHAR, getInputHkl())
         if HIWORD(charCode) != 0:
             return self._oldKeyDown(vkCode, scanCode, extended, injected)
