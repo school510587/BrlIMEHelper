@@ -216,15 +216,19 @@ def infer_IME_state(hwnd=None):
     if kl in kl2name:
         log.debug("Recognized keyboard layout.")
         IME_name = kl2name[kl]
-        return _IME_State(mode=(TF_CONVERSIONMODE_NOCONVERSION | mode[_name2clsid[IME_name] != DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0]]) if fg["mode"] is None else fg["mode"], name=IME_name)
+        if fg["mode"] is None:
+            raise ValueError(_IME_State(mode=mode[_name2clsid[IME_name] != DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0]], name=IME_name))
+        return _IME_State(mode=fg["mode"], name=IME_name)
     if DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null and not fg["layout"]:
         log.debug("The default language profile is not an IME.")
-        return _IME_State(mode=TF_CONVERSIONMODE_NOCONVERSION, name=IME_name)
+        raise ValueError(_IME_State(mode=mode[0], name=IME_name))
     else:
         IME_name = fg["layout"] if fg["layout"] else guess_IME_name(LOWORD(kl))
         if IME_name in lookup_IME:
             log.debug("Recognized IME description.")
-            return _IME_State(mode=(TF_CONVERSIONMODE_NOCONVERSION | mode[DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null]) if fg["mode"] is None else fg["mode"], name=IME_name)
+            if fg["mode"] is None:
+                raise ValueError(_IME_State(mode=mode[DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null], name=IME_name))
+            return _IME_State(mode=fg["mode"], name=IME_name)
     log.debug("Guess the alphanumeric input mode.")
     return _IME_State(mode=mode[0], name=IME_name) # TF_CONVERSIONMODE_ALPHANUMERIC
 
@@ -238,7 +242,10 @@ def hack_compositionUpdate(self, compositionString, *args, **kwargs):
         log.debug("compositionString {0} -> {1}".format(repr(self.compositionString), repr(compositionString)))
     selectionStart, selectionEnd, isReading = args
     if not isReading and configure.get("NO_ANNOUNCEMENT_TYPING_PROCESS"):
-        IME_state = infer_IME_state(self.windowHandle)
+        try:
+            IME_state = infer_IME_state(self.windowHandle)
+        except ValueError as e:
+            IME_state = e.args[0]
         if (IME_state.mode & TF_CONVERSIONMODE_NATIVE) and IME_state.name in lookup_IME:
             str_d = {"-": "", "+": "", None: ""}
             for s in difflib.ndiff(self.compositionString, compositionString):

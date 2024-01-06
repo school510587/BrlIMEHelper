@@ -404,7 +404,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if not self._trappedKeys: # A session ends.
             try: # Select an action to perform, either BRL or SEL.
                 if self.touched_mainKB_keys:
-                    if self.config_r["kbbrl_ASCII_mode"][bool(keyboard.infer_IME_state().mode & TF_CONVERSIONMODE_NATIVE)] and not(self._gesture and self._gesture.dots and self._gesture.space):
+                    try:
+                        IME_state = keyboard.infer_IME_state()
+                    except ValueError as e:
+                        IME_state = e.args[0]
+                    if self.config_r["kbbrl_ASCII_mode"][bool(IME_state.mode & TF_CONVERSIONMODE_NATIVE)] and not(self._gesture and self._gesture.dots and self._gesture.space):
                         brl_input = "".join(k[1] for k in self.touched_mainKB_keys.values())
                         if brl_input:
                             self.send_brl_input_from_str(brl_input)
@@ -413,7 +417,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     else:
                         touched_chars = set(k[0] for k in self.touched_mainKB_keys.values())
                         k_brl, k_ign = set(configure.get("BRAILLE_KEYS")) & touched_chars, touched_chars
-                        if (keyboard.infer_IME_state().mode & TF_CONVERSIONMODE_NATIVE) or not configure.get("FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"):
+                        try:
+                            IME_state = keyboard.infer_IME_state()
+                        except ValueError as e:
+                            IME_state = e.args[0]
+                        if (IME_state.mode & TF_CONVERSIONMODE_NATIVE) or not configure.get("FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"):
                             k_ign = set(configure.get("IGNORED_KEYS")) & k_ign # Not &= to avoid tamper of touched_chars.
                         if k_brl == touched_chars:
                             log.debug("keyup: send dot {0:08b} {1}".format(self._gesture.dots, self._gesture.space))
@@ -477,7 +485,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         queueHandler.queueFunction(queueHandler.eventQueue, send_brl_input_from_str, text)
 
     def vk2str_in_ASCII_mode(self, vkCode, scanCode):
-        IME_mode = bool(keyboard.infer_IME_state().mode & TF_CONVERSIONMODE_NATIVE)
+        try:
+            IME_mode = bool(keyboard.infer_IME_state().mode & TF_CONVERSIONMODE_NATIVE)
+        except ValueError as e:
+            IME_mode = bool(e.args[0].mode & TF_CONVERSIONMODE_NATIVE)
         if not self.config_r["kbbrl_ASCII_mode"][IME_mode]: # Not in the general input mode.
             return ""
         unicodeBRLtable = getBRLtable("unicode-braille.utb")
@@ -608,8 +619,12 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     script_toggleUnicodeBRL.category = SCRCAT_BrlIMEHelper
 
     def script_BRLdots(self, gesture):
-        mode, mode_msgs, new_brl = keyboard.infer_IME_state().mode, [], ""
-        if mode & TF_CONVERSIONMODE_NOCONVERSION: mode_msgs.append("assumed")
+        mode_msgs, new_brl = [], ""
+        try:
+            mode = keyboard.infer_IME_state().mode
+        except ValueError as e:
+            mode = e.args[0].mode
+            mode_msgs.append("assumed")
         mode_msgs.append(("ENG", "CHI")[bool(mode & TF_CONVERSIONMODE_NATIVE)])
         log.debug("BRLkeys: Mode is " + (" ".join(mode_msgs)))
         if mode & TF_CONVERSIONMODE_NATIVE:
@@ -752,7 +767,10 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
                 winsound.MessageBeep()
             return
         mode_info, name_info = _("alphanumeric braille translation"), _("unknown input method")
-        IME_state = keyboard.infer_IME_state()
+        try:
+            IME_state, guessed = keyboard.infer_IME_state(), False
+        except ValueError as e:
+            IME_state, guessed = e.args[0], True
         if IME_state.mode & TF_CONVERSIONMODE_NATIVE:
             LOCALE_SNATIVELANGNAME = 4
             langid = LOWORD(getInputHkl())
@@ -760,9 +778,9 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
             if bufferLength > 0:
                 buffer = create_unicode_buffer("", bufferLength)
                 windll.kernel32.GetLocaleInfoW(langid, LOCALE_SNATIVELANGNAME, buffer, bufferLength)
-                mode_info = (_("{language} braille translation"), _("possible {language} braille translation"))[bool(IME_state.mode & TF_CONVERSIONMODE_NOCONVERSION)].format(language=buffer.value)
+                mode_info = (_("{language} braille translation"), _("possible {language} braille translation"))[guessed].format(language=buffer.value)
             else:
-                mode_info = _("possible native braille translation") if IME_state.mode & TF_CONVERSIONMODE_NOCONVERSION else _("native braille translation")
+                mode_info = _("possible native braille translation") if guessed else _("native braille translation")
         if IME_state.name:
             try:
                 int(IME_state.name, 16)
