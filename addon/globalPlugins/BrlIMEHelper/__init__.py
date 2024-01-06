@@ -541,7 +541,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def brl_composition(self, ubrl, mode):
         try: # Normal input progress.
-            if not (mode & TF_CONVERSIONMODE_NATIVE):
+            if not (mode & TF_CONVERSIONMODE_NATIVE) or (mode & TF_CONVERSIONMODE_NOCONVERSION):
                 raise NotImplementedError
             brl_input = self.brl_str + ubrl
             state = self.brl_state.brl_check(brl_input)
