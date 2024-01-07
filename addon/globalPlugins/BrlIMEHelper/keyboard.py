@@ -203,7 +203,12 @@ def guess_IME_name(langid):
             log.error("guess_IME_name failed", exc_info=True)
     return MICROSOFT_BOPOMOFO["description"] if langid == MICROSOFT_BOPOMOFO["language"] else None
 
-_IME_State = namedtuple("_IME_State", ["mode", "name"])
+class _IME_State(namedtuple("_IME_State", ["mode", "name"])):
+    def __new__(cls, *args, **kwargs):
+        self = super(_IME_State, cls).__new__(cls, *args, **kwargs)
+        self.is_native = bool((self.mode & TF_CONVERSIONMODE_NATIVE) and not (self.mode & TF_CONVERSIONMODE_NOCONVERSION))
+        return self
+
 def infer_IME_state(hwnd=None):
     global thread_states
     if hwnd is None:
