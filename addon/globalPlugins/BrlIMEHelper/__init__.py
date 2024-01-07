@@ -400,7 +400,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                         IME_state = keyboard.infer_IME_state()
                     except ValueError as e:
                         IME_state = e.args[0]
-                    if self.config_r["kbbrl_ASCII_mode"][bool(IME_state.mode & TF_CONVERSIONMODE_NATIVE)] and not(self._gesture and self._gesture.dots and self._gesture.space):
+                    if self.config_r["kbbrl_ASCII_mode"][IME_state.is_native] and not(self._gesture and self._gesture.dots and self._gesture.space):
                         brl_input = "".join(k[1] for k in self.touched_mainKB_keys.values())
                         if brl_input:
                             self.send_brl_input_from_str(brl_input)
@@ -413,7 +413,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                             IME_state = keyboard.infer_IME_state()
                         except ValueError as e:
                             IME_state = e.args[0]
-                        if (IME_state.mode & TF_CONVERSIONMODE_NATIVE) or not configure.get("FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"):
+                        if IME_state.is_native or not configure.get("FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"):
                             k_ign = set(configure.get("IGNORED_KEYS")) & k_ign # Not &= to avoid tamper of touched_chars.
                         if k_brl == touched_chars:
                             log.debug("keyup: send dot {0:08b} {1}".format(self._gesture.dots, self._gesture.space))
@@ -478,9 +478,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def vk2str_in_ASCII_mode(self, vkCode, scanCode):
         try:
-            IME_mode = bool(keyboard.infer_IME_state().mode & TF_CONVERSIONMODE_NATIVE)
+            IME_state = keyboard.infer_IME_state()
         except ValueError as e:
-            IME_mode = bool(e.args[0].mode & TF_CONVERSIONMODE_NATIVE)
+            IME_state = e.args[0]
+        IME_mode = IME_state.is_native
         if not self.config_r["kbbrl_ASCII_mode"][IME_mode]: # Not in the general input mode.
             return ""
         unicodeBRLtable = getBRLtable("unicode-braille.utb")
@@ -531,9 +532,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         except:
             pass
 
-    def brl_composition(self, ubrl, mode):
+    def brl_composition(self, ubrl, IME_state):
         try: # Normal input progress.
-            if not (mode & TF_CONVERSIONMODE_NATIVE) or (mode & TF_CONVERSIONMODE_NOCONVERSION):
+            if not IME_state.is_native:
                 raise NotImplementedError
             brl_input = self.brl_str + ubrl
             state = self.brl_state.brl_check(brl_input)
@@ -542,7 +543,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         except NotImplementedError: # The alphanumeric mode, or the input is rejected by the brl parser.
             if self.timer[1]:
                 self.send_input_and_clear(self.timer[1])
-                if not (mode & TF_CONVERSIONMODE_NATIVE): # No braille composition in the alphanumeric mode.
+                if not IME_state.is_native: # No braille composition in the alphanumeric mode.
                     raise
                 brl_input = ubrl # Retry after sending the pending input.
             elif len(self.brl_str) >= len(ubrl) and self.brl_str != ubrl:
@@ -613,34 +614,34 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     def script_BRLdots(self, gesture):
         mode_msgs, new_brl = [], ""
         try:
-            mode = keyboard.infer_IME_state().mode
+            IME_state = keyboard.infer_IME_state()
         except ValueError as e:
-            mode = e.args[0].mode
+            IME_state = e.args[0]
             mode_msgs.append("assumed")
-        mode_msgs.append(("ENG", "CHI")[bool(mode & TF_CONVERSIONMODE_NATIVE)])
+        mode_msgs.append(("ENG", "CHI")[bool(IME_state.mode & TF_CONVERSIONMODE_NATIVE)])
         log.debug("BRLkeys: Mode is " + (" ".join(mode_msgs)))
-        if mode & TF_CONVERSIONMODE_NATIVE:
+        if IME_state.is_native:
             self.clear(brl_buffer=False)
         try:
-            state = self.brl_composition(unichr(0x2800 | gesture.dots), mode)
+            state = self.brl_composition(unichr(0x2800 | gesture.dots), IME_state)
         except NotImplementedError: # The alphanumeric mode, or the input is rejected by the brl parser.
             done = False
             if gesture.dots == 0b01000000:
-                if (mode & TF_CONVERSIONMODE_NATIVE) or not isinstance(gesture, DummyBrailleInputGesture) or brailleInput.handler.table.fileName.lower() != "unicode-braille.utb":
+                if IME_state.is_native or not isinstance(gesture, DummyBrailleInputGesture) or brailleInput.handler.table.fileName.lower() != "unicode-braille.utb":
                     log.debug("BRLkeys: dot7 default")
                     scriptHandler.queueScript(globalCommands.commands.script_braille_eraseLastCell, gesture)
                     done = True
             elif gesture.dots == 0b10000000:
-                if (mode & TF_CONVERSIONMODE_NATIVE) or not isinstance(gesture, DummyBrailleInputGesture) or brailleInput.handler.table.fileName.lower() != "unicode-braille.utb":
+                if IME_state.is_native or not isinstance(gesture, DummyBrailleInputGesture) or brailleInput.handler.table.fileName.lower() != "unicode-braille.utb":
                     log.debug("BRLkeys: dot8 default")
                     scriptHandler.queueScript(globalCommands.commands.script_braille_enter, gesture)
                     done = True
             elif gesture.dots == 0b11000000:
-                if (mode & TF_CONVERSIONMODE_NATIVE) or not isinstance(gesture, DummyBrailleInputGesture) or brailleInput.handler.table.fileName.lower() != "unicode-braille.utb":
+                if IME_state.is_native or not isinstance(gesture, DummyBrailleInputGesture) or brailleInput.handler.table.fileName.lower() != "unicode-braille.utb":
                     log.debug("BRLkeys: dot7+dot8 default")
                     scriptHandler.queueScript(globalCommands.commands.script_braille_translate, gesture)
                     done = True
-            elif mode & TF_CONVERSIONMODE_NATIVE:
+            elif IME_state.is_native:
                 log.debug("BRLkeys: input rejected")
                 beep_typo()
                 done = True
