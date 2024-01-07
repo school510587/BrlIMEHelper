@@ -6,17 +6,30 @@
 from __future__ import unicode_literals
 from collections import defaultdict
 from ctypes import windll
+from functools import partial
 from threading import Thread
 from time import sleep
 import os
 
+from eventHandler import queueEvent
 from logHandler import log
 from treeInterceptorHandler import DocumentTreeInterceptor
 from winUser import *
 import api
+import browseMode
 
 from . import configure
 from . import patch
+
+def hack_reportPassThrough(real_func, treeInterceptor, onlyIfChanged=True, **kwargs):
+    log.debug("Call hack_reportPassThrough with onlyIfChanged={0}.".format(onlyIfChanged))
+    if not onlyIfChanged or treeInterceptor.passThrough != browseMode.reportPassThrough.last:
+        log.debug("Interrupt BRL composition.")
+        queueEvent("interruptBRLcomposition", api.getFocusObject())
+    return real_func(treeInterceptor, onlyIfChanged=onlyIfChanged, **kwargs)
+hack_reportPassThrough = partial(hack_reportPassThrough, browseMode.reportPassThrough)
+hack_reportPassThrough.last = browseMode.reportPassThrough.last
+browseMode.reportPassThrough = hack_reportPassThrough
 
 def on_browse_mode():
     try:
