@@ -39,7 +39,7 @@ import vkCodes
 from . import configure
 from . import patch
 from .msctf import *
-from .runtime_state import thread_states
+from .runtime_state import *
 
 try:
     addonHandler.initTranslation()
@@ -208,17 +208,20 @@ def infer_IME_state(hwnd=None):
     global thread_states
     if hwnd is None:
         hwnd = getForegroundWindow()
-    mode = (TF_CONVERSIONMODE_ALPHANUMERIC, TF_CONVERSIONMODE_NATIVE)
     pid, tid = getWindowThreadProcessID(hwnd)
     kl = DWORD(getKeyboardLayout(tid)).value
     fg = thread_states[pid]
+    mode = [TF_CONVERSIONMODE_ALPHANUMERIC, TF_CONVERSIONMODE_NATIVE, (0 if fg["mode"] is None else fg["mode"])]
+    if on_browse_mode():
+        for i in range(len(mode)):
+            mode[i] |= TF_CONVERSIONMODE_NOCONVERSION
     IME_name = "%08X" % (kl,)
     if kl in kl2name:
         log.debug("Recognized keyboard layout.")
         IME_name = kl2name[kl]
         if fg["mode"] is None:
             raise ValueError(_IME_State(mode=mode[_name2clsid[IME_name] != DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0]], name=IME_name))
-        return _IME_State(mode=fg["mode"], name=IME_name)
+        return _IME_State(mode=mode[2], name=IME_name)
     if DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null and not fg["layout"]:
         log.debug("The default language profile is not an IME.")
         raise ValueError(_IME_State(mode=mode[0], name=IME_name))
@@ -228,7 +231,7 @@ def infer_IME_state(hwnd=None):
             log.debug("Recognized IME description.")
             if fg["mode"] is None:
                 raise ValueError(_IME_State(mode=mode[DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null], name=IME_name))
-            return _IME_State(mode=fg["mode"], name=IME_name)
+            return _IME_State(mode=mode[2], name=IME_name)
     log.debug("Guess the alphanumeric input mode.")
     return _IME_State(mode=mode[0], name=IME_name) # TF_CONVERSIONMODE_ALPHANUMERIC
 
