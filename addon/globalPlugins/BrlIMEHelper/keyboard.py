@@ -225,18 +225,20 @@ def infer_IME_state(hwnd=None):
         log.debug("Recognized keyboard layout.")
         IME_name = kl2name[kl]
         if fg["mode"] is None:
-            raise ValueError(_IME_State(mode=mode[_name2clsid[IME_name] != DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0]], name=IME_name))
+            raise ValueError(_IME_State(mode=mode[_name2clsid[IME_name] != DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0]], name=IME_name), True, False)
         return _IME_State(mode=mode[2], name=IME_name)
     if DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null and not fg["layout"]:
         log.debug("The default language profile is not an IME.")
-        raise ValueError(_IME_State(mode=mode[0], name=IME_name))
+        raise ValueError(_IME_State(mode=mode[0], name=IME_name), True, False)
     else:
         IME_name = fg["layout"] if fg["layout"] else guess_IME_name(LOWORD(kl))
         if IME_name in lookup_IME:
             log.debug("Recognized IME description.")
             if fg["mode"] is None:
-                raise ValueError(_IME_State(mode=mode[DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null], name=IME_name))
-            return _IME_State(mode=mode[2], name=IME_name)
+                raise ValueError(_IME_State(mode=mode[DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null], name=IME_name), True, not bool(fg["layout"]))
+            elif fg["layout"]:
+                return _IME_State(mode=mode[2], name=IME_name)
+            raise ValueError(_IME_State(mode=mode[2], name=IME_name), False, True)
     log.debug("Guess the alphanumeric input mode.")
     return _IME_State(mode=mode[0], name=IME_name) # TF_CONVERSIONMODE_ALPHANUMERIC
 
