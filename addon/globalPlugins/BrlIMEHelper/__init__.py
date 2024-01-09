@@ -761,9 +761,9 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
             return
         mode_info, name_info = _("alphanumeric braille translation"), _("unknown input method")
         try:
-            IME_state, guessed = keyboard.infer_IME_state(), False
+            IME_state, guessed = keyboard.infer_IME_state(), (False, False)
         except ValueError as e:
-            IME_state, guessed = e.args[0], True
+            IME_state, guessed = e.args[0], e.args[1:3]
         if IME_state.mode & TF_CONVERSIONMODE_NATIVE:
             LOCALE_SNATIVELANGNAME = 4
             langid = LOWORD(getInputHkl())
@@ -771,9 +771,11 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
             if bufferLength > 0:
                 buffer = create_unicode_buffer("", bufferLength)
                 windll.kernel32.GetLocaleInfoW(langid, LOCALE_SNATIVELANGNAME, buffer, bufferLength)
-                mode_info = (_("{language} braille translation"), _("possible {language} braille translation"))[guessed].format(language=buffer.value)
-            else:
-                mode_info = _("possible native braille translation") if guessed else _("native braille translation")
+                mode_info = _("{language} braille translation").format(language=buffer.value)
+            else: # GetLocaleInfoW() provides no data.
+                mode_info = _("native braille translation")
+        if guessed[0]:
+            mode_info = "(?) {0}".format(mode_info)
         if IME_state.name:
             try:
                 int(IME_state.name, 16)
@@ -783,9 +785,9 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
                 name_info = kl_name if kl_name else IME_state.name
             except:
                 name_info = IME_state.name
-        info = _("{IME_mode}, {IME_name}").format(IME_mode=mode_info, IME_name=name_info)
-        if dots_info:
-            info = "{0}, {1}".format(dots_info, info)
+            if guessed[1]:
+                name_info = "(?) {0}".format(name_info)
+        info = "; ".join([dots_info, mode_info, name_info])
         ui.message(info)
     # Translators: Name of a command to view the state of the addon.
     script_viewAddonState.__doc__ = _("View the state of the addon.")
