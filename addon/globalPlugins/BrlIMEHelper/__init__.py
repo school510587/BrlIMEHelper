@@ -18,7 +18,6 @@ import winsound
 import wx
 try: unichr
 except NameError: unichr = chr
-from NVDAHelper import _lookupKeyboardLayoutNameWithHexString
 from brailleDisplayDrivers.noBraille import BrailleDisplayDriver as NoBrailleDisplayDriver
 from brailleTables import getTable as getBRLtable
 from keyboardHandler import KeyboardInputGesture, getInputHkl, isNVDAModifierKey, currentModifiers
@@ -777,14 +776,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         if guessed[0]:
             mode_info = "(?) {0}".format(mode_info)
         if IME_state.name:
-            try:
-                int(IME_state.name, 16)
-                kl_name = _lookupKeyboardLayoutNameWithHexString(IME_state.name)
-                if not kl_name:
-                    kl_name = _lookupKeyboardLayoutNameWithHexString(IME_state.name[-4:].rjust(8, "0"))
-                name_info = kl_name if kl_name else IME_state.name
-            except:
-                name_info = IME_state.name
+            name_info = IME_state.name_str()
             if guessed[1]:
                 name_info = "(?) {0}".format(name_info)
         info = "; ".join([dots_info, mode_info, name_info])

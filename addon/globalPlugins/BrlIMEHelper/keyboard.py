@@ -28,6 +28,7 @@ try:
 except:
     import _winreg as winreg
 
+from NVDAHelper import _lookupKeyboardLayoutNameWithHexString
 from NVDAObjects.inputComposition import InputComposition
 from keyboardHandler import getInputHkl
 from languageHandler import localeNameToWindowsLCID
@@ -208,6 +209,16 @@ class _IME_State(namedtuple("_IME_State", ["mode", "name", "real"])):
         self = super(_IME_State, cls).__new__(cls, *args, **kwargs)
         self.is_native = bool((self.mode & TF_CONVERSIONMODE_NATIVE) and not (self.mode & TF_CONVERSIONMODE_NOCONVERSION))
         return self
+    def name_str(self):
+        try:
+            int(self.name, 16) # Check for the hex string.
+            kl_name = _lookupKeyboardLayoutNameWithHexString(self.name)
+            if not kl_name:
+                kl_name = _lookupKeyboardLayoutNameWithHexString(self.name[-4:].rjust(8, "0"))
+            return kl_name if kl_name else self.name
+        except: # The name is not a hex string.
+            pass
+        return self.name
 
 def infer_IME_state(hwnd=None):
     global thread_states
