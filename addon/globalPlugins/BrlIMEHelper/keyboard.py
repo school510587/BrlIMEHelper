@@ -209,6 +209,17 @@ class _IME_State(namedtuple("_IME_State", ["mode", "name", "real"])):
         self = super(_IME_State, cls).__new__(cls, *args, **kwargs)
         self.is_native = bool((self.mode & TF_CONVERSIONMODE_NATIVE) and not (self.mode & TF_CONVERSIONMODE_NOCONVERSION))
         return self
+    def mode_flags(self):
+        if self.real["mode"] is None:
+            return "-+"[bool(self.mode & TF_CONVERSIONMODE_NOCONVERSION)] + "?"
+        answer = "-+"[bool((self.mode | self.real["mode"]) & TF_CONVERSIONMODE_NOCONVERSION)]
+        answer += "AN"[bool(self.real["mode"] & TF_CONVERSIONMODE_NATIVE)]
+        answer += "HF"[bool(self.real["mode"] & TF_CONVERSIONMODE_FULLSHAPE)]
+        LANG_JAPANESE = 0x11
+        if self.real["lcid"] and self.real["lcid"] & 0xFF == LANG_JAPANESE:
+            answer += "HK"[bool(self.real["mode"] & TF_CONVERSIONMODE_KATAKANA)]
+            answer += "-R"[bool(self.real["mode"] & TF_CONVERSIONMODE_ROMAN)]
+        return answer
     def name_str(self):
         try:
             int(self.name, 16) # Check for the hex string.
