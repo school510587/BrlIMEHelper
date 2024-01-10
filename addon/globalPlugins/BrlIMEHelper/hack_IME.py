@@ -74,7 +74,7 @@ def hack_nvdaControllerInternal_inputConversionModeUpdate(oldFlags, newFlags, lc
     global thread_states
     log.debug("IME conversion mode update: oldFlags={0}, newFlags={1}, lcid={2}".format(oldFlags, newFlags, lcid))
     try:
-        item = thread_states.update_foreground(mode=newFlags)
+        item = thread_states.update_foreground(lcid=lcid, mode=newFlags)
         log.debug("IME status: {0}".format(item))
     except:
         log.error("IME conversion mode update failure", exc_info=True)

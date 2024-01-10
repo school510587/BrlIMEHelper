@@ -41,7 +41,7 @@ def on_browse_mode():
 
 class _Runtime_States(defaultdict):
     def __init__(self):
-        super(self.__class__, self).__init__(lambda: {"mode": None, "layout": "", "cbrlkb": configure.get("AUTO_BRL_KEY")})
+        super(self.__class__, self).__init__(lambda: {"lcid": None, "mode": None, "layout": "", "cbrlkb": configure.get("AUTO_BRL_KEY")})
         self._cbrlkb = configure.profile["AUTO_BRL_KEY"].default_value
         self.scanning = False
         self.scanner = None
