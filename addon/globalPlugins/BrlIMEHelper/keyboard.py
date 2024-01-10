@@ -203,7 +203,7 @@ def guess_IME_name(langid):
             log.error("guess_IME_name failed", exc_info=True)
     return MICROSOFT_BOPOMOFO["description"] if langid == MICROSOFT_BOPOMOFO["language"] else None
 
-class _IME_State(namedtuple("_IME_State", ["mode", "name"])):
+class _IME_State(namedtuple("_IME_State", ["mode", "name", "real"])):
     def __new__(cls, *args, **kwargs):
         self = super(_IME_State, cls).__new__(cls, *args, **kwargs)
         self.is_native = bool((self.mode & TF_CONVERSIONMODE_NATIVE) and not (self.mode & TF_CONVERSIONMODE_NOCONVERSION))
@@ -225,22 +225,22 @@ def infer_IME_state(hwnd=None):
         log.debug("Recognized keyboard layout.")
         IME_name = kl2name[kl]
         if fg["mode"] is None:
-            raise ValueError(_IME_State(mode=mode[_name2clsid[IME_name] != DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0]], name=IME_name), True, False)
-        return _IME_State(mode=mode[2], name=IME_name)
+            raise ValueError(_IME_State(mode=mode[_name2clsid[IME_name] != DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0]], name=IME_name, real=fg), True, False)
+        return _IME_State(mode=mode[2], name=IME_name, real=fg)
     if DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null and not fg["layout"]:
         log.debug("The default language profile is not an IME.")
-        raise ValueError(_IME_State(mode=mode[0], name=IME_name), True, False)
+        raise ValueError(_IME_State(mode=mode[0], name=IME_name, real=fg), True, False)
     else:
         IME_name = fg["layout"] if fg["layout"] else guess_IME_name(LOWORD(kl))
         if IME_name in lookup_IME:
             log.debug("Recognized IME description.")
             if fg["mode"] is None:
-                raise ValueError(_IME_State(mode=mode[DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null], name=IME_name), True, not bool(fg["layout"]))
+                raise ValueError(_IME_State(mode=mode[DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null], name=IME_name, real=fg), True, not bool(fg["layout"]))
             elif fg["layout"]:
-                return _IME_State(mode=mode[2], name=IME_name)
-            raise ValueError(_IME_State(mode=mode[2], name=IME_name), False, True)
+                return _IME_State(mode=mode[2], name=IME_name, real=fg)
+            raise ValueError(_IME_State(mode=mode[2], name=IME_name, real=fg), False, True)
     log.debug("Guess the alphanumeric input mode.")
-    return _IME_State(mode=mode[0], name=IME_name) # TF_CONVERSIONMODE_ALPHANUMERIC
+    return _IME_State(mode=mode[0], name=IME_name, real=fg) # TF_CONVERSIONMODE_ALPHANUMERIC
 
 def hack_compositionUpdate(self, compositionString, *args, **kwargs):
     global _real_compositionUpdate
