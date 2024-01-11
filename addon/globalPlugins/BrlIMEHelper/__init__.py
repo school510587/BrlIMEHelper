@@ -773,11 +773,11 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
                 mode_info = _("{language} braille translation").format(language=buffer.value)
             else: # GetLocaleInfoW() provides no data.
                 mode_info = _("native braille translation")
-        mode_info = "{0} ({1})".format(mode_info, IME_state.mode_flags())
         if IME_state.name:
             name_info = IME_state.name_str()
             if guessed[1]:
                 name_info = "(?) {0}".format(name_info)
+        name_info = "{0} {{{1}}}".format(name_info, IME_state.mode_flags())
         info = "; ".join([dots_info, mode_info, name_info])
         ui.message(info)
     # Translators: Name of a command to view the state of the addon.
