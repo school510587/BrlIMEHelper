@@ -313,6 +313,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     dots = self._uncommittedDots | (1 << key_id)
                 elif key_id == 0x09: # VK_NUMPAD9 = 0x69
                     pass # self._uncommittedDots is cleared.
+                elif key_id == 0x0B: # VK_ADD = 0x6B
+                    scriptHandler.queueScript(globalCommands.commands.script_braille_scrollForward, None)
+                elif key_id == 0x0D: # VK_SUBTRACT = 0x6D
+                    scriptHandler.queueScript(globalCommands.commands.script_braille_scrollBack, None)
                 elif key_id == 0x0E: # VK_DECIMAL = 0x6E
                     if not self._uncommittedDots:
                         raise NotImplementedError # No uncommitted dots.
