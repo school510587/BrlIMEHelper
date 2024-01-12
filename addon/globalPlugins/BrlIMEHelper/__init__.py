@@ -242,6 +242,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if brl_buffer:
             self.timer[1] = ""
             self.brl_str = ""
+            self.reset_numpad_state()
 
     def initKBBRL(self): # Members for keyboard BRL simulation.
         self.ignore_injected_keys = ([], [])
@@ -251,6 +252,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self._trappedNVDAModifiers = set()
         self._gesture = None
         self._uncommittedDots = 0 # Dots recorded by NumPad keys.
+
+    def reset_numpad_state(self, timeout=None):
+        try:
+            if self._numpad_timer: # Perhaps AttributeError.
+                self._uncommittedDots = 0
+            self._numpad_timer.Stop()
+        except:
+            pass
+        self._numpad_timer = None
+        if timeout:
+            self._numpad_timer = wx.CallLater(timeout, self.reset_numpad_state)
 
     def enable(self, beep=False):
         if self.config_r["kbbrl_enabled"]:
@@ -305,14 +317,16 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return self._oldKeyDown(vkCode, scanCode, extended, injected)
         # Don't process any numpad key.
         if vkCode & 0xF0 == 0x60:
-            key_id, dots = vkCode & 0x0F, 0
+            key_id = vkCode & 0x0F
             try:
                 if currentModifiers or self._trappedNVDAModifiers or not configure.get("ALLOW_DOT_BY_DOT_BRL_INPUT_VIA_NUMPAD"):
                     raise NotImplementedError # Modified numpad keys, or the feature is not enabled.
                 elif 0x00 <= key_id <= 0x08: # VK_NUMPAD0 to VK_NUMPAD8
-                    dots = self._uncommittedDots | (1 << key_id)
+                    self.reset_numpad_state()
+                    self._uncommittedDots |= (1 << key_id)
                 elif key_id == 0x09: # VK_NUMPAD9 = 0x69
-                    pass # self._uncommittedDots is cleared.
+                    self.reset_numpad_state()
+                    self._uncommittedDots = 0
                 elif key_id == 0x0B: # VK_ADD = 0x6B
                     scriptHandler.queueScript(globalCommands.commands.script_braille_scrollForward, None)
                 elif key_id == 0x0D: # VK_SUBTRACT = 0x6D
@@ -323,16 +337,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     self._gesture = DummyBrailleInputGesture()
                     self._gesture.space = bool(self._uncommittedDots & 0x01)
                     self._gesture.dots = self._uncommittedDots >> 1
+                    self.reset_numpad_state(500)
+                    self._uncommittedDots = (self._gesture.dots << 1) | self._gesture.space
                 elif key_id == 0x0F: # VK_DIVIDE = 0x6F
-                    dots = self._uncommittedDots
                     scriptHandler.queueScript(self.script_viewAddonState, None)
                 else:
                     raise NotImplementedError # Unused numpad keys.
             except NotImplementedError:
                 self._modifiedKeys.add((vkCode, extended))
+                self.reset_numpad_state()
+                self._uncommittedDots = 0
                 return self._oldKeyDown(vkCode, scanCode, extended, injected)
-            finally:
-                self._uncommittedDots = dots
             self._trappedKeys.add((vkCode, extended))
             return False
         # In some cases, a key not previously trapped must be passed
