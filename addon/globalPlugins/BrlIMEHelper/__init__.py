@@ -251,12 +251,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self._trappedKeys = set()
         self._trappedNVDAModifiers = set()
         self._gesture = None
-        self._uncommittedDots = 0 # Dots recorded by NumPad keys.
+        self._uncommittedDots = [0, None] # Dots / routing index recorded by NumPad keys.
 
     def reset_numpad_state(self, timeout=None):
         try:
             if self._numpad_timer: # Perhaps AttributeError.
-                self._uncommittedDots = 0
+                self._uncommittedDots = [0, None]
             self._numpad_timer.Stop()
         except:
             pass
@@ -323,22 +323,41 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     raise NotImplementedError # Modified numpad keys, or the feature is not enabled.
                 elif 0x00 <= key_id <= 0x08: # VK_NUMPAD0 to VK_NUMPAD8
                     self.reset_numpad_state()
-                    self._uncommittedDots |= (1 << key_id)
+                    self._uncommittedDots[0] |= (1 << key_id)
+                    try:
+                        self._uncommittedDots[1] = self._uncommittedDots[1] * 10 + key_id
+                    except:
+                        self._uncommittedDots[1] = key_id
                 elif key_id == 0x09: # VK_NUMPAD9 = 0x69
                     self.reset_numpad_state()
-                    self._uncommittedDots = 0
+                    self._uncommittedDots[0] = 0
+                    try:
+                        self._uncommittedDots[1] = self._uncommittedDots[1] * 10 + key_id
+                    except:
+                        self._uncommittedDots[1] = key_id
+                elif key_id == 0x0A: # VK_MULTIPLY = 0x6A
+                    if self._uncommittedDots[1] is None:
+                        raise NotImplementedError # No uncommitted routing command.
+                    self._uncommittedDots[0] = 0
+                    self._gesture = braille.BrailleDisplayGesture()
+                    self._gesture.routingIndex = self._uncommittedDots[1]
+                    self.reset_numpad_state(500)
+                    self._uncommittedDots[1] = self._gesture.routingIndex
+                    scriptHandler.queueScript(globalCommands.commands.script_braille_routeTo, self._gesture)
+                    self._gesture = None
                 elif key_id == 0x0B: # VK_ADD = 0x6B
                     scriptHandler.queueScript(globalCommands.commands.script_braille_scrollForward, None)
                 elif key_id == 0x0D: # VK_SUBTRACT = 0x6D
                     scriptHandler.queueScript(globalCommands.commands.script_braille_scrollBack, None)
                 elif key_id == 0x0E: # VK_DECIMAL = 0x6E
-                    if not self._uncommittedDots:
+                    if not self._uncommittedDots[0]:
                         raise NotImplementedError # No uncommitted dots.
+                    self._uncommittedDots[1] = None
                     self._gesture = DummyBrailleInputGesture()
-                    self._gesture.space = bool(self._uncommittedDots & 0x01)
-                    self._gesture.dots = self._uncommittedDots >> 1
+                    self._gesture.space = bool(self._uncommittedDots[0] & 0x01)
+                    self._gesture.dots = self._uncommittedDots[0] >> 1
                     self.reset_numpad_state(500)
-                    self._uncommittedDots = (self._gesture.dots << 1) | self._gesture.space
+                    self._uncommittedDots[0] = (self._gesture.dots << 1) | self._gesture.space
                 elif key_id == 0x0F: # VK_DIVIDE = 0x6F
                     scriptHandler.queueScript(self.script_viewAddonState, None)
                 else:
@@ -346,7 +365,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             except NotImplementedError:
                 self._modifiedKeys.add((vkCode, extended))
                 self.reset_numpad_state()
-                self._uncommittedDots = 0
+                self._uncommittedDots = [0, None]
                 return self._oldKeyDown(vkCode, scanCode, extended, injected)
             self._trappedKeys.add((vkCode, extended))
             return False
@@ -441,7 +460,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                             self.send_keys(ch.lower())
                         else:
                             beep_typo()
-                        self._uncommittedDots = 0
+                        self._uncommittedDots = [0, None]
                 else:
                     if self._gesture is not None:
                         inputCore.manager.emulateGesture(self._gesture)
@@ -770,9 +789,11 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     def script_viewAddonState(self, gesture):
         dots_info = self.brl_state.hint_msg(self.brl_str, "")
         if gesture is None:
-            numpad_state = "".join(str(i) for i in range(configure.NUM_BRAILLE_KEYS) if self._uncommittedDots & (1 << i))
+            numpad_state = "".join(str(i) for i in range(configure.NUM_BRAILLE_KEYS) if self._uncommittedDots[0] & (1 << i))
             if numpad_state:
                 dots_info = "{0} #{1}".format(dots_info, numpad_state).strip()
+            if self._uncommittedDots[1] is not None:
+                dots_info = "{0} =>{1}".format(dots_info, self._uncommittedDots[1]).strip()
             if dots_info:
                 ui.message(dots_info)
             else:
