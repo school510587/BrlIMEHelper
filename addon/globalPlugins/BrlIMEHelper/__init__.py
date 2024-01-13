@@ -768,10 +768,11 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     script_switchIMEmode.category = SCRCAT_BrlIMEHelper
 
     def script_viewAddonState(self, gesture):
-        hint = self.brl_state.hint_msg(self.brl_str, "")
-        numpad_state = "".join(str(i) for i in range(configure.NUM_BRAILLE_KEYS) if self._uncommittedDots & (1 << i))
-        dots_info = (("{0} ", "")[hint == ""] + ("#{1}", "")[numpad_state == ""]).format(hint, numpad_state).strip()
+        dots_info = self.brl_state.hint_msg(self.brl_str, "")
         if gesture is None:
+            numpad_state = "".join(str(i) for i in range(configure.NUM_BRAILLE_KEYS) if self._uncommittedDots & (1 << i))
+            if numpad_state:
+                dots_info = "{0} #{1}".format(dots_info, numpad_state).strip()
             if dots_info:
                 ui.message(dots_info)
             else:
