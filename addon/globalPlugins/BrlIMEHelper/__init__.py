@@ -328,6 +328,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                         self._uncommittedDots[1] = self._uncommittedDots[1] * 10 + key_id
                     except:
                         self._uncommittedDots[1] = key_id
+                    if configure.get("REPORT_BRL_BUFFER_CHANGES"):
+                        patch.spellWithHighestPriority(str(key_id))
                 elif key_id == 0x09: # VK_NUMPAD9 = 0x69
                     self.reset_numpad_state()
                     self._uncommittedDots[0] = 0
@@ -335,6 +337,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                         self._uncommittedDots[1] = self._uncommittedDots[1] * 10 + key_id
                     except:
                         self._uncommittedDots[1] = key_id
+                    if configure.get("REPORT_BRL_BUFFER_CHANGES"):
+                        patch.spellWithHighestPriority(str(key_id))
                 elif key_id == 0x0A: # VK_MULTIPLY = 0x6A
                     if self._uncommittedDots[1] is None:
                         raise NotImplementedError # No uncommitted routing command.
@@ -660,7 +664,10 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         if IME_state.is_native:
             self.clear(brl_buffer=False)
         try:
-            state = self.brl_composition(unichr(0x2800 | gesture.dots), IME_state)
+            ucbrl = unichr(0x2800 | gesture.dots)
+            state = self.brl_composition(ucbrl, IME_state)
+            if configure.get("REPORT_BRL_BUFFER_CHANGES"):
+                patch.spellWithHighestPriority(ucbrl)
         except NotImplementedError: # The alphanumeric mode, or the input is rejected by the brl parser.
             done = False
             if gesture.dots == 0b01000000:

@@ -37,6 +37,11 @@ profile["AUTO_BRL_KEY"] = ItemSpec(
     default_value = False,
     allowed_values = None,
 )
+profile["REPORT_BRL_BUFFER_CHANGES"] = ItemSpec(
+    label = _("Report braille buffer changes."),
+    default_value = False,
+    allowed_values = None,
+)
 profile["IME_LANGUAGE_MODE_TOGGLE_KEY"] = ItemSpec(
     label = _("The key shortcut to toggle IME alphanumeric/native input:"),
     default_value = "leftshift" if (6, 0, 0) <= (getWinVer().major, getWinVer().minor, getWinVer().build) < WIN10_2004 else "control+space",
