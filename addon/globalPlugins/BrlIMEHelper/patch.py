@@ -71,3 +71,14 @@ def getProcessIdOfThread(threadID):
     finally:
         if not windll.kernel32.CloseHandle(hThread): raise WinError()
     return pid
+
+# speech.speakMessage, speech.priorities.SpeechPriority
+import speech
+try: # NVDA 2019.3 and later. The code only runs on Python 3 (and later).
+    from speech.priorities import SpeechPriority
+    def spellWithHighestPriority(ch):
+        return speech.speakSpelling(ch, priority=SpeechPriority.NOW)
+except ImportError: # Earlier versions of NVDA (Python 2).
+    def spellWithHighestPriority(ch):
+        speech.cancelSpeech()
+        return speech.speakSpelling(ch)
