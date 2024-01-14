@@ -253,10 +253,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self._gesture = None
         self._uncommittedDots = [0, None] # Dots / routing index recorded by NumPad keys.
 
-    def reset_numpad_state(self, timeout=None):
+    def reset_numpad_state(self, reset_to=[0, None], timeout=None):
         try:
             if self._numpad_timer: # Perhaps AttributeError.
-                self._uncommittedDots = [0, None]
+                self._uncommittedDots = list(reset_to) # copy
             self._numpad_timer.Stop()
         except:
             pass
@@ -345,8 +345,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     self._uncommittedDots[0] = 0
                     self._gesture = braille.BrailleDisplayGesture()
                     self._gesture.routingIndex = self._uncommittedDots[1]
-                    self.reset_numpad_state(500)
-                    self._uncommittedDots[1] = self._gesture.routingIndex
+                    queueHandler.queueFunction(queueHandler.eventQueue, self.reset_numpad_state, reset_to=[0, self._gesture.routingIndex], timeout=500)
                     queueHandler.queueFunction(queueHandler.eventQueue, globalCommands.commands.script_braille_routeTo, self._gesture)
                     self._gesture = None
                 elif key_id == 0x0B: # VK_ADD = 0x6B
@@ -360,8 +359,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     self._gesture = DummyBrailleInputGesture()
                     self._gesture.space = bool(self._uncommittedDots[0] & 0x01)
                     self._gesture.dots = self._uncommittedDots[0] >> 1
-                    self.reset_numpad_state(500)
-                    self._uncommittedDots[0] = (self._gesture.dots << 1) | self._gesture.space
+                    queueHandler.queueFunction(queueHandler.eventQueue, self.reset_numpad_state, reset_to=[(self._gesture.dots << 1) | self._gesture.space, None], timeout=500)
                 elif key_id == 0x0F: # VK_DIVIDE = 0x6F
                     queueHandler.queueFunction(queueHandler.eventQueue, self.script_viewAddonState, None)
                 else:
