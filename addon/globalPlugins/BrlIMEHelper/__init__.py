@@ -347,12 +347,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     self._gesture.routingIndex = self._uncommittedDots[1]
                     self.reset_numpad_state(500)
                     self._uncommittedDots[1] = self._gesture.routingIndex
-                    scriptHandler.queueScript(globalCommands.commands.script_braille_routeTo, self._gesture)
+                    queueHandler.queueFunction(queueHandler.eventQueue, globalCommands.commands.script_braille_routeTo, self._gesture)
                     self._gesture = None
                 elif key_id == 0x0B: # VK_ADD = 0x6B
-                    scriptHandler.queueScript(globalCommands.commands.script_braille_scrollForward, None)
+                    queueHandler.queueFunction(queueHandler.eventQueue, globalCommands.commands.script_braille_scrollForward, None)
                 elif key_id == 0x0D: # VK_SUBTRACT = 0x6D
-                    scriptHandler.queueScript(globalCommands.commands.script_braille_scrollBack, None)
+                    queueHandler.queueFunction(queueHandler.eventQueue, globalCommands.commands.script_braille_scrollBack, None)
                 elif key_id == 0x0E: # VK_DECIMAL = 0x6E
                     if not self._uncommittedDots[0]:
                         raise NotImplementedError # No uncommitted dots.
@@ -363,7 +363,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     self.reset_numpad_state(500)
                     self._uncommittedDots[0] = (self._gesture.dots << 1) | self._gesture.space
                 elif key_id == 0x0F: # VK_DIVIDE = 0x6F
-                    scriptHandler.queueScript(self.script_viewAddonState, None)
+                    queueHandler.queueFunction(queueHandler.eventQueue, self.script_viewAddonState, None)
                 else:
                     raise NotImplementedError # Unused numpad keys.
             except NotImplementedError:
