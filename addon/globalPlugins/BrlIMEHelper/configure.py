@@ -53,7 +53,7 @@ profile["IME_LANGUAGE_MODE_TOGGLE_KEY"] = ItemSpec(
 )
 profile["NO_ANNOUNCEMENT_TYPING_PROCESS"] = ItemSpec(
     label = _("Prevent redundant announcement of the composition string change."),
-    default_value = True,
+    default_value = False,
     allowed_values = None,
 )
 profile["DEFAULT_NO_ALPHANUMERIC_BRL_KEY"] = ItemSpec(
