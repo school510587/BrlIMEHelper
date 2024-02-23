@@ -804,7 +804,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
             else:
                 winsound.MessageBeep()
             return
-        mode_info, name_info = _("alphanumeric braille translation"), _("unknown input method")
+        mode_info, name_info = _("NVDA braille input"), _("unknown input method")
         try:
             IME_state, guessed = keyboard.infer_IME_state(), (False, False)
         except ValueError as e:
@@ -816,9 +816,9 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
             if bufferLength > 0:
                 buffer = create_unicode_buffer("", bufferLength)
                 windll.kernel32.GetLocaleInfoW(langid, LOCALE_SNATIVELANGNAME, buffer, bufferLength)
-                mode_info = _("{language} braille translation").format(language=buffer.value)
+                mode_info = _("{language} braille IME").format(language=buffer.value)
             else: # GetLocaleInfoW() provides no data.
-                mode_info = _("native braille translation")
+                mode_info = _("braille IME")
         if IME_state.name:
             name_info = IME_state.name_str()
             if guessed[1]:
