@@ -276,6 +276,10 @@ It determines the key command sent by the addon when the user presses dots 4, 5,
 
 Note: Windows XP users, please configure the default input mode of 新注音 to native input if you would like to use `[Ctrl]+[Space]` to switch between 美式鍵盤 and 新注音.
 
+#### Prevent redundant announcement of the composition string change
+
+If checked, the addon will try to prevent redundant announcement of the composition string change. Take 微軟注音 for an example. The typed bopomofo symbols during composition are displayed in the composition edit, and thus are announced. The feature enables the users to skip this announcement process. However, if the composition results in a bopomofo symbol, then it may be incorrectly determined not to be announced.
+
 #### Use the ASCII mode as the default on IME alphanumeric input
 
 The option is an extension from "Disable braille keyboard simulation by default in IME alphanumeric mode" of the version earlier than 2.3. If checked, the ASCII mode is the default mode of braille keyboard emulation on IME alphanumeric input. See "Computer Keyboard" section of the gesture specification for details of the modes.
