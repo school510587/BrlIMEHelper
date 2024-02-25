@@ -51,10 +51,14 @@ Here is a summary to show the most basic computer keyboard gestures the user has
 * F, D, S, J, K, L, A, semicolon `[;:]`, and space bar: Dot 1 through 8 and braille space.
 * 0 through 9: Reserved for number input and candidate word selection.
 * NumPad (optional feature, with Num Lock on): Input of a braille cell dot by dot.
-    + 0 through 8: The braille space and dots 1 through 8.
-    + 9: Clear uncompleted braille cell.
-    + Decimal point `[.]`: Complete input of one braille cell.
-    + Divide `[/]`: View uncommitted braille cell.
+    + 0 through 9: The dot numbers or the routing index.
+        1. 0 through 8: The braille space and dots 1 through 8; 9: Clear uncompleted braille cell.
+        2. The routing index, i.e. the 0-based number of the braille cell.
+    + Decimal point `[.]`: Complete input of one braille cell. (double-clickable)
+    + Multiply `[*]`: Complete input of a routing index. (double-clickable)
+    + Divide `[/]`: View the uncommitted braille cell and/or the routing index.
+    + Subtract `[-]`: Scroll the braille display back.
+    + Add `[+]`: Scroll the braille display forward.
 * NVDA+PrintScreen: Copy the raw text content of the braille display to the clipboard.
     + Press once: Copy this line.
     + Press twice: Copy this line and the focus context presentation.
