@@ -827,7 +827,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         info = "; ".join([dots_info, mode_info, name_info])
         ui.message(info)
     # Translators: Name of a command to view the state of the addon.
-    script_viewAddonState.__doc__ = _("View the state of the addon.")
+    script_viewAddonState.__doc__ = _("View the state of BrlIMEHelper.")
     script_viewAddonState.category = SCRCAT_BrlIMEHelper
 
     def script_openControlPanel(self, gesture): # os.system("control") is inefficient.
