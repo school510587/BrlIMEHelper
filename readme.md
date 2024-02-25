@@ -266,6 +266,10 @@ Translate the textual clipboard content into the specified format, and write it 
 #### Automatically enable braille keyboard simulation when NVDA starts
 If checked, braille keyboard simulation is enabled automatically when NVDA starts.
 
+#### Report braille buffer changes
+
+If checked, every change of the braille buffer during input will be reported in dots. To ensure that the function works fine, all of the Unicode braille characters should be given a symbol name and/or a character description in the current language.
+
 #### The key shortcut to toggle IME alphanumeric/native input
 
 It determines the key command sent by the addon when the user presses dots 4, 5, and 6 along with the braille space. To keep the behavior consistent, the default is left shift.
