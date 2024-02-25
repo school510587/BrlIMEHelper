@@ -428,3 +428,12 @@ The computer keyboard can emulate braille input from both the current working br
 * Replace "The format to copy the braille display content" option with 3 individual scripts.
 * Add scripts to translate the clipboard content into braille patterns.
 * Improve the input mode inference rules.
+
+### Version 2.6
+* Interrupt braille composition on conversion mode update and input language change.
+* Add the "Prevent redundant announcement of the composition string change" option.
+* Do not show the conversion mode update message indefinitely.
+* Fix the behavior of braille composition during the browse mode.
+* Add the "Report braille buffer changes" option.
+* Improve representation of the addon state.
+* Improve the dot-by-dot braille input feature.
