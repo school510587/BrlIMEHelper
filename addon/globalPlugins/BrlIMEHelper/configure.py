@@ -56,6 +56,11 @@ profile["NO_ANNOUNCEMENT_TYPING_PROCESS"] = ItemSpec(
     default_value = False,
     allowed_values = None,
 )
+profile["NO_INDEFINITE_ICM_UPDATE_MSG"] = ItemSpec(
+    label = _("Never show the input conversion mode update message indefinitely."),
+    default_value = False,
+    allowed_values = None,
+)
 profile["DEFAULT_NO_ALPHANUMERIC_BRL_KEY"] = ItemSpec(
     label = _("Use the general input mode as the default on IME alphanumeric input."),
     default_value = False,

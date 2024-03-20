@@ -20,6 +20,7 @@ import config
 import queueHandler
 import ui
 
+from . import configure
 from . import patch
 from .runtime_state import thread_states
 
@@ -53,7 +54,7 @@ def hack_queueHandler_queueFunction(hacked_func, queue, func, *args, **kwargs):
                     def hack_ui_message(*args, **kwargs):
                         log.debug("Call ui.message() with USE_TIMEOUT.")
                         old_value = config.conf["braille"][_confMessageTimeout.key]
-                        if config.conf["braille"][_confMessageTimeout.key] == _confMessageTimeout.show_indefinitely:
+                        if configure.get("NO_INDEFINITE_ICM_UPDATE_MSG") and config.conf["braille"][_confMessageTimeout.key] == _confMessageTimeout.show_indefinitely:
                             config.conf["braille"][_confMessageTimeout.key] = _confMessageTimeout.use_timeout
                         result = ui.message(*args, **kwargs)
                         config.conf["braille"][_confMessageTimeout.key] = old_value
