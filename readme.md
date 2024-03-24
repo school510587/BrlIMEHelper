@@ -284,6 +284,10 @@ Note: Windows XP users, please configure the default input mode of 新注音 to 
 
 If checked, the addon will try to prevent redundant announcement of the composition string change. Take 微軟注音 for an example. The typed bopomofo symbols during composition are displayed in the composition edit, and thus are announced. The feature enables the users to skip this announcement process. However, if the composition results in a bopomofo symbol, then it may be incorrectly determined not to be announced.
 
+#### Never show the input conversion mode update message indefinitely
+
+The IME input conversion mode update message sometimes pops up. If the option to show messages indefinitely is checked, then the useless message will hinder the user from reading important content through the braille display. To deal with the inconvenience, check this option. When the update message appears, the message timeout will be used as if the option to show messages indefinitely were not checked.
+
 #### Use the ASCII mode as the default on IME alphanumeric input
 
 The option is an extension from "Disable braille keyboard simulation by default in IME alphanumeric mode" of the version earlier than 2.3. If checked, the ASCII mode is the default mode of braille keyboard emulation on IME alphanumeric input. See "Computer Keyboard" section of the gesture specification for details of the modes.
@@ -432,7 +436,7 @@ The computer keyboard can emulate braille input from both the current working br
 ### Version 2.6
 * Interrupt braille composition on conversion mode update and input language change.
 * Add the "Prevent redundant announcement of the composition string change" option.
-* Do not show the conversion mode update message indefinitely.
+* Add the "Never show the input conversion mode update message indefinitely" option.
 * Fix the behavior of braille composition during the browse mode.
 * Add the "Report braille buffer changes" option.
 * Improve representation of the addon state.
