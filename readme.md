@@ -442,3 +442,4 @@ The computer keyboard can emulate braille input from both the current working br
 * Improve representation of the addon state.
 * Improve the dot-by-dot braille input feature.
 * Add the "Never show the input conversion mode update message indefinitely" option.
+* Disable braille composition during IME candidate selection.
