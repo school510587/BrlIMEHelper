@@ -441,3 +441,4 @@ The computer keyboard can emulate braille input from both the current working br
 * Add the "Report braille buffer changes" option.
 * Improve representation of the addon state.
 * Improve the dot-by-dot braille input feature.
+* Disable braille composition during IME candidate selection.
