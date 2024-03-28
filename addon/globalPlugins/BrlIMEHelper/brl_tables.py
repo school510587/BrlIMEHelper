@@ -139,3 +139,13 @@ def encode_brl_values(data, format, dead_message):
     else:
         log.error(dead_message.format(format))
     return ("", [])
+
+def internal_code_brl(encoding, text):
+    brl_and_pos, rawToBraillePos = [], ()
+    for i, c in enumerate(text):
+        rawToBraillePos += (len(brl_and_pos),)
+        b = bytes(c.encode(encoding))
+        brl_and_pos.extend((NABCCX_B2P[b[j:j+1]], i) for j in range(len(b)))
+    braille, brailleToRawPos = zip(*brl_and_pos)
+    braille = "".join(unichr(0x2800 | i) for i in braille)
+    return braille, brailleToRawPos, rawToBraillePos

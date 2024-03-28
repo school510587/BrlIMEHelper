@@ -10,6 +10,7 @@ from ctypes.wintypes import *
 from functools import partial
 from serial.win32 import INVALID_HANDLE_VALUE
 from threading import Timer
+import louis
 import os
 import re
 import string
@@ -172,6 +173,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.last_foreground = INVALID_HANDLE_VALUE
         thread_states.start_scan()
         self.timer = [None, ""] # A 2-tuple [timer object, string].
+        self.old_louis_translate = None
         self.originalBRLtable = None
         configure.read()
         self.config_r = {
@@ -211,6 +213,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def terminate(self):
         hack_IME.uninstall()
+        if self.old_louis_translate is not None:
+            try: # Cancel the internal code braille.
+                self.script_internalCodeBRL(None)
+            except:
+                pass
         if self.real_bd_driver_init is None: # Python 2
             del braille.BrailleDisplayDriver.__init__ 
         else: # Python 3
@@ -834,6 +841,34 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     script_viewAddonState.__doc__ = _("View the state of BrlIMEHelper.")
     script_viewAddonState.category = SCRCAT_BrlIMEHelper
 
+    def script_internalCodeBRL(self, gesture):
+        if self.old_louis_translate is None:
+            def hack_louis_translate(old_translate, tableList, inbuf, *args, **kwargs):
+                try:
+                    braille, brailleToRawPos, rawToBraillePos = internal_code_brl("UTF-8", inbuf)
+                except:
+                    log.error("Failed to translate the internal code braille: {0}".format(inbuf), exc_info=True)
+                    return old_translate(tableList, inbuf, *args, **kwargs)
+                brailleCursorPos = 0
+                if "cursorPos" in kwargs:
+                    try:
+                        brailleCursorPos = rawToBraillePos[kwargs["cursorPos"]]
+                    except:
+                        pass
+                return braille, brailleToRawPos, rawToBraillePos, brailleCursorPos
+            self.old_louis_translate = louis.translate
+            louis.translate = partial(hack_louis_translate, self.old_louis_translate)
+        else:
+            louis.translate, self.old_louis_translate = self.old_louis_translate, None
+        for region in braille.handler.buffer.regions:
+            region.update()
+        braille.handler.buffer.update()
+        braille.handler.update()
+        braille.handler.handleGainFocus(api.getFocusObject())
+    # Translators: Name of a command to switch the display of the internal code in braille.
+    script_internalCodeBRL.__doc__ = _("Turn on/off the display of the internal code in braille.")
+    script_internalCodeBRL.category = SCRCAT_BrlIMEHelper
+
     def script_openControlPanel(self, gesture): # os.system("control") is inefficient.
         l = windll.Kernel32.GetSystemDirectoryA(None, 0)
         b = create_string_buffer(l)
@@ -901,6 +936,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         "bk:space+dot1+dot2+dot3": "toggleAlphaModeBRLsimulation",
         "bk:space+dot4+dot5+dot6": "switchIMEmode",
         "bk:space+dot1": "viewAddonState",
+        "bk:space+dot1+dot3+dot7": "internalCodeBRL",
         "bk:space+dot1+dot3+dot6": "toggleUnicodeBRL",
     }
 
