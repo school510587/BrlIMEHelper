@@ -142,10 +142,22 @@ def encode_brl_values(data, format, dead_message):
 
 def internal_code_brl(encoding, text):
     brl_and_pos, rawToBraillePos = [], ()
-    for i, c in enumerate(text):
-        rawToBraillePos += (len(brl_and_pos),)
-        b = bytes(c.encode(encoding))
-        brl_and_pos.extend((NABCCX_B2P[b[j:j+1]], i) for j in range(len(b)))
+    try: # Python 2. It is necessary to handle surrogate pairs.
+        w = unicode() # NameError for Python 3.
+        for l, c in enumerate(text):
+            w += c
+            if 0xD800 <= ord(c) <= 0xDBFF and l < len(text) - 1 and 0xDC00 <= ord(text[l+1]) <= 0xDFFF:
+                continue
+            i = len(rawToBraillePos)
+            rawToBraillePos += (len(brl_and_pos),) * len(w)
+            b = bytes(w.encode(encoding))
+            brl_and_pos.extend((NABCCX_B2P[b[j:j+1]], i) for j in range(len(b)))
+            w = unicode()
+    except NameError: # Python 3.
+        for i, c in enumerate(text):
+            rawToBraillePos += (len(brl_and_pos),)
+            b = bytes(c.encode(encoding))
+            brl_and_pos.extend((NABCCX_B2P[b[j:j+1]], i) for j in range(len(b)))
     braille, brailleToRawPos = zip(*brl_and_pos)
     braille = "".join(unichr(0x2800 | i) for i in braille)
     return braille, brailleToRawPos, rawToBraillePos
