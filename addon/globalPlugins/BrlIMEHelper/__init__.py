@@ -864,7 +864,14 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
             region.update()
         braille.handler.buffer.update()
         braille.handler.update()
-        braille.handler.handleGainFocus(api.getFocusObject())
+        try: tether = braille.handler.getTether()
+        except: tether = braille.handler.tether
+        if tether == braille.handler.TETHER_FOCUS:
+            try: braille.handler.handleGainFocus(api.getFocusObject(), shouldAutoTether=False)
+            except: braille.handler.handleGainFocus(api.getFocusObject())
+        else:
+            try: braille.handler.handleReviewMove(shouldAutoTether=False)
+            except: braille.handler.handleReviewMove()
     # Translators: Name of a command to switch the display of the internal code in braille.
     script_internalCodeBRL.__doc__ = _("Turn on/off the display of the internal code in braille.")
     script_internalCodeBRL.category = SCRCAT_BrlIMEHelper
