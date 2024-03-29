@@ -65,6 +65,7 @@ Here is a summary to show the most basic computer keyboard gestures the user has
 * NVDA+Win+PrintScreen: Copy the braille patterns on the braille display to the clipboard.
     + Press once: Copy currently displayed braille cells.
     + Press twice: Copy all braille cells of this line.
+* NVDA+Win+U: Turn on/off the internal code braille.
 
 ##### The braille input mode
 
@@ -103,6 +104,12 @@ Remark: If press of the space bar does not result in a Unicode braille space (та
 ##### The dot-by-dot input manner
 
 The dot-by-dot input manner is independent of the other two braille keyboard emulation modes. If it is enabled, the user can input dot numbers of each braille cell via the numpad with Num Lock on. For example, `[1][2][.] [1][2][3][5][.] [1][2][3][.]` results in "brl" displayed in the text edit. The functions of the numpad keys are presented by the summary at the beginning of this section. The manner allows the user to send braille gestures consisting of more than 6 dots (or space) regardless of the physical constraint of the computer keyboard.
+
+##### The internal code braille
+
+The internal code braille does not exist in any of the current NVDA output translation braille tables. It is implemented by BrlIMEHelper to provide an approach to uniquely distinguish every character, including digits, English alphabets, bopomofo symbols, and Han characters. It ensures that the reader may read all of the characters in Unicode without ambiguity, but the braille patterns are hard to be memorized. However, the internal code braille pattern helps the user find some specific Han character without description from the candidates of a bopomofo IME.
+
+The internal code braille presents the internal code of each character, i.e. the bytes to compose it. In other words, the internal code means the actual data representation for each character in the disk. The mapping from the characters to the internal code is the encoding, and different encodings result in different internal code for the same character. BrlIMEHelper constructs the internal code braille by [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoding. This leads to the same braille patterns for ASCII (half-shape alphanumeric) characters as 8-dot English braille. Han characters and full-shape punctuation marks are thereby accentuated.
 
 #### Braille Gestures
 
@@ -442,3 +449,4 @@ The computer keyboard can emulate braille input from both the current working br
 * Improve representation of the addon state.
 * Improve the dot-by-dot braille input feature.
 * Disable braille composition during IME candidate selection.
+* Add the internal code braille feature.
