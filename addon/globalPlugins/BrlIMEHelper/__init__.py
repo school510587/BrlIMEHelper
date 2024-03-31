@@ -22,6 +22,7 @@ except NameError: unichr = chr
 from NVDAObjects.inputComposition import *
 from brailleDisplayDrivers.noBraille import BrailleDisplayDriver as NoBrailleDisplayDriver
 from brailleTables import getTable as getBRLtable
+from eventHandler import queueEvent
 from keyboardHandler import KeyboardInputGesture, getInputHkl, isNVDAModifierKey, currentModifiers
 from logHandler import log
 from winUser import *
@@ -561,6 +562,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             pid = getWindowThreadProcessID(self.last_foreground)[0]
             if thread_states.foreground_process_change_notify(pid):
                 self.synchronize_cbrlkb_states(configure.get("CBRLKB_AUTO_TOGGLE_HINT"))
+        nextHandler()
+
+    def event_gainFocus(self, obj, nextHandler):
+        if isinstance(obj, CandidateItem):
+            queueEvent("interruptBRLcomposition", api.getFocusObject())
         nextHandler()
 
     def event_interruptBRLcomposition(self, obj, nextHandler):
