@@ -30,6 +30,7 @@ except:
 
 from NVDAHelper import _lookupKeyboardLayoutNameWithHexString
 from NVDAObjects.inputComposition import InputComposition
+from eventHandler import queueEvent
 from keyboardHandler import getInputHkl
 from languageHandler import localeNameToWindowsLCID
 from logHandler import log
@@ -273,26 +274,30 @@ def hack_compositionUpdate(self, compositionString, *args, **kwargs):
     else:
         log.debug("compositionString {0} -> {1}".format(repr(self.compositionString), repr(compositionString)))
     selectionStart, selectionEnd, isReading = args
-    if not isReading and configure.get("NO_ANNOUNCEMENT_TYPING_PROCESS"):
-        try:
-            IME_state = infer_IME_state(self.windowHandle)
-        except ValueError as e:
-            IME_state = e.args[0]
-        if (IME_state.mode & TF_CONVERSIONMODE_NATIVE) and IME_state.name in lookup_IME:
-            str_d = {"-": "", "+": "", None: ""}
-            for s in difflib.ndiff(self.compositionString, compositionString):
-                try: str_d[s[0]] += s[-1]
-                except KeyError: str_d[None] += s[-1]
-            m = lookup_IME[IME_state.name]["WRDCMPS_DISPLAY"].match(str_d["+"])
-            if m.group("NC"):
-                kwargs["announce"] = bool(str_d["-"])
-            elif m.group("SH"):
-                if str_d["-"] == "":
-                    kwargs["announce"] = False
-                else:
-                    call = False
-            elif m.group("SB"):
-                call = False
+    if not isReading:
+        if configure.get("NO_ANNOUNCEMENT_TYPING_PROCESS"):
+            try:
+                IME_state = infer_IME_state(self.windowHandle)
+            except ValueError as e:
+                IME_state = e.args[0]
+            if (IME_state.mode & TF_CONVERSIONMODE_NATIVE) and IME_state.name in lookup_IME:
+                str_d = {"-": "", "+": "", None: ""}
+                for s in difflib.ndiff(self.compositionString, compositionString):
+                    try: str_d[s[0]] += s[-1]
+                    except KeyError: str_d[None] += s[-1]
+                if str_d["+"] or str_d["-"]:
+                    m = lookup_IME[IME_state.name]["WRDCMPS_DISPLAY"].match(str_d["+"])
+                    if m.group("NC"):
+                        kwargs["announce"] = bool(str_d["-"])
+                    elif m.group("SH"):
+                        if str_d["-"] == "":
+                            kwargs["announce"] = False
+                        else:
+                            call = False
+                    elif m.group("SB"):
+                        call = False
+        if compositionString == self.compositionString and (selectionStart, selectionEnd) != self.compositionSelectionOffsets:
+            queueEvent("interruptBRLcomposition", self)
     if call:
         log.debug("Call compositionUpdate() with announce={0}.".format(kwargs.get("announce")))
         result = _real_compositionUpdate(self, compositionString, *args, **kwargs)
