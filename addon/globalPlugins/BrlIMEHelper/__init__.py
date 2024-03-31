@@ -938,12 +938,12 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         "kb:NVDA+control+6": "toggleBRLsimulation",
         "kb:NVDA+printscreen": "copyBRLdisplayContent",
         "kb:NVDA+windows+printscreen": "copyBRLdisplayContentB",
+        "kb:NVDA+windows+u": "internalCodeBRL",
         "bk:dots": "BRLdots",
         "bk:space+dot2+dot4+dot5": "clearBRLbuffer",
         "bk:space+dot1+dot2+dot3": "toggleAlphaModeBRLsimulation",
         "bk:space+dot4+dot5+dot6": "switchIMEmode",
         "bk:space+dot1": "viewAddonState",
-        "bk:space+dot1+dot3+dot7": "internalCodeBRL",
         "bk:space+dot1+dot3+dot6": "toggleUnicodeBRL",
     }
 
