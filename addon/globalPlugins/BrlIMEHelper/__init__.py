@@ -242,15 +242,21 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self.kbmap = keyboard.Translator(*keyboard.layout[configure.get("KEYBOARD_MAPPING")])
 
     def clear(self, brl_buffer=True, join_timer=True):
+        action = False
         if self.timer[0]:
             self.timer[0].cancel()
             if join_timer:
                 self.timer[0].join()
             self.timer[0] = None
         if brl_buffer:
+            action = action or bool(self.timer[1])
             self.timer[1] = ""
+            try: action = action or bool(self.brl_str)
+            except AttributeError: pass
             self.brl_str = ""
-            self.reset_numpad_state()
+            reset_numpad = self.reset_numpad_state()
+            action = action or reset_numpad
+        return action
 
     def initKBBRL(self): # Members for keyboard BRL simulation.
         self.ignore_injected_keys = ([], [])
@@ -262,6 +268,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self._uncommittedDots = [0, None] # Dots / routing index recorded by NumPad keys.
 
     def reset_numpad_state(self, reset_to=[0, None], timeout=None):
+        original_state = False
+        try: original_state = bool(self._uncommittedDots)
+        except AttributeError: pass
         try:
             if self._numpad_timer: # Perhaps AttributeError.
                 self._uncommittedDots = list(reset_to) # copy
@@ -271,6 +280,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self._numpad_timer = None
         if timeout:
             self._numpad_timer = wx.CallLater(timeout, self.reset_numpad_state)
+        return original_state and not bool(self._uncommittedDots)
 
     def enable(self, beep=False):
         if self.config_r["kbbrl_enabled"]:
