@@ -557,7 +557,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def event_foreground(self, obj, nextHandler):
         fg = getForegroundWindow()
         if fg != self.last_foreground and not((getKeyState(VK_LMENU) | getKeyState(VK_RMENU)) & 32768):
-            self.clear(join_timer=False)
+            if self.clear(join_timer=False):
+                log.debug("self.clear() in event_foreground()")
+                beep_typo()
             self.last_foreground = fg
             pid = getWindowThreadProcessID(self.last_foreground)[0]
             if thread_states.foreground_process_change_notify(pid):
@@ -571,7 +573,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def event_interruptBRLcomposition(self, obj, nextHandler):
         log.debug("Running event_interruptBRLcomposition")
-        self.clear()
+        if self.clear():
+            log.debug("self.clear() in event_interruptBRLcomposition()")
+            beep_typo()
         nextHandler()
 
     def synchronize_cbrlkb_states(self, feedback):
