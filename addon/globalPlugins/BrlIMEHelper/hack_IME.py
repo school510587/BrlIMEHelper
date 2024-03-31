@@ -7,11 +7,6 @@ from __future__ import unicode_literals
 from ctypes import *
 from functools import partial
 
-from NVDAHelper import handleInputConversionModeUpdate
-from NVDAHelper import localLib
-from NVDAHelper import nvdaControllerInternal_inputConversionModeUpdate
-from NVDAHelper import nvdaControllerInternal_inputLangChangeNotify
-from NVDAHelper import _setDllFuncPointer
 from eventHandler import queueEvent
 from logHandler import log
 import api
@@ -43,6 +38,8 @@ def hack_resetMessageTimer(real_resetMessageTimer, self, *args, **kwargs):
     return real_resetMessageTimer(self, *args, **kwargs)
 type(braille.handler)._resetMessageTimer = patch.monkey_method(partial(hack_resetMessageTimer, type(braille.handler)._resetMessageTimer), type(braille.handler))
 
+from NVDAHelper import handleInputConversionModeUpdate
+
 def hack_queueHandler_queueFunction(hacked_func, queue, func, *args, **kwargs):
     if func is handleInputConversionModeUpdate:
         log.debug("Replace handleInputConversionModeUpdate() with hack_handleInputConversionModeUpdate().")
@@ -70,6 +67,8 @@ def hack_queueHandler_queueFunction(hacked_func, queue, func, *args, **kwargs):
 
 # Note: Monkeying handleInputConversionModeUpdate does not work.
 
+from NVDAHelper import nvdaControllerInternal_inputConversionModeUpdate
+
 @WINFUNCTYPE(c_long, c_long, c_long, c_ulong)
 def hack_nvdaControllerInternal_inputConversionModeUpdate(oldFlags, newFlags, lcid):
     global thread_states
@@ -85,6 +84,8 @@ def hack_nvdaControllerInternal_inputConversionModeUpdate(oldFlags, newFlags, lc
     queueEvent("interruptBRLcomposition", api.getFocusObject())
     return result
 
+from NVDAHelper import nvdaControllerInternal_inputLangChangeNotify
+
 @WINFUNCTYPE(c_long, c_long, c_ulong, c_wchar_p)
 def hack_nvdaControllerInternal_inputLangChangeNotify(threadID, hkl, layoutString):
     global thread_states
@@ -97,6 +98,9 @@ def hack_nvdaControllerInternal_inputLangChangeNotify(threadID, hkl, layoutStrin
     result = nvdaControllerInternal_inputLangChangeNotify(threadID, hkl, layoutString)
     queueEvent("interruptBRLcomposition", api.getFocusObject())
     return result
+
+from NVDAHelper import localLib
+from NVDAHelper import _setDllFuncPointer
 
 def install():
     _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputConversionModeUpdate", hack_nvdaControllerInternal_inputConversionModeUpdate)
