@@ -9,6 +9,7 @@ from functools import partial
 
 from eventHandler import queueEvent
 from logHandler import log
+import NVDAHelper
 import api
 import braille
 import config
@@ -37,6 +38,12 @@ def hack_resetMessageTimer(real_resetMessageTimer, self, *args, **kwargs):
         self._messageCallLater = None
     return real_resetMessageTimer(self, *args, **kwargs)
 type(braille.handler)._resetMessageTimer = patch.monkey_method(partial(hack_resetMessageTimer, type(braille.handler)._resetMessageTimer), type(braille.handler))
+
+old_handleInputCompositionEnd = NVDAHelper.handleInputCompositionEnd
+def hack_handleInputCompositionEnd(*args, **kwargs):
+    log.debug("Interrupt BRL composition by hack_handleInputCompositionEnd().")
+    queueEvent("interruptBRLcomposition", api.getFocusObject())
+    return old_handleInputCompositionEnd(*args, **kwargs)
 
 from NVDAHelper import handleInputConversionModeUpdate
 
@@ -103,9 +110,11 @@ from NVDAHelper import localLib
 from NVDAHelper import _setDllFuncPointer
 
 def install():
+    NVDAHelper.handleInputCompositionEnd = hack_handleInputCompositionEnd
     _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputConversionModeUpdate", hack_nvdaControllerInternal_inputConversionModeUpdate)
     _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputLangChangeNotify", hack_nvdaControllerInternal_inputLangChangeNotify)
 
 def uninstall():
+    NVDAHelper.handleInputCompositionEnd = old_handleInputCompositionEnd
     _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputConversionModeUpdate", nvdaControllerInternal_inputConversionModeUpdate)
     _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputLangChangeNotify", nvdaControllerInternal_inputLangChangeNotify)
