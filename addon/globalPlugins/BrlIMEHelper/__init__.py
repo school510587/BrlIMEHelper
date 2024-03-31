@@ -19,7 +19,7 @@ import winsound
 import wx
 try: unichr
 except NameError: unichr = chr
-from NVDAObjects.inputComposition import *
+from NVDAObjects.behaviors import CandidateItem
 from brailleDisplayDrivers.noBraille import BrailleDisplayDriver as NoBrailleDisplayDriver
 from brailleTables import getTable as getBRLtable
 from eventHandler import queueEvent
