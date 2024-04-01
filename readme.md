@@ -65,6 +65,7 @@ Here is a summary to show the most basic computer keyboard gestures the user has
 * NVDA+Win+PrintScreen: Copy the braille patterns on the braille display to the clipboard.
     + Press once: Copy currently displayed braille cells.
     + Press twice: Copy all braille cells of this line.
+* NVDA+Win+A: View the state of BrlIMEHelper.
 * NVDA+Win+U: Turn on/off the internal code braille.
 
 ##### The braille input mode
@@ -111,6 +112,53 @@ The internal code braille does not exist in any of the current NVDA output trans
 
 The internal code braille presents the internal code of each character, i.e. the bytes to compose it. In other words, the internal code means the actual data representation for each character in the disk. The mapping from the characters to the internal code is the encoding, and different encodings result in different internal code for the same character. BrlIMEHelper constructs the internal code braille by [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoding. This leads to the same braille patterns for ASCII (half-shape alphanumeric) characters as 8-dot English braille. Han characters and full-shape punctuation marks are thereby accentuated.
 
+##### The state of BrlIMEHelper
+
+There are three components in the state of BrlIMEHelper: The braille buffer, the braille input translation mode, and the IME state. Here is an example of the BrlIMEHelper state message:
+
+`⠙⠜ (145-345); Chinese(Traditional) braille IME; 微軟注音 {-NH}`
+
+The components, separated by semicolons, are described as follows.
+
+###### The braille buffer
+
+The braille patterns a user just enters in native input mode are stored in the braille buffer before the end of composition. For example, 145 345 is insufficient for composition, but a review of the braille buffer shows that `⠙⠜` has been entered.
+
+When the braille buffer holds a string of braille patterns enough to compose a character, the braille composition procedure is completed. Generally, the composed character appears in the input method composition edit directly. However, if the braille pattern string is a prefix of the other character, then the completed character appears after 0.5 second. Input of the next braille pattern within the time period lets BrlIMEHelper make an early decision. If the new braille pattern can be appended to the original braille string in the buffer to compose a complete character or to form a prefix of some other character, then braille composition continues without output. Otherwise, the composed character is put on the IME composition edit, and the buffer keeps the new braille pattern only.
+
+For example, the braille pattern of "∠" is `⠫⠪`, which is the prefix of "←". After input of `⠫⠪`, the user may wait for 0.5 second until "∠" appears on the IME composition edit, or input the next braille pattern. If the next is `⠒`, then `⠫⠪⠒` forms a prefix of "←" without output. Otherwise, "∠" is put on the IME composition edit, and the new braille pattern is preserved by the buffer.
+
+Besides completion, several circumstances cause interruption of braille composition. The braille buffer is cleared on occurrence of any case listed below.
+
+- Manually terminate: Execute the function to clear the braille buffer by the default 2, 4, 5 + space or some custom gesture.
+- NVDA enters the browse mode.
+- The current window loses focus.
+- Input method change.
+- Input conversion mode (e.g. alphanumeric, native) change.
+- Cursor move within the input method composition edit.
+- The end of IME composition.
+- The candidate list gains the focus.
+
+Except that the first one is done intendedly by the user, the others belong to manipulation error. The braille buffer is cleared along with the sound effect of typo.
+
+###### The braille input translation mode
+
+After installing the addon, there are two braille input translation modes, the original NVDA braille input and braille IME.
+
+NVDA braille input: The braille input is processed by the NVDA core, which is the native behavior.
+
+Braille IME: The addon takes over the process of the braille input. It determines the result of the braille input translation according to the IME state shown by the next component.
+
+###### The IME state
+
+The component consists of two parts, the IME name and the input conversion mode. 微軟注音 and `{-NH}` exactly correspond to the two parts. Because NVDA can only passively obtain the information of the current IME via the input method change notification and the input conversion mode change notification, the component may present a result by guess. Besides, the input conversion mode is represented by some alphabets and symbols enclosed by a pair of braces for simplicity.
+
+An IME name led by `(?)` indicates that it is a result by guess. At the start of NVDA, the addon collects information of the IMEs and the keyboard layouts in this computer. If the keyboard layout of the foreground application corresponds to an IME, then the IME name is determined. Otherwise, that "Consistent braille keyboard simulation toggle state for all processes" option is checked means that the answer is the current IME of NVDA. Finally, when the IME name cannot be concluded by these rules, guess that the answer is the default IME of NVDA.
+
+The first character of the input conversion mode shows availability of the IME. In some special circumstances, such as the browse mode, the IME has no effect, which is represented by a plus sign (`+`). Conversely, a minus sign (`-`) represents that the IME is available. The subsequent may be a question mark (`?`) or several alphabets. Because each application has its own input conversion mode, the question mark represents that NVDA has not recorded the current input conversion mode of the application. Otherwise, there are at least two alphabets to indicate the input conversion mode. The first is Alphanumeric/Native input, and the second is Half/Full shape. Japanese IMEs need two more alphabets. The third is Hiragana/Katakana input. The forth is R or a minus sign (`-`) for Roman input or not.
+
+Note that the addon does not take over the process of braille input in native input conversion mode for all Chinese IMEs. Some Chinese IMEs, e.g. 微軟倉頡, does not compose Han characters via phonetic symbols. The NVDA braille input behavior is preserved under such circumstance.
+
 #### Braille Gestures
 
 A braille gesture consists of the braille space and other braille dot(s). It allows the user to execute some specific function or emulate some key shortcut by the braille keyboard. With these braille gestures, the user may reduce the chance of moving his/her hands away from braille keys, and thus efficiency of operation is enhanced.
@@ -128,12 +176,11 @@ Compatibility warning: NVDA versions earlier than 2018.3 disallow braille input 
 | Dots (+ braille space) | Function | Quick Memory |
 | :--------------------- | :------- | :----------- |
 | 456 | Switch between IME alphanumeric and native input modes | The same as 視窗導盲鼠系統 |
-| 1   | Review the braille buffer | &nbsp; |
 | 245 | Clear braille buffer on typo to re-enter the correct content | ㄘ of 錯（ㄘㄨㄛˋ） is represented by dots 2, 4, and 5 |
 | 123 | Switch between braille keyboard emulation modes in IME alphanumeric input | The same as 視窗導盲鼠系統 |
 | 136 | Switch between the Unicode braille input translation table and any other table | The first alphabet of Unicode u is represented by dots 1, 3, and 6 |
 
-What a user just enters in native input mode is stored in the braille buffer before finish of composition. For example, 135 126 is insufficient for composition, but a review of the braille buffer shows that ㄅㄛ has been entered.
+Additional instructions of these gestures are as follows:
 
 2, 4, 5 + space has an additional effect. It makes NVDA dismiss braille message without update of any control content.
 
@@ -446,7 +493,7 @@ The computer keyboard can emulate braille input from both the current working br
 * Add the "Never show the input conversion mode update message indefinitely" option.
 * Fix the behavior of braille composition during the browse mode.
 * Add the "Report braille buffer changes" option.
-* Improve representation of the addon state.
+* Improve representation of the addon state, and change the gesture to show it.
 * Improve the dot-by-dot braille input feature.
 * Disable braille composition during IME candidate selection.
 * Add the internal code braille feature.
