@@ -326,7 +326,7 @@ If checked, braille keyboard simulation is enabled automatically when NVDA start
 
 #### Report braille buffer changes
 
-If checked, every change of the braille buffer during input will be reported in dots. To ensure that the function works fine, all of the Unicode braille characters should be given a symbol name and/or a character description in the current language.
+If checked, every change of the braille buffer and dot numbers received from the numpad will be reported during input.
 
 #### The key shortcut to toggle IME alphanumeric/native input
 
