@@ -36,6 +36,7 @@ import gui
 import inputCore
 import queueHandler
 import scriptHandler
+import speech
 import winInputHook
 import ui
 
@@ -696,7 +697,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
             ucbrl = unichr(0x2800 | gesture.dots)
             state = self.brl_composition(ucbrl, IME_state)
             if configure.get("REPORT_BRL_BUFFER_CHANGES"):
-                patch.spellWithHighestPriority(ucbrl)
+                speech.speakMessage(gesture.displayName)
         except NotImplementedError: # The alphanumeric mode, or the input is rejected by the brl parser.
             done = False
             if gesture.dots == 0b01000000:
