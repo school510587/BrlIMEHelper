@@ -841,7 +841,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
             IME_state, guessed = keyboard.infer_IME_state(), (False, False)
         except ValueError as e:
             IME_state, guessed = e.args[0], e.args[1:3]
-        if IME_state.mode & TF_CONVERSIONMODE_NATIVE:
+        if IME_state.is_native:
             LOCALE_SNATIVELANGNAME = 4
             langid = LOWORD(getInputHkl())
             bufferLength = windll.kernel32.GetLocaleInfoW(langid, LOCALE_SNATIVELANGNAME, None, 0)
