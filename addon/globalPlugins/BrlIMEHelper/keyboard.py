@@ -29,6 +29,7 @@ except:
     import _winreg as winreg
 
 from NVDAHelper import _lookupKeyboardLayoutNameWithHexString
+from NVDAObjects.behaviors import CandidateItem
 from NVDAObjects.inputComposition import InputComposition
 from eventHandler import queueEvent
 from keyboardHandler import getInputHkl
@@ -36,6 +37,7 @@ from languageHandler import localeNameToWindowsLCID
 from logHandler import log
 from winUser import *
 import addonHandler
+import api
 import vkCodes
 
 from . import configure
@@ -90,12 +92,21 @@ def symbol2gesture(index):
             IME_data = lookup_IME[MICROSOFT_BOPOMOFO["description"]]
     try:
         return IME_data[index]
-    except KeyError:
-        if len(index) != 1:
+    except KeyError as e:
+        if e.args[0] != index:
+            raise
+        elif len(index) != 1:
             raise
         elif ord(index) >= 0x10000 and not bool(IME_data["ALLOW_NON_BMP_SYMBOLS"]):
-            raise
+            focus = api.getFocusObject()
+            if isinstance(focus, InputComposition) or isinstance(focus, CandidateItem):
+                raise # Do not fill the non-BMP symbol in the input composition object.
+            return index # Not in an input composition object.
+    try:
         return "|".join(IME_data["UNDEFINED_SYMBOL"] % (ord(index),))
+    except:
+        pass
+    return index
 
 with codecs.open(os.path.join(os.path.dirname(__file__), "{0}.json".format(MICROSOFT_BOPOMOFO["profile"])), encoding="UTF-8") as json_file:
     IME_json = json_file.read()

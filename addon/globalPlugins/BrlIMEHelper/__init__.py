@@ -495,9 +495,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def send_keys(self, keys):
         try:
             if isinstance(keys, str) or isinstance(keys, unicode):
-                keys = keys.split("|")
+                keys = keys.encode("ASCII").split(b"|")
         except NameError: # Python 3 does not have unicode class.
             pass
+        except UnicodeEncodeError: # The string of keys contains some non-ASCII character.
+            return brailleInput.handler.sendChars(keys)
         for k in keys:
             if not k: continue
             if isinstance(k, int):
