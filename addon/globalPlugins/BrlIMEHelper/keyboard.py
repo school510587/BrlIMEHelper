@@ -91,7 +91,7 @@ def symbol2gesture(index):
         except: # Use the default bopomofo IME.
             IME_data = lookup_IME[MICROSOFT_BOPOMOFO["description"]]
     try:
-        return IME_data[index]
+        return IME_data["SYMBOLS"][index]
     except KeyError as e:
         if e.args[0] != index:
             raise
