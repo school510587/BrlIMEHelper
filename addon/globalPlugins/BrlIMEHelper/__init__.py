@@ -495,19 +495,20 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def send_keys(self, keys):
         try:
             if isinstance(keys, str) or isinstance(keys, unicode):
-                keys = keys.encode("ASCII").split(b"|")
+                keys = keys.split("|")
         except NameError: # Python 3 does not have unicode class.
             pass
-        except UnicodeEncodeError: # The string of keys contains some non-ASCII character.
-            return brailleInput.handler.sendChars(keys)
         for k in keys:
             if not k: continue
             if isinstance(k, int):
                 kbd_gesture = KeyboardInputGesture([], k, 1, False)
             elif isinstance(k, tuple):
                 kbd_gesture = KeyboardInputGesture([], k[0], 1, k[1])
-            else:
+            elif len(k) > 1:
                 kbd_gesture = KeyboardInputGesture.fromName(k)
+            else:
+                brailleInput.handler.sendChars(k)
+                continue
             inputCore.manager.emulateGesture(kbd_gesture)
 
     def send_input_commands(self, string):
