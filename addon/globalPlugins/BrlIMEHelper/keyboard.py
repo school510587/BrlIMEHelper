@@ -220,6 +220,9 @@ class _IME_State(namedtuple("_IME_State", ["mode", "name", "real"])):
     def __new__(cls, *args, **kwargs):
         self = super(_IME_State, cls).__new__(cls, *args, **kwargs)
         self.is_native = bool((self.mode & TF_CONVERSIONMODE_NATIVE) and not (self.mode & TF_CONVERSIONMODE_NOCONVERSION))
+        if self.is_native:
+            focus = api.getFocusObject()
+            self.is_native = not focus or not isinstance(focus, CandidateItem)
         return self
     def mode_flags(self):
         if self.real["mode"] is None:

@@ -694,9 +694,6 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         if IME_state.is_native:
             self.clear(brl_buffer=False)
         try:
-            focus = api.getFocusObject()
-            if isinstance(focus, CandidateItem):
-                raise NotImplementedError("Braille composition is disabled during candidate selection.")
             ucbrl = unichr(0x2800 | gesture.dots)
             state = self.brl_composition(ucbrl, IME_state)
             if configure.get("REPORT_BRL_BUFFER_CHANGES"):
