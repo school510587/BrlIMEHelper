@@ -159,6 +159,8 @@ The first character of the input conversion mode shows availability of the IME. 
 
 Note that the addon does not take over the process of braille input in native input conversion mode for all Chinese IMEs. Some Chinese IMEs, e.g. 微軟倉頡, does not compose Han characters via phonetic symbols. The NVDA braille input behavior is preserved under such circumstance.
 
+There is an other notable case that the NVDA braille input behavior is also preserved during input composition of a phonetic IME. On word selection, the IME handles the keyboard input according to the corresponding alphanumeric characters rather than the native symbols of the keys. Therefore, the addon shows NVDA braille input along with the N flag representing the native input conversion mode.
+
 #### Braille Gestures
 
 A braille gesture consists of the braille space and other braille dot(s). It allows the user to execute some specific function or emulate some key shortcut by the braille keyboard. With these braille gestures, the user may reduce the chance of moving his/her hands away from braille keys, and thus efficiency of operation is enhanced.
@@ -495,5 +497,6 @@ The computer keyboard can emulate braille input from both the current working br
 * Add the "Report braille buffer changes" option.
 * Improve representation of the addon state, and change the gesture to show it.
 * Improve the dot-by-dot braille input feature.
-* Disable braille composition during IME candidate selection.
+* Perform the original NVDA braille input during IME candidate selection.
 * Add the internal code braille feature.
+* Enable full-shape character input via the IME.
