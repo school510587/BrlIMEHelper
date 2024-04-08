@@ -12,7 +12,9 @@ from logHandler import log
 import NVDAHelper
 import api
 import braille
+import brailleInput
 import config
+import keyboardHandler
 import queueHandler
 import ui
 
@@ -38,6 +40,17 @@ def hack_resetMessageTimer(real_resetMessageTimer, self, *args, **kwargs):
         self._messageCallLater = None
     return real_resetMessageTimer(self, *args, **kwargs)
 type(braille.handler)._resetMessageTimer = patch.monkey_method(partial(hack_resetMessageTimer, type(braille.handler)._resetMessageTimer), type(braille.handler))
+
+def hack_bk_sendChars(real_bk_sendChars, self, *args, **kwargs):
+    for k in args[0]:
+        try:
+            keyboardHandler.KeyboardInputGesture.fromName(k).send()
+        except LookupError: # Not a key name.
+            real_bk_sendChars(self, k, *args[1:], **kwargs)
+        except: # Other unexpected exceptions.
+            log.warning("Unexpected exception occurred. Debug is required.", exc_info=True)
+            real_bk_sendChars(self, k, *args[1:], **kwargs)
+type(brailleInput.handler).sendChars = patch.monkey_method(partial(hack_bk_sendChars, type(brailleInput.handler).sendChars), type(brailleInput.handler))
 
 old_handleInputCompositionEnd = NVDAHelper.handleInputCompositionEnd
 def hack_handleInputCompositionEnd(*args, **kwargs):
