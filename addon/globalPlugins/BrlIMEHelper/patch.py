@@ -7,11 +7,11 @@ from ctypes import *
 from ctypes.wintypes import *
 
 try:
-    from functools import partialmethod
-    monkey_method = lambda m, cls: partialmethod(m)
+    from functools import partial, partialmethod
+    monkey_method = lambda m, target: partialmethod(m) if isinstance(target, type) else partial(m, target)
 except: # Python 2 does not have partialmethod.
     from types import MethodType
-    monkey_method = lambda m, cls: MethodType(m, None, cls)
+    monkey_method = lambda m, target: MethodType(m, None, target) if isinstance(target, type) else MethodType(m, target, type(target))
 
 # api.copyToClip
 try: # NVDA 2019.3 and later. The code only runs on Python 3 (and later).
