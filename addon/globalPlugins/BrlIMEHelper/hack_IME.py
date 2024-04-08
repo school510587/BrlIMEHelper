@@ -44,7 +44,7 @@ type(braille.handler)._resetMessageTimer = patch.monkey_method(partial(hack_rese
 def hack_bk_sendChars(real_bk_sendChars, self, *args, **kwargs):
     for k in args[0]:
         try:
-            keyboardHandler.KeyboardInputGesture.fromName(k).send()
+            keyboardHandler.KeyboardInputGesture.fromName({"+": "plus"}.get(k, k)).send()
         except LookupError: # Not a key name.
             real_bk_sendChars(self, k, *args[1:], **kwargs)
         except: # Other unexpected exceptions.
