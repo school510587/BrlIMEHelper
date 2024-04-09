@@ -382,9 +382,11 @@ The computer keyboard can emulate braille input from both the current working br
 5. If no composed character is spoken after composition completion, then IME may get stuck by unreasonable (phonetic) input.
 
 ## Issues and ways of development
+
 - Known bugs:
     * NVDA braille does not reflect immediately as user input in "Braille Keys" and "Ignored Keys" edit controls.
     * Under some circumstances, the addon cannot successfully update the user configuration.
+    * The general input mode does not work in Chrome LINE.
 - Possible improvements in the future:
     * Allow users to customize the default state of the addon.
     * Allow users to customize dot patterns of symbols, and/or to load dot patterns from braille translation tables.
