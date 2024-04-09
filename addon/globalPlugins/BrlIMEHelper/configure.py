@@ -179,7 +179,7 @@ def get(key):
     try:
         return runtime_conf[key]
     except:
-        log.warning("Option {0} has not been set. The default value will be returned.".format(key))
+        log.debug("Option {0} has not been set. The default value will be returned.".format(key))
     return profile[key].default_value
 
 def read():
@@ -191,7 +191,7 @@ def read():
             try:
                 runtime_conf[k] = conf_decode(user_conf[k], t.default_value, t.allowed_values)
             except:
-                log.warning("Failed reading configuration: " + k, exc_info=True)
+                log.debug("Failed reading configuration: " + k, exc_info=True)
                 runtime_conf[k] = t.default_value
     else:
         runtime_conf = OrderedDict((k, t.default_value) for k, t in profile.items())
