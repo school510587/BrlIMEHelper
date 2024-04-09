@@ -2,7 +2,7 @@
 Version 2.6
 
 ## Introduction
-Braille IME Helper (BrlIMEHelper) enables users to input Chinese characters directly through the braille keyboard on a braille display. When no braille keyboard is available, the addon can also simulate it using a computer keyboard. With conversion from braille input to IME operations by the addon, users familiar to braille rules can input Chinese characters without learning other input methods and keyboard layouts. So far, the addon is an implementation based on [bopomofo braille](https://en.wikipedia.org/wiki/Taiwanese_Braille) and 微軟注音 IME commonly used in Taiwan, and its concept can be extended to other braille systems and IMEs in the future.
+Braille IME Helper (BrlIMEHelper) enables users to input Chinese characters directly through the braille keyboard on a braille display. When no braille keyboard is available, the addon can also simulate it using a computer keyboard. With conversion from braille input to IME operations by the addon, users familiar to braille rules can input Chinese characters without learning other input methods and keyboard layouts. So far, the addon is an implementation based on [bopomofo braille](https://en.wikipedia.org/wiki/Taiwanese_Braille) and Microsoft Phonetic IME (微軟注音) commonly used in Taiwan, and its concept can be extended to other braille systems and IMEs in the future.
 
 ## Features
 1. Chinese input (including punctuations and math symbols) through the braille keyboard.
@@ -26,11 +26,11 @@ This addon assumes that the user configures the IME as follows, but he/she can a
 
 | Windows version | Windows 10 2004 and above | Vista to Windows 10 1909 | Windows XP Service Pack 3 |
 | --------------- | ------------------------- | ------------------------ | ------------------------- |
-| Default IME | 微軟注音 | 微軟注音 | 美式鍵盤 |
-| Default composition mode | Alphanumeric | Alphanumeric | Native (新注音) |
-| Composition mode toggle | `[Ctrl]+[Space]` | Left `[Shift]` | `[Ctrl]+[Space]` |
-| Keyboard layout | Standard | Standard | Standard |
-| Remarks | &nbsp; | &nbsp; | Switch between 美式鍵盤 and 新注音 by `[Ctrl]+[Space]`. |
+| Default IME | Microsoft Phonetic IME | Microsoft Phonetic IME | United States Keyboard Layout |
+| Default input conversion mode | Alphanumeric | Alphanumeric | Native (New Phonetic IME) |
+| Input conversion mode toggle | `[Ctrl]+[Space]` | Left `[Shift]` | `[Ctrl]+[Space]` |
+| Keyboard layout | Standard | Standard | Standard (New Phonetic IME) |
+| Remarks | &nbsp; | &nbsp; | Switch between United States Keyboard Layout and New Phonetic IME by `[Ctrl]+[Space]`. |
 
 ## Manipulation
 
@@ -81,7 +81,7 @@ The general input mode also helps the user, especially who is familiar to the co
 Example 1:
 
 1. Set the output translation table and the input translation table to "Chinese (Taiwan, Mandarin)" and "Unicode braille", respectively.
-2. In the general input mode, switch 微軟注音 to the alphanumeric input mode.
+2. In the general input mode, switch Microsoft Phonetic IME to the alphanumeric input conversion mode.
 3. On an edit control, type anything as if no braille keyboard emulation were running.
 
 After the three steps, you would find that the braille pattern of the output text is the same as your input characters, but the text actually consists of Unicode braille characters, which show the process of your braille input. That is, if the input translation table is not "Unicode braille", then these Unicode braille characters will be translated back to the ordinary alphanumeric symbols before output.
@@ -89,7 +89,7 @@ After the three steps, you would find that the braille pattern of the output tex
 Example 2: (not implemented yet)
 
 1. Set the output translation table to "Chinese (Taiwan, Mandarin)" without limit to the input translation table.
-2. In the general input mode, switch 微軟注音 to the native input mode.
+2. In the general input mode, switch Microsoft Phonetic IME to the native input conversion mode.
 3. On an edit control, type 5 characters as follows: `a&'=1`
 
 After the three steps, you would find that the composition window displays 中文 or other Chinese characters read as ㄓㄨㄥㄨㄣˊ. That is, the braille pattern of `a&'=1` is ⠁⠯⠄⠿⠂, which is the same as that of 中文.
@@ -116,13 +116,13 @@ The internal code braille presents the internal code of each character, i.e. the
 
 There are three components in the state of BrlIMEHelper: The braille buffer, the braille input translation mode, and the IME state. Here is an example of the BrlIMEHelper state message:
 
-`⠙⠜ (145-345); Chinese(Traditional) braille IME; 微軟注音 {-NH}`
+`⠙⠜ (145-345); Chinese(Traditional) braille IME; Microsoft Phonetic IME {-NH}`
 
 The components, separated by semicolons, are described as follows.
 
 ###### The braille buffer
 
-The braille patterns a user just enters in native input mode are stored in the braille buffer before the end of composition. For example, 145 345 is insufficient for composition, but a review of the braille buffer shows that `⠙⠜` has been entered.
+The braille patterns a user just enters in the native input conversion mode are stored in the braille buffer before the end of composition. For example, 145 345 is insufficient for composition, but a review of the braille buffer shows that `⠙⠜` has been entered.
 
 When the braille buffer holds a string of braille patterns enough to compose a character, the braille composition procedure is completed. Generally, the composed character appears in the input method composition edit directly. However, if the braille pattern string is a prefix of the other character, then the completed character appears after 0.5 second. Input of the next braille pattern within the time period lets BrlIMEHelper make an early decision. If the new braille pattern can be appended to the original braille string in the buffer to compose a complete character or to form a prefix of some other character, then braille composition continues without output. Otherwise, the composed character is put on the IME composition edit, and the buffer keeps the new braille pattern only.
 
@@ -151,13 +151,13 @@ Braille IME: The addon takes over the process of the braille input. It determine
 
 ###### The IME state
 
-The component consists of two parts, the IME name and the input conversion mode. 微軟注音 and `{-NH}` exactly correspond to the two parts. Because NVDA can only passively obtain the information of the current IME via the input method change notification and the input conversion mode change notification, the component may present a result by guess. Besides, the input conversion mode is represented by some alphabets and symbols enclosed by a pair of braces for simplicity.
+The component consists of two parts, the IME name and the input conversion mode. Microsoft Phonetic IME and `{-NH}` exactly correspond to both of them. Because NVDA can only passively obtain the information of the current IME via the input method change notification and the input conversion mode change notification, the component may present a result by guess. Besides, the input conversion mode is represented by some alphabets and symbols enclosed by a pair of braces for simplicity.
 
 An IME name led by `(?)` indicates that it is a result by guess. At the start of NVDA, the addon collects information of the IMEs and the keyboard layouts in this computer. If the keyboard layout of the foreground application corresponds to an IME, then the IME name is determined. Otherwise, that "Consistent braille keyboard simulation toggle state for all processes" option is checked means that the answer is the current IME of NVDA. Finally, when the IME name cannot be concluded by these rules, guess that the answer is the default IME of NVDA.
 
 The first character of the input conversion mode shows availability of the IME. In some special circumstances, such as the browse mode, the IME has no effect, which is represented by a plus sign (`+`). Conversely, a minus sign (`-`) represents that the IME is available. The subsequent may be a question mark (`?`) or several alphabets. Because each application has its own input conversion mode, the question mark represents that NVDA has not recorded the current input conversion mode of the application. Otherwise, there are at least two alphabets to indicate the input conversion mode. The first is Alphanumeric/Native input, and the second is Half/Full shape. Japanese IMEs need two more alphabets. The third is Hiragana/Katakana input. The forth is R or a minus sign (`-`) for Roman input or not.
 
-Note that the addon does not take over the process of braille input in native input conversion mode for all Chinese IMEs. Some Chinese IMEs, e.g. 微軟倉頡, does not compose Han characters via phonetic symbols. The NVDA braille input behavior is preserved under such circumstance.
+Note that the addon does not take over the process of braille input in native input conversion mode for all Chinese IMEs. Some Chinese IMEs, e.g. Microsoft ChangJie IME, does not compose Han characters via phonetic symbols. The NVDA braille input behavior is preserved under such circumstance.
 
 There is an other notable case that the NVDA braille input behavior is also preserved during input composition of a phonetic IME. On word selection, the IME handles the keyboard input according to the corresponding alphanumeric characters rather than the native symbols of the keys. Therefore, the addon shows NVDA braille input along with the N flag representing the native input conversion mode.
 
@@ -324,6 +324,7 @@ Translate the textual clipboard content into the specified format, and write it 
 ### Options
 
 #### Automatically enable braille keyboard simulation when NVDA starts
+
 If checked, braille keyboard simulation is enabled automatically when NVDA starts.
 
 #### Report braille buffer changes
@@ -334,11 +335,11 @@ If checked, every change of the braille buffer and dot numbers received from the
 
 It determines the key command sent by the addon when the user presses dots 4, 5, and 6 along with the braille space. To keep the behavior consistent, the default is left shift.
 
-Note: Windows XP users, please configure the default input mode of 新注音 to native input if you would like to use `[Ctrl]+[Space]` to switch between 美式鍵盤 and 新注音.
+Note: Windows XP users, please configure the default input conversion mode of New Phonetic IME to native if you would like to use `[Ctrl]+[Space]` to switch between United States Keyboard Layout and New Phonetic IME.
 
 #### Prevent redundant announcement of the composition string change
 
-If checked, the addon will try to prevent redundant announcement of the composition string change. Take 微軟注音 for an example. The typed bopomofo symbols during composition are displayed in the composition edit, and thus are announced. The feature enables the users to skip this announcement process. However, if the composition results in a bopomofo symbol, then it may be incorrectly determined not to be announced.
+If checked, the addon will try to prevent redundant announcement of the composition string change. Take Microsoft Phonetic IME for an example. The typed bopomofo symbols during composition are displayed in the composition edit, and thus are announced. The feature enables the users to skip this announcement process. However, if the composition results in a bopomofo symbol, then it may be incorrectly determined not to be announced.
 
 #### Never show the input conversion mode update message indefinitely
 
@@ -355,7 +356,8 @@ Users can determine positions of braille dots, braille space, and ignored (reser
 If checked, all keys, except the braille keys, are ignored during braille keyboard simulation in IME alphanumeric input mode.
 
 #### Keyboard Mapping
-The option corresponds to the configuration of keyboard layout in IME native input mode.
+
+The option corresponds to the configuration of keyboard layout in IME native input conversion mode.
 
 #### Allow dot-by-dot braille input via numpad during braille keyboard simulation
 If checked, the user can input braille cells dot by dot via the numpad with Num Lock on.
@@ -370,7 +372,8 @@ If checked, there is only one single state of braille keyboard simulation toggle
 The computer keyboard can emulate braille input from both the current working braille display and "No braille". When conflict happens, the precedence is determined by this option. On default, gestures provided by the addon take precedence.
 
 ### Remarks
-1. In IME alphanumeric input mode, the effect of the braille input is determined by NVDA's braille input translation table.
+
+1. In IME alphanumeric input conversion mode, the effect of the braille input is determined by NVDA's braille input translation table.
 2. The original NVDA behavior of dot 7, dot 8, and dot 7 + dot 8 is preserved in both modes.
 3. The addon do not influence other buttons on a braille display, such as buttons for scrolling and positioning.
 4. Users may manage all above shortcuts via NVDA input gestures dialog and BrlIMEHelper settings dialog.
@@ -443,7 +446,7 @@ The computer keyboard can emulate braille input from both the current working br
 
 ### Version 1.2
 * Allow users to ignore all non-braille keys during braille keyboard simulation in alphanumeric mode.
-* Add "Keyboard Mapping" option corresponding to the keyboard mapping option of 微軟注音 IME.
+* Add "Keyboard Mapping" option corresponding to the keyboard mapping option of Microsoft Phonetic IME.
 * Allow braille input of rhymes with ⡼ prefix.
 
 ### Version 2.0

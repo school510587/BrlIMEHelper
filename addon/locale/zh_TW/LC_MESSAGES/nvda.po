@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: 'BrlIMEHelper' '2.6'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
 "POT-Creation-Date: 2024-04-09 05:53+0800\n"
-"PO-Revision-Date: 2024-04-09 05:56+0800\n"
+"PO-Revision-Date: 2024-04-10 00:39+0800\n"
 "Last-Translator: Bo-Cheng Jhan <school510587@yahoo.com.tw>\n"
 "Language-Team: NVDA-Taiwan Volunteers Team\n"
 "Language: zh_TW\n"
@@ -251,7 +251,7 @@ msgstr "讀出點字緩衝區的變化。"
 
 #: addon\globalPlugins\BrlIMEHelper\configure.py:46
 msgid "The key shortcut to toggle IME alphanumeric/native input:"
-msgstr "切換輸入法英數、中文輸入模式所用的快速鍵"
+msgstr "切換輸入法英數、中文輸入所用的快速鍵："
 
 #: addon\globalPlugins\BrlIMEHelper\configure.py:55
 msgid "Prevent redundant announcement of the composition string change."
