@@ -836,7 +836,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
             else:
                 winsound.MessageBeep()
             return
-        mode_info, name_info = _("NVDA braille input"), _("unknown input method")
+        mode_info, name_info = (_("NVDA braille input"), _("Alphanumeric general input"))[self.config_r["kbbrl_ASCII_mode"][0]], _("unknown input method")
         try:
             IME_state, guessed = keyboard.infer_IME_state(), (False, False)
         except ValueError as e:

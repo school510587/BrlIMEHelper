@@ -114,7 +114,7 @@ The internal code braille presents the internal code of each character, i.e. the
 
 ##### The state of BrlIMEHelper
 
-There are three components in the state of BrlIMEHelper: The braille buffer, the braille input translation mode, and the IME state. Here is an example of the BrlIMEHelper state message:
+There are three components in the state of BrlIMEHelper: The braille buffer, the input mode, and the IME state. Here is an example of the BrlIMEHelper state message:
 
 `⠙⠜ (145-345); Chinese(Traditional) braille IME; Microsoft Phonetic IME {-NH}`
 
@@ -141,13 +141,15 @@ Besides completion, several circumstances cause interruption of braille composit
 
 Except that the first one is done intendedly by the user, the others belong to manipulation error. The braille buffer is cleared along with the sound effect of typo.
 
-###### The braille input translation mode
+###### The input mode
 
-After installing the addon, there are two braille input translation modes, the original NVDA braille input and braille IME.
+The input mode is shown as follows.
 
-NVDA braille input: The braille input is processed by the NVDA core, which is the native behavior.
+NVDA braille input: It represents the alphanumeric braille input mode. The braille input is processed by the NVDA core, which is the native behavior.
 
-Braille IME: The addon takes over the process of the braille input. It determines the result of the braille input translation according to the IME state shown by the next component.
+Alphanumeric general input: Perform alphanumeric input by the rule of the general input mode, which is no input translation at all in fact. Please see "The general input mode" section for details.
+
+Braille IME: It represents the native braille input mode. The addon takes over the process of the braille input. It determines the result of the braille input translation according to the IME state shown by the next component.
 
 ###### The IME state
 
