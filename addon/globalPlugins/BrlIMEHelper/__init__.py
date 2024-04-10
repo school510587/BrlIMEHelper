@@ -723,7 +723,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
                 log.debug("BRLkeys: dots default")
                 self.clear()
                 scriptHandler.queueScript(globalCommands.commands.script_braille_dots, gesture)
-            elif braille.handler.buffer is braille.handler.messageBuffer:
+            if braille.handler.buffer is braille.handler.messageBuffer:
                 braille.handler._dismissMessage()
             return
         except:
