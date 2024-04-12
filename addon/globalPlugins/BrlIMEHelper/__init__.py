@@ -319,28 +319,29 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             beep_disable()
 
     def _keyDown(self, vkCode, scanCode, extended, injected):
-        log.debug("keydown: {0}".format(keyboard.vkdbgmsg(vkCode, extended, injected)))
+        log.debug("key-down: {0}".format(keyboard.vkdbgmsg(vkCode, extended, injected)))
         # Fix: Ctrl+X followed by X.
         try: # Check for keys that must be ignored.
             if self.ignore_injected_keys[0][0] != (vkCode, scanCode, bool(extended)):
-                raise ValueError
-            log.debug("keydown: pass injected key 0x%02X" % (vkCode,))
+                raise ValueError("self.ignore_injected_keys: data error")
+            log.debug("Pass the injected key.")
             del self.ignore_injected_keys[0][0]
             return self._oldKeyDown(vkCode, scanCode, extended, injected)
         except: pass
         # Note: 2017.3 doesn't support getNVDAModifierKeys.
         if isNVDAModifierKey(vkCode, extended) or vkCode in KeyboardInputGesture.NORMAL_MODIFIER_KEYS:
+            log.debug("Pass the modifier key.")
             self._trappedNVDAModifiers.add((vkCode, extended))
             return self._oldKeyDown(vkCode, scanCode, extended, injected)
-        # Don't process vkCode if it is previously modified.
         if (vkCode, extended) in self._modifiedKeys:
+            log.debug("Pass the previously modified key.")
             return self._oldKeyDown(vkCode, scanCode, extended, injected)
-        # Don't process any numpad key.
         if vkCode & 0xF0 == 0x60:
+            log.debug("Handling the numpad key...")
             key_id = vkCode & 0x0F
             try:
                 if currentModifiers or self._trappedNVDAModifiers or not configure.get("ALLOW_DOT_BY_DOT_BRL_INPUT_VIA_NUMPAD"):
-                    raise NotImplementedError # Modified numpad keys, or the feature is not enabled.
+                    raise NotImplementedError("It is modified, or the dot-by-dot braille input feature is not enabled.")
                 elif 0x00 <= key_id <= 0x08: # VK_NUMPAD0 to VK_NUMPAD8
                     self.reset_numpad_state()
                     self._uncommittedDots[0] |= (1 << key_id)
@@ -383,13 +384,15 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 elif key_id == 0x0F: # VK_DIVIDE = 0x6F
                     queueHandler.queueFunction(queueHandler.eventQueue, self.script_viewAddonState, None)
                 else:
-                    raise NotImplementedError # Unused numpad keys.
+                    raise NotImplementedError("Unused numpad keys.")
             except NotImplementedError:
+                log.debug("Pass the undefined numpad key.")
                 self._modifiedKeys.add((vkCode, extended))
                 self.reset_numpad_state()
                 self._uncommittedDots = [0, None]
                 return self._oldKeyDown(vkCode, scanCode, extended, injected)
             self._trappedKeys.add((vkCode, extended))
+            log.debug("The numpad key is processed. Completed the key-down callback.")
             return False
         # In some cases, a key not previously trapped must be passed
         # directly to NVDA:
@@ -397,75 +400,97 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         # (2) NVDA is in browse mode.
         # (3) The "kbbrl_deactivated" flag is set.
         charCode = user32.MapVirtualKeyExW(vkCode, MAPVK_VK_TO_CHAR, getInputHkl())
+        log.debug("MapVirtualKeyExW() returns 0x%08X (%d_10)." % (charCode, charCode))
         if HIWORD(charCode) != 0:
+            log.debug("Invalid character code with nonzero high word.")
             return self._oldKeyDown(vkCode, scanCode, extended, injected)
-        # In the following 2 cases, the key is seen to be modified anyway.
         if (on_browse_mode() or self.config_r["kbbrl_deactivated"]) and (vkCode, extended) not in self._trappedKeys:
+            log.debug("When NVDA is in the browse mode, or the focus is on some special control of the settings panel, the key is classified as modified.")
             self._modifiedKeys.add((vkCode, extended))
             return self._oldKeyDown(vkCode, scanCode, extended, injected)
         ch = unichr(LOWORD(charCode))
-        log.debug('char code: %d' % (charCode,))
+        log.debug("LOWORD({0}) => {1}".format(charCode, ch))
         allModifiers = currentModifiers | self._trappedNVDAModifiers
         if allModifiers and (vkCode, extended) not in self._trappedKeys:
+            log.debug("The key is modified and not previously trapped.")
             brl_input = ""
             if ch in self.ACC_KEYS and ch != ' ' and set(k[0] for k in allModifiers).issubset({VK_SHIFT, VK_LSHIFT, VK_RSHIFT}):
+                log.debug("The non-space accepted key is modified by Shift only.")
                 brl_input = self.vk2str_in_ASCII_mode(vkCode, scanCode)
             if brl_input: # Send the input immediately for modified keys.
+                log.debug("Shift+X in the general input mode.")
                 self.send_brl_input_from_str(brl_input)
                 self._trappedKeys.add((vkCode, extended))
+                log.debug("Trap the key and send the character part immediately. Completed the key-down callback.")
                 return False
             else:
                 self._modifiedKeys.add((vkCode, extended))
+                log.debug("Pass the modified key.")
                 return self._oldKeyDown(vkCode, scanCode, extended, injected)
         try:
-            dot = 1 << configure.get("BRAILLE_KEYS").index(ch)
-        except: # not found
+            i = configure.get("BRAILLE_KEYS").index(ch)
+            log.debug("Braille key [%d]." % (i,))
+            dot = 1 << i
+        except:
+            log.debug("Not a braille key.")
             if ch not in self.ACC_KEYS:
+                log.debug("Pass the not accepted key.")
                 return self._oldKeyDown(vkCode, scanCode, extended, injected)
             dot = 0
+        log.debug("The key is trapped.")
         self._trappedKeys.add((vkCode, extended))
         if (vkCode, extended) not in self.touched_mainKB_keys:
+            log.debug("Record it as a touched main keyboard key.")
             self.touched_mainKB_keys[(vkCode, extended)] = (ch, self.vk2str_in_ASCII_mode(vkCode, scanCode))
         if dot:
             if not self._gesture:
                 self._gesture = DummyBrailleInputGesture()
-            log.debug("keydown: dots|space = {0:09b}".format(dot))
+            log.debug("dots|space = {0:09b}".format(dot))
             if dot == 1:
                 self._gesture.space = True
             self._gesture.dots |= dot >> 1
         else:
-            log.debug("keydown: ignored = %s" % (ch,))
+            log.debug("The key is trapped but not a braille key.")
+        log.debug("Completed the key-down callback.")
         return False
 
     def _keyUp(self, vkCode, scanCode, extended, injected):
-        log.debug("keydown: {0}".format(keyboard.vkdbgmsg(vkCode, extended, injected)))
+        log.debug("key-up: {0}".format(keyboard.vkdbgmsg(vkCode, extended, injected)))
         try:
             if self.ignore_injected_keys[1][0] != (vkCode, scanCode, bool(extended)):
-                raise ValueError
-            log.debug("keyup: pass injected key 0x%02X" % (vkCode,))
+                raise ValueError("self.ignore_injected_keys: data error")
+            log.debug("Pass the injected key.")
             del self.ignore_injected_keys[1][0]
             return self._oldKeyUp(vkCode, scanCode, extended, injected)
         except: pass
         try:
             self._trappedKeys.remove((vkCode, extended))
+            log.debug("Handling the trapped key...")
         except KeyError:
+            log.debug("Pass the unrecognized key.")
             self._trappedNVDAModifiers.discard((vkCode, extended))
             self._modifiedKeys.discard((vkCode, extended))
             return self._oldKeyUp(vkCode, scanCode, extended, injected)
-        if not self._trappedKeys: # A session ends.
+        if not self._trappedKeys:
+            log.debug("A key down/up session ends, i.e. no trapped key.")
             try: # Select an action to perform, either BRL or SEL.
                 if self.touched_mainKB_keys:
+                    log.debug("Some main keyboard keys have been touched.")
                     try:
                         IME_state = keyboard.infer_IME_state()
                     except ValueError as e:
                         IME_state = e.args[0]
                     if self.config_r["kbbrl_ASCII_mode"][IME_state.is_native] and not(self._gesture and self._gesture.dots and self._gesture.space):
+                        log.debug("In the general input mode, the touched keys do not compose a braille command.")
                         brl_input = "".join(k[1] for k in self.touched_mainKB_keys.values())
                         if brl_input:
+                            log.debug("Key MSG => BRL => Injected Key MSG")
                             self.send_brl_input_from_str(brl_input)
                         else:
+                            log.debug("Key MSG => Injected Key MSG")
                             self.send_keys(self.touched_mainKB_keys)
                     else:
+                        log.debug("In the braille input mode, or a braille command is sent in the general input mode.")
                         touched_chars = set(k[0] for k in self.touched_mainKB_keys.values())
                         k_brl, k_ign = set(configure.get("BRAILLE_KEYS")) & touched_chars, touched_chars
                         try:
@@ -473,23 +498,30 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                         except ValueError as e:
                             IME_state = e.args[0]
                         if IME_state.is_native or not configure.get("FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"):
+                            log.debug("Not all non-braille keys are free.")
                             k_ign = set(configure.get("IGNORED_KEYS")) & k_ign # Not &= to avoid tamper of touched_chars.
                         if k_brl == touched_chars:
-                            log.debug("keyup: send dot {0:08b} {1}".format(self._gesture.dots, self._gesture.space))
+                            log.debug("Send dot pattern {0:08b} {1}".format(self._gesture.dots, self._gesture.space))
                             inputCore.manager.emulateGesture(self._gesture)
                         elif len(k_ign) == 1 and k_ign == touched_chars:
+                            log.debug("Exactly one ignored key has been touched.")
                             (ch,) = k_ign
                             self.send_keys(ch.lower())
                         else:
+                            log.debug("Multiple ignored keys have been touched.")
                             beep_typo()
                         self._uncommittedDots = [0, None]
                 else:
+                    log.debug("No main keyboard key has been touched.")
                     if self._gesture is not None:
+                        log.debug("Some pending gesture has been composed in the key-down callback.")
                         inputCore.manager.emulateGesture(self._gesture)
             except inputCore.NoInputGestureAction:
                 pass
+            log.debug("Cleaning up...")
             self._gesture = None
             self.touched_mainKB_keys.clear()
+        log.debug("Completed the key-up callback.")
         return False
 
     def send_keys(self, keys):
