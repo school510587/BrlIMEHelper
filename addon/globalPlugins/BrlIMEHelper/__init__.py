@@ -427,30 +427,41 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 self._modifiedKeys.add((vkCode, extended))
                 log.debug("Pass the modified key.")
                 return self._oldKeyDown(vkCode, scanCode, extended, injected)
-        try:
-            i = configure.get("BRAILLE_KEYS").index(ch)
-            log.debug("Braille key [%d]." % (i,))
-            dot = 1 << i
-        except:
-            log.debug("Not a braille key.")
-            if ch not in self.ACC_KEYS:
-                log.debug("Pass the not accepted key.")
-                return self._oldKeyDown(vkCode, scanCode, extended, injected)
-            dot = 0
         log.debug("The key is trapped.")
         self._trappedKeys.add((vkCode, extended))
+        trapped_modifiers = set(k[0] for k in self._trappedKeys if isNVDAModifierKey(*k) or k[0] in KeyboardInputGesture.NORMAL_MODIFIER_KEYS)
+        if not trapped_modifiers:
+            log.debug("No previously trapped modifier key.")
+            dot = 0
+            try:
+                i = configure.get("BRAILLE_KEYS").index(ch)
+                log.debug("Braille key [%d]." % (i,))
+                dot = 1 << i
+            except:
+                log.debug("The key is not a braille key, ...")
+                if ch not in self.ACC_KEYS:
+                    self._trappedKeys.discard((vkCode, extended))
+                    log.debug("and pass rather than trap the not accepted key.")
+                    return self._oldKeyDown(vkCode, scanCode, extended, injected)
+                log.debug("but it is accepted and trapped.")
+            else:
+                if self._gesture is None and not self.touched_mainKB_keys:
+                    log.debug("The first ordinary main keyboard key is pressed.")
+                    self._gesture = DummyBrailleInputGesture()
+                if self._gesture is not None:
+                    log.debug("dots|space = {0:09b}".format(dot))
+                    if dot == 1:
+                        self._gesture.space = True
+                    self._gesture.dots |= dot >> 1
+        else:
+            log.debug("Some modifier key has been trapped.")
+            self._gesture = None
+            if not trapped_modifiers.issubset({VK_SHIFT, VK_LSHIFT, VK_RSHIFT}):
+                log.debug("Even some modifier key rather than Shift has been trapped. Complete the key-down callback without action.")
+                return False
         if (vkCode, extended) not in self.touched_mainKB_keys:
             log.debug("Record it as a touched main keyboard key.")
             self.touched_mainKB_keys[(vkCode, extended)] = (ch, self.vk2str_in_ASCII_mode(vkCode, scanCode))
-        if dot:
-            if not self._gesture:
-                self._gesture = DummyBrailleInputGesture()
-            log.debug("dots|space = {0:09b}".format(dot))
-            if dot == 1:
-                self._gesture.space = True
-            self._gesture.dots |= dot >> 1
-        else:
-            log.debug("The key is trapped but not a braille key.")
         log.debug("Completed the key-down callback.")
         return False
 
