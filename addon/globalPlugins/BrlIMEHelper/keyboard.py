@@ -361,8 +361,10 @@ with codecs.open(os.path.join(os.path.dirname(__file__), str("keyboard_mappings.
 
 assert(set(mapping.keys()) == set(layout.keys()))
 
-def vk2str(vkCode, scanCode): # GetKeyboardState does not work as expected.
+def vk2str(vkCode, scanCode, actual_key_state={}): # GetKeyboardState does not work as expected.
     kst = [getKeyState(i) for i in range(256)]
+    for k, s in actual_key_state.items():
+        kst[k] = s
     kst = (c_byte * len(kst))(*kst)
     b = create_unicode_buffer(32)
     l = user32.ToUnicodeEx(vkCode, scanCode, kst, b, len(b), 0, getInputHkl())
