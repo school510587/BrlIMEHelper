@@ -261,7 +261,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         return action
 
     def initKBBRL(self): # Members for keyboard BRL simulation.
-        self.ignore_injected_keys = ([], [])
+        self.ignored_injected_keys = {}
         self.touched_mainKB_keys = OrderedDict()
         self._modifiedKeys = set()
         self._trappedKeys = set()
@@ -291,8 +291,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         def hack_kb_send(addon, *args):
             log.debug("Running monkeyed KeyboardInputGesture.send")
             if not args[0].isModifier and not args[0].modifiers and addon.config_r["kbbrl_enabled"]:
-                addon.ignore_injected_keys[0].append((args[0].vkCode, args[0].scanCode, args[0].isExtended))
-                addon.ignore_injected_keys[1].append(addon.ignore_injected_keys[0][-1])
+                addon.ignored_injected_keys[(args[0].vkCode, args[0].scanCode, args[0].isExtended)] = False
             return addon.real_kb_send(*args)
         self.real_kb_send = KeyboardInputGesture.send
         KeyboardInputGesture.send = patch.monkey_method(partial(hack_kb_send, self), KeyboardInputGesture)
@@ -321,13 +320,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def _keyDown(self, vkCode, scanCode, extended, injected):
         log.debug("key-down: {0}".format(keyboard.vkdbgmsg(vkCode, extended, injected)))
         # Fix: Ctrl+X followed by X.
-        try: # Check for keys that must be ignored.
-            if self.ignore_injected_keys[0][0] != (vkCode, scanCode, bool(extended)):
-                raise ValueError("self.ignore_injected_keys: data error")
+        if injected and (vkCode, scanCode, bool(extended)) in self.ignored_injected_keys:
             log.debug("Pass the injected key.")
-            del self.ignore_injected_keys[0][0]
+            self.ignored_injected_keys[(vkCode, scanCode, bool(extended))] = True
             return self._oldKeyDown(vkCode, scanCode, extended, injected)
-        except: pass
         # Note: 2017.3 doesn't support getNVDAModifierKeys.
         if isNVDAModifierKey(vkCode, extended) or vkCode in KeyboardInputGesture.NORMAL_MODIFIER_KEYS:
             log.debug("Pass the modifier key.")
@@ -468,11 +464,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def _keyUp(self, vkCode, scanCode, extended, injected):
         log.debug("key-up: {0}".format(keyboard.vkdbgmsg(vkCode, extended, injected)))
         try:
-            if self.ignore_injected_keys[1][0] != (vkCode, scanCode, bool(extended)):
-                raise ValueError("self.ignore_injected_keys: data error")
-            log.debug("Pass the injected key.")
-            del self.ignore_injected_keys[1][0]
-            return self._oldKeyUp(vkCode, scanCode, extended, injected)
+            if injected and self.ignored_injected_keys[(vkCode, scanCode, bool(extended))]:
+                log.debug("Pass the injected key.")
+                del self.ignored_injected_keys[(vkCode, scanCode, bool(extended))]
+                return self._oldKeyUp(vkCode, scanCode, extended, injected)
         except: pass
         try:
             self._trappedKeys.remove((vkCode, extended))
