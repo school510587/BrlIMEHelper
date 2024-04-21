@@ -54,22 +54,13 @@ from . import hack_IME
 from . import keyboard
 from . import patch
 
-def cmpNVDAver(year, major, minor=0):
-    try: from buildVersion import version_year, version_major, version_minor
-    except: from versionInfo import version_year, version_major, version_minor
-    if version_year != year:
-        return version_year - year
-    if version_major != major:
-        return version_major - major
-    return version_minor - minor
-
 class DummyBrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.BrailleInputGesture):
     source = NoBrailleDisplayDriver.name
     @classmethod
     def update_brl_display_gesture_map(cls, display=braille.handler.display):
         if not isinstance(display.gestureMap, inputCore.GlobalGestureMap):
             display.gestureMap = inputCore.GlobalGestureMap()
-        source = "bk:" if cmpNVDAver(2018, 3) < 0 else "br({0}):".format(cls.source)
+        source = "bk:" if patch.cmpNVDAver(2018, 3) < 0 else "br({0}):".format(cls.source)
         for g, f in GlobalPlugin.default_bk_gestures.items():
             display.gestureMap.add(source + g, *f)
     def _get_id(self):
@@ -93,7 +84,7 @@ class DummyBrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.Brail
             physical_id = id.replace(self.source, braille.handler.display.name, 1)
             if physical_id.startswith("br(freedomScientific):"): # Exception specific to this driver.
                 physical_id = re.sub(r"(.*)space", r"\1brailleSpaceBar", physical_id)
-            if cmpNVDAver(2018, 3) < 0:
+            if patch.cmpNVDAver(2018, 3) < 0:
                 id = "bk:" + id[id.find(":")+1:]
             if configure.get("REL_PHYSICAL_DUMMY_BRLKB") == "consistent":
                 answer.append(physical_id)
@@ -107,7 +98,7 @@ class DummyBrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.Brail
                 answer.append(id)
             else:
                 log.error("Invalid REL_PHYSICAL_DUMMY_BRLKB value.", exc_info=True)
-        if cmpNVDAver(2018, 3) < 0:
+        if patch.cmpNVDAver(2018, 3) < 0:
             answer, old_answer, id_set = [], answer, set()
             for id in old_answer:
                 n_id = inputCore.normalizeGestureIdentifier(id)
@@ -973,7 +964,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         if error_logs:
             play_NVDA_sound("textError")
             log.warning("Encoding failed at the following cell(s):\n" + "\n".join(error_logs))
-        if cmpNVDAver(2020, 4) < 0: # api.copyToClip of earlier NVDA versions reports no message.
+        if patch.cmpNVDAver(2020, 4) < 0: # api.copyToClip of earlier NVDA versions reports no message.
             if api.copyToClip(answer):
                 winsound.MessageBeep(winsound.MB_ICONASTERISK)
             else:

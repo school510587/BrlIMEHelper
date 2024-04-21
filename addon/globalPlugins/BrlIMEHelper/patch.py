@@ -6,6 +6,15 @@
 from ctypes import *
 from ctypes.wintypes import *
 
+def cmpNVDAver(year, major, minor=0):
+    try: from buildVersion import version_year, version_major, version_minor
+    except: from versionInfo import version_year, version_major, version_minor
+    if version_year != year:
+        return version_year - year
+    if version_major != major:
+        return version_major - major
+    return version_minor - minor
+
 try:
     from functools import partial, partialmethod
     monkey_method = lambda m, target: partialmethod(m) if isinstance(target, type) else partial(m, target)
