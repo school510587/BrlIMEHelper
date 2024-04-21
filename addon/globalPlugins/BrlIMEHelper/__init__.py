@@ -579,7 +579,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if IME_mode == 0 and brailleInput.handler.table is not unicodeBRLtable:
             return ""
         try:
-            kst = dict((k[0], 0x80) for k in self._trappedKeys if isNVDAModifierKey(*k) or k[0] in KeyboardInputGesture.NORMAL_MODIFIER_KEYS)
+            kst = [getKeyState(i) for i in range(256)]
+            for k in self._trappedKeys:
+                if isNVDAModifierKey(*k) or k[0] in KeyboardInputGesture.NORMAL_MODIFIER_KEYS:
+                    kst[k[0]] = 0x80
             text = keyboard.vk2str(vkCode, scanCode, kst)
         except Exception as e:
             log.error(str(e), exc_info=True)

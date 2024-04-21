@@ -361,14 +361,14 @@ with codecs.open(os.path.join(os.path.dirname(__file__), str("keyboard_mappings.
 
 assert(set(mapping.keys()) == set(layout.keys()))
 
-def vk2str(vkCode, scanCode, actual_key_state={}): # GetKeyboardState does not work as expected.
-    kst = [getKeyState(i) for i in range(256)]
-    for k, s in actual_key_state.items():
-        kst[k] = s
-    kst = (c_byte * len(kst))(*kst)
-    b = create_unicode_buffer(32)
-    l = user32.ToUnicodeEx(vkCode, scanCode, kst, b, len(b), 0, getInputHkl())
-    return b.value if l > 0 else u""
+def vk2str(vkCode, scanCode, actual_key_state=None): # GetKeyboardState does not work as expected.
+    kst = actual_key_state
+    if kst is None:
+        kst = [getKeyState(i) for i in range(256)]
+    kst = (c_byte * 256)(*kst)
+    b = create_unicode_buffer(5)
+    r = user32.ToUnicodeEx(vkCode, scanCode, kst, b, len(b), 0x4, getInputHkl())
+    return b.value if r > 0 else u""
 
 def vkdbgmsg(vkCode, extended=None, injected=False):
     answer = ""
