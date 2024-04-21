@@ -20,10 +20,9 @@ import wx
 try: unichr
 except NameError: unichr = chr
 from NVDAObjects.behaviors import CandidateItem
-from brailleDisplayDrivers.noBraille import BrailleDisplayDriver as NoBrailleDisplayDriver
 from brailleTables import getTable as getBRLtable
 from eventHandler import queueEvent
-from keyboardHandler import KeyboardInputGesture, getInputHkl, isNVDAModifierKey, currentModifiers
+from keyboardHandler import KeyboardInputGesture, getInputHkl
 from logHandler import log
 from winUser import *
 import addonHandler
@@ -37,7 +36,6 @@ import inputCore
 import queueHandler
 import scriptHandler
 import speech
-import winInputHook
 import ui
 
 try:
@@ -52,60 +50,8 @@ from .sounds import *
 from . import configure
 from . import hack_IME
 from . import keyboard
+from . import keyboard_hook
 from . import patch
-
-class DummyBrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.BrailleInputGesture):
-    source = NoBrailleDisplayDriver.name
-    @classmethod
-    def update_brl_display_gesture_map(cls, display=braille.handler.display):
-        if not isinstance(display.gestureMap, inputCore.GlobalGestureMap):
-            display.gestureMap = inputCore.GlobalGestureMap()
-        source = "bk:" if patch.cmpNVDAver(2018, 3) < 0 else "br({0}):".format(cls.source)
-        for g, f in GlobalPlugin.default_bk_gestures.items():
-            display.gestureMap.add(source + g, *f)
-    def _get_id(self):
-        try:
-            dots_id = self._makeDotsId()
-            log.debug("_makeDotsId returns " + dots_id)
-            sep = dots_id.find(":")
-            return dots_id[sep+1:]
-        except:
-            log.error("Maybe _makeDotsId does not work.")
-        return ""
-    def _get_identifiers(self):
-        ids = super(DummyBrailleInputGesture, self)._get_identifiers()
-        if isinstance(braille.handler.display, NoBrailleDisplayDriver):
-            return ids
-        answer = []
-        for id in ids:
-            if id.startswith("bk:"):
-                answer.append(id)
-                continue
-            physical_id = id.replace(self.source, braille.handler.display.name, 1)
-            if physical_id.startswith("br(freedomScientific):"): # Exception specific to this driver.
-                physical_id = re.sub(r"(.*)space", r"\1brailleSpaceBar", physical_id)
-            if patch.cmpNVDAver(2018, 3) < 0:
-                id = "bk:" + id[id.find(":")+1:]
-            if configure.get("REL_PHYSICAL_DUMMY_BRLKB") == "consistent":
-                answer.append(physical_id)
-            elif configure.get("REL_PHYSICAL_DUMMY_BRLKB") == "former-precedence":
-                answer.append(physical_id)
-                answer.append(id)
-            elif configure.get("REL_PHYSICAL_DUMMY_BRLKB") == "latter-precedence":
-                answer.append(id)
-                answer.append(physical_id)
-            elif configure.get("REL_PHYSICAL_DUMMY_BRLKB") == "independent":
-                answer.append(id)
-            else:
-                log.error("Invalid REL_PHYSICAL_DUMMY_BRLKB value.", exc_info=True)
-        if patch.cmpNVDAver(2018, 3) < 0:
-            answer, old_answer, id_set = [], answer, set()
-            for id in old_answer:
-                n_id = inputCore.normalizeGestureIdentifier(id)
-                if n_id not in id_set:
-                    id_set.add(n_id)
-                    answer.append(id)
-        return answer
 
 # A helper function to construct GlobalPlugin.default_bk_gestures.
 def _make_bk_gesture_set(dots, main, var1="kb:control+", var2="kb:alt+", var3="kb:control+alt+", key=None):
@@ -178,6 +124,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 False,
             ],
         }
+        self.kbh = None
         thread_states.cbrlkb = configure.get("AUTO_BRL_KEY")
         self.menu = wx.Menu()
         # Translators: Menu item of BrlIMEHelper settings.
@@ -195,13 +142,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         def hack_bd_driver_init(real_init, self, *args):
             if real_init is not None:
                 real_init(self, *args)
-            DummyBrailleInputGesture.update_brl_display_gesture_map(self)
+            keyboard_hook.DummyBrailleInputGesture.update_brl_display_gesture_map(GlobalPlugin, self)
         try: # Python 3
             self.real_bd_driver_init = braille.BrailleDisplayDriver.__init__
         except: # Python 2
             self.real_bd_driver_init = None
         braille.BrailleDisplayDriver.__init__ = patch.monkey_method(partial(hack_bd_driver_init, self.real_bd_driver_init), braille.BrailleDisplayDriver)
-        DummyBrailleInputGesture.update_brl_display_gesture_map() # The current built one.
+        keyboard_hook.DummyBrailleInputGesture.update_brl_display_gesture_map(GlobalPlugin) # The current built one.
         hack_IME.install()
 
     def terminate(self):
@@ -247,51 +194,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             try: action = action or bool(self.brl_str)
             except AttributeError: pass
             self.brl_str = ""
-            reset_numpad = self.reset_numpad_state()
-            action = action or reset_numpad
+            if self.kbh:
+                reset_numpad = self.kbh.reset_numpad_state()
+                action = action or reset_numpad
         return action
-
-    def initKBBRL(self): # Members for keyboard BRL simulation.
-        self.ignored_injected_keys = {}
-        self.touched_mainKB_keys = OrderedDict()
-        self._modifiedKeys = set()
-        self._trappedKeys = set()
-        self._trappedNVDAModifiers = set()
-        self._gesture = None
-        self._uncommittedDots = [0, None] # Dots / routing index recorded by NumPad keys.
-
-    def reset_numpad_state(self, reset_to=[0, None], timeout=None):
-        original_state = False
-        try: original_state = bool(self._uncommittedDots)
-        except AttributeError: pass
-        try:
-            if self._numpad_timer: # Perhaps AttributeError.
-                self._uncommittedDots = list(reset_to) # copy
-            self._numpad_timer.Stop()
-        except:
-            pass
-        self._numpad_timer = None
-        if timeout:
-            self._numpad_timer = wx.CallLater(timeout, self.reset_numpad_state)
-        return original_state and not bool(self._uncommittedDots)
 
     def enable(self, beep=False):
         if self.config_r["kbbrl_enabled"]:
             raise RuntimeError("Invalid call of enable().")
-        self.initKBBRL()
-        def hack_kb_send(addon, *args):
-            log.debug("Running monkeyed KeyboardInputGesture.send")
-            if not args[0].isModifier and not args[0].modifiers and addon.config_r["kbbrl_enabled"]:
-                addon.ignored_injected_keys[(args[0].vkCode, args[0].scanCode, args[0].isExtended)] = False
-            return addon.real_kb_send(*args)
-        self.real_kb_send = KeyboardInputGesture.send
-        KeyboardInputGesture.send = patch.monkey_method(partial(hack_kb_send, self), KeyboardInputGesture)
         # Monkey patch keyboard handling callbacks.
         # This is pretty evil, but we need low level keyboard handling.
-        self._oldKeyDown = winInputHook.keyDownCallback
-        winInputHook.keyDownCallback = self._keyDown
-        self._oldKeyUp = winInputHook.keyUpCallback
-        winInputHook.keyUpCallback = self._keyUp
+        self.kbh = keyboard_hook.KeyboardHook(self)
         self.config_r["kbbrl_enabled"] = True
         if beep:
             beep_enable()
@@ -299,227 +212,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def disable(self, beep=False):
         if not self.config_r["kbbrl_enabled"]:
             raise RuntimeError("Invalid call of disable().")
-        winInputHook.keyDownCallback = self._oldKeyDown
-        winInputHook.keyUpCallback = self._oldKeyUp
-        KeyboardInputGesture.send = self.real_kb_send
-        self._gesture = None
-        self._trappedKeys = None
+        self.kbh.terminate()
+        self.kbh = None
         self.config_r["kbbrl_enabled"] = False
         if beep:
             beep_disable()
-
-    def _keyDown(self, vkCode, scanCode, extended, injected):
-        log.debug("key-down: {0}".format(keyboard.vkdbgmsg(vkCode, extended, injected)))
-        # Fix: Ctrl+X followed by X.
-        if injected and (vkCode, scanCode, bool(extended)) in self.ignored_injected_keys:
-            log.debug("Pass the injected key.")
-            self.ignored_injected_keys[(vkCode, scanCode, bool(extended))] = True
-            return self._oldKeyDown(vkCode, scanCode, extended, injected)
-        # Note: 2017.3 doesn't support getNVDAModifierKeys.
-        if isNVDAModifierKey(vkCode, extended) or vkCode in KeyboardInputGesture.NORMAL_MODIFIER_KEYS:
-            log.debug("Pass the modifier key.")
-            self._trappedNVDAModifiers.add((vkCode, extended))
-            return self._oldKeyDown(vkCode, scanCode, extended, injected)
-        if (vkCode, extended) in self._modifiedKeys:
-            log.debug("Pass the previously modified key.")
-            return self._oldKeyDown(vkCode, scanCode, extended, injected)
-        if vkCode & 0xF0 == 0x60:
-            log.debug("Handling the numpad key...")
-            key_id = vkCode & 0x0F
-            try:
-                if currentModifiers or self._trappedNVDAModifiers or not configure.get("ALLOW_DOT_BY_DOT_BRL_INPUT_VIA_NUMPAD"):
-                    raise NotImplementedError("It is modified, or the dot-by-dot braille input feature is not enabled.")
-                elif 0x00 <= key_id <= 0x08: # VK_NUMPAD0 to VK_NUMPAD8
-                    self.reset_numpad_state()
-                    self._uncommittedDots[0] |= (1 << key_id)
-                    try:
-                        self._uncommittedDots[1] = self._uncommittedDots[1] * 10 + key_id
-                    except:
-                        self._uncommittedDots[1] = key_id
-                    if configure.get("REPORT_BRL_BUFFER_CHANGES"):
-                        patch.spellWithHighestPriority(str(key_id))
-                elif key_id == 0x09: # VK_NUMPAD9 = 0x69
-                    self.reset_numpad_state()
-                    self._uncommittedDots[0] = 0
-                    try:
-                        self._uncommittedDots[1] = self._uncommittedDots[1] * 10 + key_id
-                    except:
-                        self._uncommittedDots[1] = key_id
-                    if configure.get("REPORT_BRL_BUFFER_CHANGES"):
-                        patch.spellWithHighestPriority(str(key_id))
-                elif key_id == 0x0A: # VK_MULTIPLY = 0x6A
-                    if self._uncommittedDots[1] is None:
-                        raise NotImplementedError # No uncommitted routing command.
-                    self._uncommittedDots[0] = 0
-                    self._gesture = braille.BrailleDisplayGesture()
-                    self._gesture.routingIndex = self._uncommittedDots[1]
-                    queueHandler.queueFunction(queueHandler.eventQueue, self.reset_numpad_state, reset_to=[0, self._gesture.routingIndex], timeout=500)
-                    queueHandler.queueFunction(queueHandler.eventQueue, globalCommands.commands.script_braille_routeTo, self._gesture)
-                    self._gesture = None
-                elif key_id == 0x0B: # VK_ADD = 0x6B
-                    queueHandler.queueFunction(queueHandler.eventQueue, globalCommands.commands.script_braille_scrollForward, None)
-                elif key_id == 0x0D: # VK_SUBTRACT = 0x6D
-                    queueHandler.queueFunction(queueHandler.eventQueue, globalCommands.commands.script_braille_scrollBack, None)
-                elif key_id == 0x0E: # VK_DECIMAL = 0x6E
-                    if not self._uncommittedDots[0]:
-                        raise NotImplementedError # No uncommitted dots.
-                    self._uncommittedDots[1] = None
-                    self._gesture = DummyBrailleInputGesture()
-                    self._gesture.space = bool(self._uncommittedDots[0] & 0x01)
-                    self._gesture.dots = self._uncommittedDots[0] >> 1
-                    queueHandler.queueFunction(queueHandler.eventQueue, self.reset_numpad_state, reset_to=[(self._gesture.dots << 1) | self._gesture.space, None], timeout=500)
-                elif key_id == 0x0F: # VK_DIVIDE = 0x6F
-                    queueHandler.queueFunction(queueHandler.eventQueue, self.script_viewAddonState, None)
-                else:
-                    raise NotImplementedError("Unused numpad keys.")
-            except NotImplementedError:
-                log.debug("Pass the undefined numpad key.")
-                self._modifiedKeys.add((vkCode, extended))
-                self.reset_numpad_state()
-                self._uncommittedDots = [0, None]
-                return self._oldKeyDown(vkCode, scanCode, extended, injected)
-            self._trappedKeys.add((vkCode, extended))
-            log.debug("The numpad key is processed. Completed the key-down callback.")
-            return False
-        # In some cases, a key not previously trapped must be passed
-        # directly to NVDA:
-        # (1) Any modifier key is held down.
-        # (2) NVDA is in browse mode.
-        # (3) The "kbbrl_deactivated" flag is set.
-        charCode = user32.MapVirtualKeyExW(vkCode, MAPVK_VK_TO_CHAR, getInputHkl())
-        log.debug("MapVirtualKeyExW() returns 0x%08X (%d_10)." % (charCode, charCode))
-        if HIWORD(charCode) != 0:
-            log.debug("Invalid character code with nonzero high word.")
-            return self._oldKeyDown(vkCode, scanCode, extended, injected)
-        if (on_browse_mode() or self.config_r["kbbrl_deactivated"]) and (vkCode, extended) not in self._trappedKeys:
-            log.debug("When NVDA is in the browse mode, or the focus is on some special control of the settings panel, the key is classified as modified.")
-            self._modifiedKeys.add((vkCode, extended))
-            return self._oldKeyDown(vkCode, scanCode, extended, injected)
-        ch = unichr(LOWORD(charCode))
-        log.debug("LOWORD({0}) => {1}".format(charCode, ch))
-        allModifiers = currentModifiers | self._trappedNVDAModifiers
-        if allModifiers and (vkCode, extended) not in self._trappedKeys:
-            log.debug("The key is modified and not previously trapped.")
-            brl_input = ""
-            if ch in self.ACC_KEYS and ch != ' ' and set(k[0] for k in allModifiers).issubset({VK_SHIFT, VK_LSHIFT, VK_RSHIFT}):
-                log.debug("The non-space accepted key is modified by Shift only.")
-                brl_input = self.vk2str_in_ASCII_mode(vkCode, scanCode)
-            if brl_input: # Send the input immediately for modified keys.
-                log.debug("Shift+X in the general input mode.")
-                self.send_brl_input_from_str(brl_input)
-                self._trappedKeys.add((vkCode, extended))
-                log.debug("Trap the key and send the character part immediately. Completed the key-down callback.")
-                return False
-            else:
-                self._modifiedKeys.add((vkCode, extended))
-                log.debug("Pass the modified key.")
-                return self._oldKeyDown(vkCode, scanCode, extended, injected)
-        log.debug("The key is trapped.")
-        self._trappedKeys.add((vkCode, extended))
-        trapped_modifiers = set(k[0] for k in self._trappedKeys if isNVDAModifierKey(*k) or k[0] in KeyboardInputGesture.NORMAL_MODIFIER_KEYS)
-        if not trapped_modifiers:
-            log.debug("No previously trapped modifier key.")
-            dot = 0
-            try:
-                i = configure.get("BRAILLE_KEYS").index(ch)
-                log.debug("Braille key [%d]." % (i,))
-                dot = 1 << i
-            except:
-                log.debug("The key is not a braille key, ...")
-                if ch not in self.ACC_KEYS:
-                    self._trappedKeys.discard((vkCode, extended))
-                    log.debug("and pass rather than trap the not accepted key.")
-                    return self._oldKeyDown(vkCode, scanCode, extended, injected)
-                log.debug("but it is accepted and trapped.")
-            else:
-                if self._gesture is None and not self.touched_mainKB_keys:
-                    log.debug("The first ordinary main keyboard key is pressed.")
-                    self._gesture = DummyBrailleInputGesture()
-                if self._gesture is not None:
-                    log.debug("dots|space = {0:09b}".format(dot))
-                    if dot == 1:
-                        self._gesture.space = True
-                    self._gesture.dots |= dot >> 1
-        else:
-            log.debug("Some modifier key has been trapped.")
-            self._gesture = None
-            if not trapped_modifiers.issubset({VK_SHIFT, VK_LSHIFT, VK_RSHIFT}):
-                log.debug("Even some modifier key rather than Shift has been trapped. Complete the key-down callback without action.")
-                return False
-        if (vkCode, extended) not in self.touched_mainKB_keys:
-            log.debug("Record it as a touched main keyboard key.")
-            self.touched_mainKB_keys[(vkCode, extended)] = (ch, self.vk2str_in_ASCII_mode(vkCode, scanCode))
-        log.debug("Completed the key-down callback.")
-        return False
-
-    def _keyUp(self, vkCode, scanCode, extended, injected):
-        log.debug("key-up: {0}".format(keyboard.vkdbgmsg(vkCode, extended, injected)))
-        try:
-            if injected and self.ignored_injected_keys[(vkCode, scanCode, bool(extended))]:
-                log.debug("Pass the injected key.")
-                del self.ignored_injected_keys[(vkCode, scanCode, bool(extended))]
-                return self._oldKeyUp(vkCode, scanCode, extended, injected)
-        except: pass
-        try:
-            self._trappedKeys.remove((vkCode, extended))
-            log.debug("Handling the trapped key...")
-        except KeyError:
-            log.debug("Pass the unrecognized key.")
-            self._trappedNVDAModifiers.discard((vkCode, extended))
-            self._modifiedKeys.discard((vkCode, extended))
-            return self._oldKeyUp(vkCode, scanCode, extended, injected)
-        if not self._trappedKeys:
-            log.debug("A key down/up session ends, i.e. no trapped key.")
-            try: # Select an action to perform, either BRL or SEL.
-                if self.touched_mainKB_keys:
-                    log.debug("Some main keyboard keys have been touched.")
-                    try:
-                        IME_state = keyboard.infer_IME_state()
-                    except ValueError as e:
-                        IME_state = e.args[0]
-                    if self.config_r["kbbrl_ASCII_mode"][IME_state.is_native] and not(self._gesture and self._gesture.dots and self._gesture.space):
-                        log.debug("In the general input mode, the touched keys do not compose a braille command.")
-                        brl_input = "".join(k[1] for k in self.touched_mainKB_keys.values())
-                        if brl_input:
-                            log.debug("Key MSG => BRL => Injected Key MSG")
-                            self.send_brl_input_from_str(brl_input)
-                        else:
-                            log.debug("Key MSG => Injected Key MSG")
-                            self.send_keys(self.touched_mainKB_keys)
-                    else:
-                        log.debug("In the braille input mode, or a braille command is sent in the general input mode.")
-                        touched_chars = set(k[0] for k in self.touched_mainKB_keys.values())
-                        k_brl, k_ign = set(configure.get("BRAILLE_KEYS")) & touched_chars, touched_chars
-                        try:
-                            IME_state = keyboard.infer_IME_state()
-                        except ValueError as e:
-                            IME_state = e.args[0]
-                        if IME_state.is_native or not configure.get("FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"):
-                            log.debug("Not all non-braille keys are free.")
-                            k_ign = set(configure.get("IGNORED_KEYS")) & k_ign # Not &= to avoid tamper of touched_chars.
-                        if k_brl == touched_chars:
-                            log.debug("Send dot pattern {0:08b} {1}".format(self._gesture.dots, self._gesture.space))
-                            inputCore.manager.emulateGesture(self._gesture)
-                        elif len(k_ign) == 1 and k_ign == touched_chars:
-                            log.debug("Exactly one ignored key has been touched.")
-                            (ch,) = k_ign
-                            self.send_keys(ch.lower())
-                        else:
-                            log.debug("Multiple ignored keys have been touched.")
-                            beep_typo()
-                        self._uncommittedDots = [0, None]
-                else:
-                    log.debug("No main keyboard key has been touched.")
-                    if self._gesture is not None:
-                        log.debug("Some pending gesture has been composed in the key-down callback.")
-                        inputCore.manager.emulateGesture(self._gesture)
-            except inputCore.NoInputGestureAction:
-                pass
-            log.debug("Cleaning up...")
-            self._gesture = None
-            self.touched_mainKB_keys.clear()
-        log.debug("Completed the key-up callback.")
-        return False
 
     def send_keys(self, keys):
         try:
@@ -555,41 +252,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.timer[0] = None
         self.timer[1] = ""
         self.brl_str = ""
-
-    def send_brl_input_from_str(self, text):
-        def send_brl_input_from_str(text):
-            region = braille.TextRegion(text)
-            region.update()
-            for cell in region.brailleCells:
-                gesture = DummyBrailleInputGesture()
-                gesture.dots = cell
-                gesture.space = not cell
-                inputCore.manager.emulateGesture(gesture)
-        queueHandler.queueFunction(queueHandler.eventQueue, send_brl_input_from_str, text)
-
-    def vk2str_in_ASCII_mode(self, vkCode, scanCode):
-        try:
-            IME_state = keyboard.infer_IME_state()
-        except ValueError as e:
-            IME_state = e.args[0]
-        IME_mode = IME_state.is_native
-        if not self.config_r["kbbrl_ASCII_mode"][IME_mode]: # Not in the general input mode.
-            return ""
-        unicodeBRLtable = getBRLtable("unicode-braille.utb")
-        if IME_mode == 0 and brailleInput.handler.table is not unicodeBRLtable:
-            return ""
-        try:
-            kst = [getKeyState(i) for i in range(256)]
-            for k in self._trappedKeys:
-                if isNVDAModifierKey(*k) or k[0] in KeyboardInputGesture.NORMAL_MODIFIER_KEYS:
-                    kst[k[0]] = 0x80
-            text = keyboard.vk2str(vkCode, scanCode, kst)
-        except Exception as e:
-            log.error(str(e), exc_info=True)
-            return ""
-        if "\n" in text or "\r" in text: # Avoid newline characters.
-            return ""
-        return text
 
     def event_foreground(self, obj, nextHandler):
         fg = getForegroundWindow()
@@ -734,17 +396,17 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         except NotImplementedError: # The alphanumeric mode, or the input is rejected by the brl parser.
             done = False
             if gesture.dots == 0b01000000:
-                if IME_state.is_native or not isinstance(gesture, DummyBrailleInputGesture) or brailleInput.handler.table.fileName.lower() != "unicode-braille.utb":
+                if IME_state.is_native or not isinstance(gesture, keyboard_hook.DummyBrailleInputGesture) or brailleInput.handler.table.fileName.lower() != "unicode-braille.utb":
                     log.debug("BRLkeys: dot7 default")
                     scriptHandler.queueScript(globalCommands.commands.script_braille_eraseLastCell, gesture)
                     done = True
             elif gesture.dots == 0b10000000:
-                if IME_state.is_native or not isinstance(gesture, DummyBrailleInputGesture) or brailleInput.handler.table.fileName.lower() != "unicode-braille.utb":
+                if IME_state.is_native or not isinstance(gesture, keyboard_hook.DummyBrailleInputGesture) or brailleInput.handler.table.fileName.lower() != "unicode-braille.utb":
                     log.debug("BRLkeys: dot8 default")
                     scriptHandler.queueScript(globalCommands.commands.script_braille_enter, gesture)
                     done = True
             elif gesture.dots == 0b11000000:
-                if IME_state.is_native or not isinstance(gesture, DummyBrailleInputGesture) or brailleInput.handler.table.fileName.lower() != "unicode-braille.utb":
+                if IME_state.is_native or not isinstance(gesture, keyboard_hook.DummyBrailleInputGesture) or brailleInput.handler.table.fileName.lower() != "unicode-braille.utb":
                     log.debug("BRLkeys: dot7+dot8 default")
                     scriptHandler.queueScript(globalCommands.commands.script_braille_translate, gesture)
                     done = True
@@ -858,12 +520,12 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
 
     def script_viewAddonState(self, gesture):
         dots_info = self.brl_state.hint_msg(self.brl_str, "")
-        if gesture is None:
-            numpad_state = "".join(str(i) for i in range(configure.NUM_BRAILLE_KEYS) if self._uncommittedDots[0] & (1 << i))
+        if gesture is None and self.kbh:
+            numpad_state = "".join(str(i) for i in range(configure.NUM_BRAILLE_KEYS) if self.kbh._uncommittedDots[0] & (1 << i))
             if numpad_state:
                 dots_info = "{0} #{1}".format(dots_info, numpad_state).strip()
-            if self._uncommittedDots[1] is not None:
-                dots_info = "{0} =>{1}".format(dots_info, self._uncommittedDots[1]).strip()
+            if self.kbh._uncommittedDots[1] is not None:
+                dots_info = "{0} =>{1}".format(dots_info, self.kbh._uncommittedDots[1]).strip()
             if dots_info:
                 ui.message(dots_info)
             else:
