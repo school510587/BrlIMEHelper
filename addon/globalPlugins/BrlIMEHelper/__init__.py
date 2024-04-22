@@ -343,17 +343,22 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     script_toggleBRLsimulation.__doc__ = _("Toggles braille input from a computer keyboard.")
     script_toggleBRLsimulation.category = SCRCAT_BrlIMEHelper
 
-    def script_toggleAlphaModeBRLsimulation(self, gesture):
-        self.config_r["kbbrl_ASCII_mode"][0] = not self.config_r["kbbrl_ASCII_mode"][0]
-        if self.config_r["kbbrl_ASCII_mode"][0]:
+    def script_toggleInputMode(self, gesture):
+        try:
+            IME_state = keyboard.infer_IME_state()
+        except ValueError as e:
+            IME_state = e.args[0]
+        self.config_r["kbbrl_ASCII_mode"][IME_state.is_native] = not self.config_r["kbbrl_ASCII_mode"][IME_state.is_native]
+        state = (_("native NVDA braille input"), _("braille IME"))[IME_state.is_native]
+        if self.config_r["kbbrl_ASCII_mode"][IME_state.is_native]:
             # Translators: Reported when the emulated braille keyboard enters the general input mode.
-            ui.message(_("The general input mode (IME alphanumeric input only)"))
+            ui.message(_("Use the general input mode for the {0} state.".format(state)))
         else:
             # Translators: Reported when the emulated braille keyboard enters the braille input mode.
-            ui.message(_("The braille input mode (IME alphanumeric input only)"))
-    # Translators: Name of a command to switch the braille keyboard emulation mode.
-    script_toggleAlphaModeBRLsimulation.__doc__ = _("Switches the braille keyboard emulation mode (IME alphanumeric input only).")
-    script_toggleAlphaModeBRLsimulation.category = SCRCAT_BrlIMEHelper
+            ui.message(_("Use the braille input mode for the {0}.".format(state)))
+    # Translators: Name of a command to switch the input mode for the current input state.
+    script_toggleInputMode.__doc__ = _("Switch the input mode for the current input state.")
+    script_toggleInputMode.category = SCRCAT_BrlIMEHelper
 
     def script_toggleUnicodeBRL(self, gesture):
         try:
@@ -658,7 +663,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         "kb:NVDA+windows+u": "internalCodeBRL",
         "bk:dots": "BRLdots",
         "bk:space+dot2+dot4+dot5": "clearBRLbuffer",
-        "bk:space+dot1+dot2+dot3": "toggleAlphaModeBRLsimulation",
+        "bk:space+dot1+dot2+dot3": "toggleInputMode",
         "bk:space+dot4+dot5+dot6": "switchIMEmode",
         "bk:space+dot1+dot3+dot6": "toggleUnicodeBRL",
     }
