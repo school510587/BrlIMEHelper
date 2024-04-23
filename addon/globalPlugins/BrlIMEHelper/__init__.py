@@ -551,6 +551,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
                 mode_info = _("{language} braille IME").format(language=buffer.value)
             else: # GetLocaleInfoW() provides no data.
                 mode_info = _("braille IME")
+            mode_info = "{0} {{{1}}}".format(mode_info, "BG"[self.config_r["kbbrl_ASCII_mode"][IME_state.is_native]])
         if IME_state.name:
             name_info = IME_state.name_str()
             if guessed[1]:
