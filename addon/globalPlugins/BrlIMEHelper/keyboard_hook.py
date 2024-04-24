@@ -411,18 +411,18 @@ class KeyboardHook(object):
                 queueHandler.queueFunction(queueHandler.eventQueue, send_str_as_brl, touched_chars)
             else:
                 log.debug("In the braille input mode, or a braille command is sent in the general input mode.")
-                touched_chars = set(k[0] for k in self._pending_keys.values())
-                k_brl, k_ign = set(configure.get("BRAILLE_KEYS")) & touched_chars, touched_chars
+                touched_chars = dict((v[0], k) for k, v in self._pending_keys.items())
+                k_brl, k_ign = set(configure.get("BRAILLE_KEYS")) & set(touched_chars), set(touched_chars)
                 if IME_state.is_native or not configure.get("FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"):
                     log.debug("Not all non-braille keys are free.")
-                    k_ign = set(configure.get("IGNORED_KEYS")) & k_ign # Not &= to avoid tamper of touched_chars.
-                if k_brl == touched_chars and self._gesture:
+                    k_ign = set(configure.get("IGNORED_KEYS")) & k_ign
+                if k_brl == set(touched_chars) and self._gesture:
                     log.debug("Emulate: {0}".format(self._gesture.displayName))
                     inputCore.manager.emulateGesture(self._gesture)
-                elif len(k_ign) == 1 and k_ign == touched_chars:
+                elif len(k_ign) == 1 and k_ign == set(touched_chars):
                     log.debug("Exactly one ignored key has been touched.")
                     (ch,) = k_ign
-                    self.addon.send_keys(ch.lower())
+                    inputCore.manager.emulateGesture(KeyboardInputGesture([], *touched_chars[ch]))
                 else:
                     log.debug("Multiple ignored keys have been touched.")
                     beep_typo()
