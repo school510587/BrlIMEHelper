@@ -8,6 +8,7 @@ from collections import OrderedDict
 from ctypes import *
 from functools import partial
 import re
+import string
 import wx
 
 try: unichr
@@ -94,6 +95,12 @@ def send_str_as_brl(text):
         inputCore.manager.emulateGesture(gesture)
 
 class KeyboardHook(object):
+
+    # ACC_KEYS is the universe of all processed characters. BRL_KEYS and
+    # SEL_KEYS must be its subsets. Note that they are currently replaced
+    # by BRAILLE_KEYS and IGNORED_KEYS options, respectively. If the same
+    # key is present in both options, the former takes precedence.
+    ACC_KEYS = set(string.ascii_letters + string.digits + string.punctuation + " ")
 
     def __init__(self, addon):
         self.addon = addon
@@ -217,7 +224,7 @@ class KeyboardHook(object):
         if self._trapped_modifiers:
             log.debug("The key is modified by some trapped modifier.")
             gesture = None
-            if ch != ' ' and ch in self.addon.ACC_KEYS and set(k[0] for k in self._trapped_modifiers).issubset({VK_SHIFT, VK_LSHIFT, VK_RSHIFT}):
+            if ch != ' ' and ch in self.ACC_KEYS and set(k[0] for k in self._trapped_modifiers).issubset({VK_SHIFT, VK_LSHIFT, VK_RSHIFT}):
                 kst = [getKeyState(i) for i in range(256)]
                 for k in self._trapped_modifiers:
                     kst[k[0]] = 0x80
@@ -307,7 +314,7 @@ class KeyboardHook(object):
                 dot = 1 << i
             except:
                 log.debug("The key is not a braille key, ...")
-                if ch not in self.addon.ACC_KEYS:
+                if ch not in self.ACC_KEYS:
                     log.debug("and pass rather than pend the not accepted key.")
                     self.clear_pending_keys(passed_key=(vkCode, scanCode, extended))
                     return self._oldKeyDown(vkCode, scanCode, extended, injected)

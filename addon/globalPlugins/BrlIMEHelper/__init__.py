@@ -13,7 +13,6 @@ from threading import Timer
 import louis
 import os
 import re
-import string
 import sys
 import winsound
 import wx
@@ -99,12 +98,6 @@ def _make_bk_gesture_set(dots, main, var1="kb:control+", var2="kb:alt+", var3="k
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     SCRCAT_BrlIMEHelper = _("Braille IME Helper")
-
-    # ACC_KEYS is the universe of all processed characters. BRL_KEYS and
-    # SEL_KEYS must be its subsets. Note that they are currently replaced
-    # by BRAILLE_KEYS and IGNORED_KEYS options, respectively. If the same
-    # key is present in both options, the former takes precedence.
-    ACC_KEYS = set(string.ascii_letters + string.digits + string.punctuation + " ")
 
     def __init__(self):
         super(GlobalPlugin, self).__init__()
