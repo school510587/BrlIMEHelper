@@ -173,6 +173,10 @@ class KeyboardHook(object):
             log.debug("Pass the ignored key set by the add-on.")
             self.clear_pending_keys(passed_key=(vkCode, scanCode, extended))
             return self._oldKeyDown(vkCode, scanCode, extended, injected)
+        if vkCode in (0xF0, 0xF2):
+            log.debug("Pass the OEM specific key unconditionally to support Shift + CapsLock.")
+            self.clear_pending_keys(passed_key=(vkCode, scanCode, extended))
+            return self._oldKeyDown(vkCode, scanCode, extended, injected)
         if (vkCode, scanCode, extended) in self._trapped_keys:
             log.debug("The key has been trapped.")
             return False
