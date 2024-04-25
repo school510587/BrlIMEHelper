@@ -342,13 +342,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         except ValueError as e:
             IME_state = e.args[0]
         self.config_r["kbbrl_ASCII_mode"][IME_state.is_native] = not self.config_r["kbbrl_ASCII_mode"][IME_state.is_native]
-        state = (_("native NVDA braille input"), _("braille IME"))[IME_state.is_native]
-        if self.config_r["kbbrl_ASCII_mode"][IME_state.is_native]:
-            # Translators: Reported when the emulated braille keyboard enters the general input mode.
-            ui.message(_("Use the general input mode for the {0} state.".format(state)))
-        else:
-            # Translators: Reported when the emulated braille keyboard enters the braille input mode.
-            ui.message(_("Use the braille input mode for the {0}.".format(state)))
+        ui.message(keyboard_hook.input_mode_name(IME_state, self.config_r["kbbrl_ASCII_mode"]))
     # Translators: Name of a command to switch the input mode for the current input state.
     script_toggleInputMode.__doc__ = _("Switch the input mode for the current input state.")
     script_toggleInputMode.category = SCRCAT_BrlIMEHelper
@@ -529,22 +523,11 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
             else:
                 winsound.MessageBeep()
             return
-        mode_info, name_info = (_("NVDA braille input"), _("Alphanumeric general input"))[self.config_r["kbbrl_ASCII_mode"][0]], _("unknown input method")
         try:
             IME_state, guessed = keyboard.infer_IME_state(), (False, False)
         except ValueError as e:
             IME_state, guessed = e.args[0], e.args[1:3]
-        if IME_state.is_native:
-            LOCALE_SNATIVELANGNAME = 4
-            langid = LOWORD(getInputHkl())
-            bufferLength = windll.kernel32.GetLocaleInfoW(langid, LOCALE_SNATIVELANGNAME, None, 0)
-            if bufferLength > 0:
-                buffer = create_unicode_buffer("", bufferLength)
-                windll.kernel32.GetLocaleInfoW(langid, LOCALE_SNATIVELANGNAME, buffer, bufferLength)
-                mode_info = _("{language} braille IME").format(language=buffer.value)
-            else: # GetLocaleInfoW() provides no data.
-                mode_info = _("braille IME")
-            mode_info = "{0} {{{1}}}".format(mode_info, "BG"[self.config_r["kbbrl_ASCII_mode"][IME_state.is_native]])
+        mode_info, name_info = keyboard_hook.input_mode_name(IME_state, self.config_r["kbbrl_ASCII_mode"]), _("unknown input method")
         if IME_state.name:
             name_info = IME_state.name_str()
             if guessed[1]:

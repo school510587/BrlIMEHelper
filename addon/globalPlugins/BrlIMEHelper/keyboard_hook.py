@@ -18,12 +18,18 @@ from brailleDisplayDrivers.noBraille import BrailleDisplayDriver as NoBrailleDis
 from keyboardHandler import KeyboardInputGesture, getInputHkl, isNVDAModifierKey, currentModifiers
 from logHandler import log
 from winUser import *
+import addonHandler
 import braille
 import brailleInput
 import globalCommands
 import inputCore
 import queueHandler
 import winInputHook
+
+try:
+    addonHandler.initTranslation()
+except:
+    log.warning("Exception occurred when loading translation.", exc_info=True)
 
 from .runtime_state import *
 from .sounds import *
@@ -83,6 +89,31 @@ class DummyBrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.Brail
                     id_set.add(n_id)
                     answer.append(id)
         return answer
+
+def input_mode_name(IME_state, config_item):
+    mode_info = (
+        # Translators: The input mode that conforms to the native NVDA braille input.
+        _("NVDA braille input"),
+        # Translators: The input mode that converts the output translation of the key characters to the braille input.
+        _("Alphanumeric full keyboard input"),
+    )[config_item[0]] # For the alphanumeric input conversion mode.
+    if IME_state.is_native:
+        LOCALE_SNATIVELANGNAME = 4
+        langid = LOWORD(getInputHkl())
+        buffer_length = windll.kernel32.GetLocaleInfoW(langid, LOCALE_SNATIVELANGNAME, None, 0)
+        if buffer_length > 0:
+            buffer = create_unicode_buffer("", buffer_length)
+            windll.kernel32.GetLocaleInfoW(langid, LOCALE_SNATIVELANGNAME, buffer, buffer_length)
+            mode_info = (
+                # Translators: The braille input mode for a specified language implemented by the add-on.
+                _("{language} braille input"),
+                # Translators: The full keyboard input mode for a specified language.
+                _("{language} full keyboard input"),
+            )[config_item[1]].format(language=buffer.value)
+        else: # GetLocaleInfoW() provides no data.
+            # Translators: The name of the input mode implemented by the add-on when the language information is not available.
+            mode_info = _("Native braille input")
+    return mode_info
 
 def send_str_as_brl(text):
     region = braille.TextRegion(text)
