@@ -337,6 +337,9 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     script_toggleBRLsimulation.category = SCRCAT_BrlIMEHelper
 
     def script_toggleInputMode(self, gesture):
+        if self.kbh is None or self.kbh.disabled():
+            ui.message(_("Failed to change the input mode."))
+            return
         try:
             IME_state = keyboard.infer_IME_state()
         except ValueError as e:
