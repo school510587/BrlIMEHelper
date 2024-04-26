@@ -224,7 +224,7 @@ class KeyboardHook(object):
             log.debug("It is a modifier key.")
             result = self._passed_keys
             if self.config_r["kbbrl_ASCII_mode"][IME_state.is_native]:
-                log.debug("In the general input mode...")
+                log.debug("In the full keyboard input mode...")
                 if vkCode in {VK_SHIFT, VK_LSHIFT, VK_RSHIFT}:
                     log.debug("A Shift is pressed.")
                     if currentModifiers or self._current_modifiers:
@@ -429,7 +429,7 @@ class KeyboardHook(object):
         except ValueError as e:
             IME_state = e.args[0]
         if self.config_r["kbbrl_ASCII_mode"][IME_state.is_native]:
-            log.debug("In the general input mode...")
+            log.debug("In the full keyboard input mode...")
             self._pending_keys[(vkCode, scanCode, extended)][1] = keyboard.vk2str(vkCode, scanCode, [0] * 256)
             if not self._pending_keys[(vkCode, scanCode, extended)][1]:
                 log.error("keyboard.vk2str() returns ''. Debug is required.")
@@ -440,12 +440,12 @@ class KeyboardHook(object):
         if "" not in set(v[1] for v in self._pending_keys.values()):
             log.debug("A braille input session ends, i.e. all pending keys are released.")
             if self.config_r["kbbrl_ASCII_mode"][IME_state.is_native] and not(self._gesture and self._gesture.dots and self._gesture.space):
-                log.debug("In the general input mode, the touched keys do not compose a braille command.")
+                log.debug("In the full keyboard input mode, the touched keys do not compose a braille command.")
                 touched_chars = "".join(v[1] for v in self._pending_keys.values())
                 log.debug("Sending {0}".format(touched_chars))
                 queueHandler.queueFunction(queueHandler.eventQueue, send_str_as_brl, touched_chars)
             else:
-                log.debug("In the braille input mode, or a braille command is sent in the general input mode.")
+                log.debug("In the braille input mode, or a braille command is sent in the full keyboard input mode.")
                 touched_chars = dict((v[0], k) for k, v in self._pending_keys.items())
                 k_brl, k_ign = set(configure.get("BRAILLE_KEYS")) & set(touched_chars), set(touched_chars)
                 if IME_state.is_native or not configure.get("FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"):
