@@ -178,6 +178,9 @@ class KeyboardHook(object):
         if action:
             beep_typo()
 
+    def disabled(self):
+        return on_browse_mode() or self.config_r["kbbrl_deactivated"]
+
     def reset_numpad_state(self, reset_to=[0, None], timeout=None):
         original_state = False
         try: original_state = bool(self._uncommittedDots)
@@ -211,8 +214,8 @@ class KeyboardHook(object):
         if (vkCode, scanCode, extended) in self._trapped_keys:
             log.debug("The key has been trapped.")
             return False
-        if (on_browse_mode() or self.config_r["kbbrl_deactivated"]):
-            log.debug("When NVDA is in the browse mode, or the focus is on some special control of the settings panel, the key is classified as modified.")
+        if self.disabled():
+            log.debug("When NVDA is in the browse mode, or the focus is on some special control of the settings panel, the keyboard hooks are disabled.")
             self.clear_pending_keys(passed_key=(vkCode, scanCode, extended))
             return self._oldKeyDown(vkCode, scanCode, extended, injected)
         try:
