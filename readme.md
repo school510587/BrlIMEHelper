@@ -2,7 +2,7 @@
 Version 2.7
 
 ## Introduction
-Braille IME Helper (BrlIMEHelper) enables users to input Chinese characters directly through the braille keyboard on a braille display. When no braille keyboard is available, the addon can also simulate it using a computer keyboard. With conversion from braille input to IME operations by the addon, users familiar to braille rules can input Chinese characters without learning other input methods and keyboard layouts. So far, the addon is an implementation based on [bopomofo braille](https://en.wikipedia.org/wiki/Taiwanese_Braille) and Microsoft Phonetic IME (微軟注音) commonly used in Taiwan, and its concept can be extended to other braille systems and IMEs in the future.
+Braille IME Helper (BrlIMEHelper) enables users to input Chinese characters directly through the braille keyboard on a braille display. When no braille keyboard is available, the addon can also simulate it using a computer keyboard. With conversion from braille input to IME operations by the addon, users familiar to braille rules can input Chinese characters without learning the keyboard mappings of the input methods. So far, the addon is an implementation based on [bopomofo braille](https://en.wikipedia.org/wiki/Taiwanese_Braille) and Microsoft Phonetic IME (微軟注音) commonly used in Taiwan, and its concept can be extended to other braille systems and IMEs in the future.
 
 ## Features
 1. Chinese input (including punctuations and math symbols) through the braille keyboard.
@@ -29,7 +29,7 @@ This addon assumes that the user configures the IME as follows, but he/she can a
 | Default IME | Microsoft Phonetic IME | Microsoft Phonetic IME | United States Keyboard Layout |
 | Default input conversion mode | Alphanumeric | Alphanumeric | Native (New Phonetic IME) |
 | Input conversion mode toggle | `[Ctrl]+[Space]` | Left `[Shift]` | `[Ctrl]+[Space]` |
-| Keyboard layout | Standard | Standard | Standard (New Phonetic IME) |
+| Keyboard mapping | Standard | Standard | Standard (New Phonetic IME) |
 | Remarks | &nbsp; | &nbsp; | Switch between United States Keyboard Layout and New Phonetic IME by `[Ctrl]+[Space]`. |
 
 ## Manipulation
@@ -359,7 +359,7 @@ If checked, all keys, except the braille keys, are ignored during braille keyboa
 
 #### Keyboard Mapping
 
-The option corresponds to the configuration of keyboard layout in IME native input conversion mode.
+The user must keep the option consistent with the keyboard mapping configuration in IME native input conversion mode to ensure that the addon should work. Note that the custom keyboard mapping is not supported currently.
 
 #### Allow dot-by-dot braille input via numpad during braille keyboard simulation
 If checked, the user can input braille cells dot by dot via the numpad with Num Lock on.
