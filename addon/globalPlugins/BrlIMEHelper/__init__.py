@@ -346,8 +346,8 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
             IME_state = e.args[0]
         self.config_r["kbbrl_ASCII_mode"][IME_state.is_native] = not self.config_r["kbbrl_ASCII_mode"][IME_state.is_native]
         ui.message(keyboard_hook.input_mode_name(IME_state, self.config_r["kbbrl_ASCII_mode"]))
-    # Translators: Name of a command to switch the input mode for the current input state.
-    script_toggleInputMode.__doc__ = _("Switch the input mode for the current input state.")
+    # Translators: Name of a command to switch the input mode with the same input handler.
+    script_toggleInputMode.__doc__ = _("The next input mode with the same input handler.")
     script_toggleInputMode.category = SCRCAT_BrlIMEHelper
 
     def script_toggleUnicodeBRL(self, gesture):
