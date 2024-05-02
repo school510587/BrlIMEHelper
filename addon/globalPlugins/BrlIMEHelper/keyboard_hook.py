@@ -91,29 +91,24 @@ class DummyBrailleInputGesture(braille.BrailleDisplayGesture, brailleInput.Brail
         return answer
 
 def input_mode_name(IME_state, config_item):
-    mode_info = (
-        # Translators: The input mode that conforms to the native NVDA braille input.
-        _("NVDA braille input"),
-        # Translators: The input mode that converts the output translation of the key characters to the braille input.
-        _("Alphanumeric full keyboard input"),
-    )[config_item[0]] # For the alphanumeric input conversion mode.
-    if IME_state.is_native:
-        LOCALE_SNATIVELANGNAME = 4
-        langid = LOWORD(getInputHkl())
-        buffer_length = windll.kernel32.GetLocaleInfoW(langid, LOCALE_SNATIVELANGNAME, None, 0)
-        if buffer_length > 0:
-            buffer = create_unicode_buffer("", buffer_length)
-            windll.kernel32.GetLocaleInfoW(langid, LOCALE_SNATIVELANGNAME, buffer, buffer_length)
-            mode_info = (
-                # Translators: The braille input mode for a specified language implemented by the add-on.
-                _("{language} braille input"),
-                # Translators: The full keyboard input mode for a specified language.
-                _("{language} full keyboard input"),
-            )[config_item[1]].format(language=buffer.value)
-        else: # GetLocaleInfoW() provides no data.
-            # Translators: The name of the input mode implemented by the add-on when the language information is not available.
-            mode_info = _("Native braille input")
-    return mode_info
+    try: # The computer keyboard is enabled to generate the braille input.
+        input_channel = int(config_item[IME_state.is_native]) # Either 0 or 1.
+    except: # Only the physical braille keyboard may be working.
+        input_channel = -1
+    return (
+        # Translators: The input mode, NVDA braille input handler with the 9-key input manner.
+        _("9-key NVDA Braille Input"),
+        # Translators: The input mode, BrlIMEHelper input handler with the 9-key input manner.
+        _("9-key Braille IME"),
+        # Translators: The input mode, NVDA braille input handler with the full-keyboard input manner.
+        _("Full-keyboard NVDA Braille Input"),
+        # Translators: The input mode, BrlIMEHelper input handler with the full-keyboard input manner.
+        _("Full-keyboard Braille IME"),
+        # Translators: The input mode, NVDA braille input handler without braille keyboard emulation.
+        _("NVDA Braille Input"),
+        # Translators: The input mode, BrlIMEHelper input handler without braille keyboard emulation.
+        _("Braille IME"),
+    )[2 * input_channel + IME_state.is_native]
 
 def send_str_as_brl(text):
     region = braille.TextRegion(text)

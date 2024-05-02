@@ -530,7 +530,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
             IME_state, guessed = keyboard.infer_IME_state(), (False, False)
         except ValueError as e:
             IME_state, guessed = e.args[0], e.args[1:3]
-        mode_info, name_info = _("None"), _("unknown input method")
+        mode_info, name_info = keyboard_hook.input_mode_name(IME_state, None), _("unknown input method")
         if self.kbh is not None and not self.kbh.disabled():
             mode_info = keyboard_hook.input_mode_name(IME_state, self.config_r["kbbrl_ASCII_mode"])
         if IME_state.name:
