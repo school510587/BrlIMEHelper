@@ -62,7 +62,7 @@ profile["NO_INDEFINITE_ICM_UPDATE_MSG"] = ItemSpec(
     allowed_values = None,
 )
 profile["DEFAULT_NO_ALPHANUMERIC_BRL_KEY"] = ItemSpec(
-    label = _("Use the general input mode as the default on IME alphanumeric input."),
+    label = _("Use Full-keyboard input manner as the default with NVDA Braille Input."),
     default_value = False,
     allowed_values = None,
 )
