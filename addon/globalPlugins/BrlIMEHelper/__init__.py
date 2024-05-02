@@ -509,8 +509,8 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
 
     def script_switchIMEmode(self, gesture):
         self.send_keys(configure.get("IME_LANGUAGE_MODE_TOGGLE_KEY"))
-    # Translators: Name of a command to switch IME input mode.
-    script_switchIMEmode.__doc__ = _("Switches IME input mode.")
+    # Translators: Name of a command to switch between IME alphanumeric and native input conversion modes.
+    script_switchIMEmode.__doc__ = _("Switch between IME alphanumeric and native input conversion modes.")
     script_switchIMEmode.category = SCRCAT_BrlIMEHelper
 
     def script_viewAddonState(self, gesture):
