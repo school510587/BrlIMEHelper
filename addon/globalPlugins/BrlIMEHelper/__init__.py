@@ -336,9 +336,9 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
     script_toggleBRLsimulation.__doc__ = _("Toggles braille input from a computer keyboard.")
     script_toggleBRLsimulation.category = SCRCAT_BrlIMEHelper
 
-    def script_toggleInputMode(self, gesture):
+    def script_switchMainKBInputManner(self, gesture):
         if self.kbh is None or self.kbh.disabled():
-            ui.message(_("Failed to change the input mode."))
+            ui.message(_("Failed to change the input manner of the main keyboard."))
             return
         try:
             IME_state = keyboard.infer_IME_state()
@@ -346,9 +346,9 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
             IME_state = e.args[0]
         self.config_r["kbbrl_ASCII_mode"][IME_state.is_native] = not self.config_r["kbbrl_ASCII_mode"][IME_state.is_native]
         ui.message(keyboard_hook.input_mode_name(IME_state, self.config_r["kbbrl_ASCII_mode"]))
-    # Translators: Name of a command to switch the input mode with the same input handler.
-    script_toggleInputMode.__doc__ = _("The next input mode with the same input handler.")
-    script_toggleInputMode.category = SCRCAT_BrlIMEHelper
+    # Translators: Name of a command to switch the input manner of the main keyboard.
+    script_switchMainKBInputManner.__doc__ = _("Switch the input manner of the main keyboard.")
+    script_switchMainKBInputManner.category = SCRCAT_BrlIMEHelper
 
     def script_toggleUnicodeBRL(self, gesture):
         try:
@@ -645,7 +645,7 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         "kb:NVDA+windows+u": "internalCodeBRL",
         "bk:dots": "BRLdots",
         "bk:space+dot2+dot4+dot5": "clearBRLbuffer",
-        "bk:space+dot1+dot2+dot3": "toggleInputMode",
+        "bk:space+dot1+dot2+dot3": "switchMainKBInputManner",
         "bk:space+dot4+dot5+dot6": "switchIMEmode",
         "bk:space+dot1+dot3+dot6": "toggleUnicodeBRL",
     }
