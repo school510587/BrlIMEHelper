@@ -141,7 +141,8 @@ class KeyboardHook(object):
         self._gesture = None
         self._uncommittedDots = [0, None]
         def hack_kb_send(addon, *args):
-            addon._ignored_keys = set()
+            if addon._ignored_keys is None:
+                addon._ignored_keys = set()
             log.debug("A key-pass session begins.")
             return addon.real_kb_send(*args)
         self.real_kb_send = KeyboardInputGesture.send
