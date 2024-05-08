@@ -5,12 +5,15 @@
 
 from __future__ import unicode_literals
 from collections import defaultdict
+from collections import namedtuple
 from ctypes import windll
 from functools import partial
 from threading import Thread
 from time import sleep
 import os
 
+from NVDAHelper import _lookupKeyboardLayoutNameWithHexString
+from NVDAObjects.behaviors import CandidateItem
 from eventHandler import queueEvent
 from logHandler import log
 from treeInterceptorHandler import DocumentTreeInterceptor
@@ -20,6 +23,7 @@ import browseMode
 
 from . import configure
 from . import patch
+from .msctf import *
 
 def hack_reportPassThrough(real_func, treeInterceptor, onlyIfChanged=True, **kwargs):
     log.debug("Call hack_reportPassThrough with onlyIfChanged={0}.".format(onlyIfChanged))
@@ -38,6 +42,36 @@ def on_browse_mode():
     except:
         pass
     return False
+
+class IME_State(namedtuple("IME_State", ["mode", "name", "real"])):
+    def __new__(cls, *args, **kwargs):
+        self = super(IME_State, cls).__new__(cls, *args, **kwargs)
+        self.is_native = bool((self.mode & TF_CONVERSIONMODE_NATIVE) and not (self.mode & TF_CONVERSIONMODE_NOCONVERSION))
+        if self.is_native:
+            focus = api.getFocusObject()
+            self.is_native = not focus or not isinstance(focus, CandidateItem)
+        return self
+    def mode_flags(self):
+        if self.real["mode"] is None:
+            return "-+"[bool(self.mode & TF_CONVERSIONMODE_NOCONVERSION)] + "?"
+        answer = "-+"[bool((self.mode | self.real["mode"]) & TF_CONVERSIONMODE_NOCONVERSION)]
+        answer += "AN"[bool(self.real["mode"] & TF_CONVERSIONMODE_NATIVE)]
+        answer += "HF"[bool(self.real["mode"] & TF_CONVERSIONMODE_FULLSHAPE)]
+        LANG_JAPANESE = 0x11
+        if self.real["lcid"] and self.real["lcid"] & 0xFF == LANG_JAPANESE:
+            answer += "HK"[bool(self.real["mode"] & TF_CONVERSIONMODE_KATAKANA)]
+            answer += "-R"[bool(self.real["mode"] & TF_CONVERSIONMODE_ROMAN)]
+        return answer
+    def name_str(self):
+        try:
+            int(self.name, 16) # Check for the hex string.
+            kl_name = _lookupKeyboardLayoutNameWithHexString(self.name)
+            if not kl_name:
+                kl_name = _lookupKeyboardLayoutNameWithHexString(self.name[-4:].rjust(8, "0"))
+            return kl_name if kl_name else self.name
+        except: # The name is not a hex string.
+            pass
+        return self.name
 
 class _Runtime_States(defaultdict):
     def __init__(self):

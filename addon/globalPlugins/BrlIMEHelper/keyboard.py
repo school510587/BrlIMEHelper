@@ -6,7 +6,6 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 from collections import OrderedDict
-from collections import namedtuple
 from comtypes import COMError
 from comtypes import CLSCTX_ALL
 from comtypes import GUID
@@ -28,7 +27,6 @@ try:
 except:
     import _winreg as winreg
 
-from NVDAHelper import _lookupKeyboardLayoutNameWithHexString
 from NVDAObjects.behaviors import CandidateItem
 from NVDAObjects.inputComposition import InputComposition
 from eventHandler import queueEvent
@@ -216,36 +214,6 @@ def guess_IME_name(langid):
             log.error("guess_IME_name failed", exc_info=True)
     return MICROSOFT_BOPOMOFO["description"] if langid == MICROSOFT_BOPOMOFO["language"] else None
 
-class _IME_State(namedtuple("_IME_State", ["mode", "name", "real"])):
-    def __new__(cls, *args, **kwargs):
-        self = super(_IME_State, cls).__new__(cls, *args, **kwargs)
-        self.is_native = bool((self.mode & TF_CONVERSIONMODE_NATIVE) and not (self.mode & TF_CONVERSIONMODE_NOCONVERSION))
-        if self.is_native:
-            focus = api.getFocusObject()
-            self.is_native = not focus or not isinstance(focus, CandidateItem)
-        return self
-    def mode_flags(self):
-        if self.real["mode"] is None:
-            return "-+"[bool(self.mode & TF_CONVERSIONMODE_NOCONVERSION)] + "?"
-        answer = "-+"[bool((self.mode | self.real["mode"]) & TF_CONVERSIONMODE_NOCONVERSION)]
-        answer += "AN"[bool(self.real["mode"] & TF_CONVERSIONMODE_NATIVE)]
-        answer += "HF"[bool(self.real["mode"] & TF_CONVERSIONMODE_FULLSHAPE)]
-        LANG_JAPANESE = 0x11
-        if self.real["lcid"] and self.real["lcid"] & 0xFF == LANG_JAPANESE:
-            answer += "HK"[bool(self.real["mode"] & TF_CONVERSIONMODE_KATAKANA)]
-            answer += "-R"[bool(self.real["mode"] & TF_CONVERSIONMODE_ROMAN)]
-        return answer
-    def name_str(self):
-        try:
-            int(self.name, 16) # Check for the hex string.
-            kl_name = _lookupKeyboardLayoutNameWithHexString(self.name)
-            if not kl_name:
-                kl_name = _lookupKeyboardLayoutNameWithHexString(self.name[-4:].rjust(8, "0"))
-            return kl_name if kl_name else self.name
-        except: # The name is not a hex string.
-            pass
-        return self.name
-
 def infer_IME_state(hwnd=None):
     global thread_states
     if hwnd is None:
@@ -262,22 +230,22 @@ def infer_IME_state(hwnd=None):
         log.debug("Recognized keyboard layout.")
         IME_name = kl2name[kl]
         if fg["mode"] is None:
-            raise ValueError(_IME_State(mode=mode[_name2clsid[IME_name] != DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0]], name=IME_name, real=fg), True, False)
-        return _IME_State(mode=mode[2], name=IME_name, real=fg)
+            raise ValueError(IME_State(mode=mode[_name2clsid[IME_name] != DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0]], name=IME_name, real=fg), True, False)
+        return IME_State(mode=mode[2], name=IME_name, real=fg)
     if DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null and not fg["layout"]:
         log.debug("The default language profile is not an IME.")
-        raise ValueError(_IME_State(mode=mode[0], name=IME_name, real=fg), True, False)
+        raise ValueError(IME_State(mode=mode[0], name=IME_name, real=fg), True, False)
     else:
         IME_name = fg["layout"] if fg["layout"] else guess_IME_name(LOWORD(kl))
         if IME_name in lookup_IME:
             log.debug("Recognized IME description.")
             if fg["mode"] is None:
-                raise ValueError(_IME_State(mode=mode[DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null], name=IME_name, real=fg), True, not bool(fg["layout"]))
+                raise ValueError(IME_State(mode=mode[DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null], name=IME_name, real=fg), True, not bool(fg["layout"]))
             elif fg["layout"]:
-                return _IME_State(mode=mode[2], name=IME_name, real=fg)
-            raise ValueError(_IME_State(mode=mode[2], name=IME_name, real=fg), False, True)
+                return IME_State(mode=mode[2], name=IME_name, real=fg)
+            raise ValueError(IME_State(mode=mode[2], name=IME_name, real=fg), False, True)
     log.debug("Guess the alphanumeric input mode.")
-    return _IME_State(mode=mode[0], name=IME_name, real=fg) # TF_CONVERSIONMODE_ALPHANUMERIC
+    return IME_State(mode=mode[0], name=IME_name, real=fg) # TF_CONVERSIONMODE_ALPHANUMERIC
 
 def hack_compositionUpdate(self, compositionString, *args, **kwargs):
     global _real_compositionUpdate
