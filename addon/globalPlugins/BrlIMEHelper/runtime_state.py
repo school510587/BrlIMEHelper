@@ -16,7 +16,6 @@ from NVDAHelper import _lookupKeyboardLayoutNameWithHexString
 from NVDAObjects.behaviors import CandidateItem
 from eventHandler import queueEvent
 from logHandler import log
-from treeInterceptorHandler import DocumentTreeInterceptor
 from winUser import *
 import api
 import browseMode
@@ -38,7 +37,7 @@ browseMode.reportPassThrough = hack_reportPassThrough
 def on_browse_mode():
     try:
         obj = api.getFocusObject()
-        return (isinstance(obj.treeInterceptor, DocumentTreeInterceptor) and not obj.treeInterceptor.passThrough)
+        return (isinstance(obj.treeInterceptor, browseMode.BrowseModeTreeInterceptor) and not obj.treeInterceptor.passThrough)
     except:
         pass
     return False
