@@ -60,12 +60,12 @@ def hack_handleInputCompositionEnd(*args, **kwargs):
 
 from NVDAHelper import handleInputConversionModeUpdate
 
-def hack_queueHandler_queueFunction(hacked_func, IME_state_item, queue, func, *args, **kwargs):
+def hack_queueHandler_queueFunction(hacked_func, focus, queue, func, *args, **kwargs):
     if func is handleInputConversionModeUpdate:
         log.debug("Replace handleInputConversionModeUpdate() with hack_handleInputConversionModeUpdate().")
-        def hack_handleInputConversionModeUpdate(IME_state_item, *args, **kwargs):
+        def hack_handleInputConversionModeUpdate(focus, *args, **kwargs):
             log.debug("Call handleInputConversionModeUpdate() after monkeying queueHandler.queueFunction().")
-            def _hack_queueHandler_queueFunction(hacked_func, IME_state_item, queue, func, *args, **kwargs):
+            def _hack_queueHandler_queueFunction(hacked_func, focus, queue, func, *args, **kwargs):
                 if func is ui.message:
                     log.debug("Replace ui.message() by hack_ui_message().")
                     def hack_ui_message(*args, **kwargs):
@@ -76,13 +76,13 @@ def hack_queueHandler_queueFunction(hacked_func, IME_state_item, queue, func, *a
                         result = ui.message(*args, **kwargs)
                         config.conf["braille"][_confMessageTimeout.key] = old_value
                         return result
-                    return queueEvent("showInputConversionMode", api.getFocusObject(), ui_message=hack_ui_message, IME_state_item=IME_state_item, args=args, kwargs=kwargs)
+                    return queueEvent("showInputConversionMode", focus, ui_message=hack_ui_message, args=args, kwargs=kwargs)
                 return hacked_func(queue, func, *args, **kwargs)
-            old_func, queueHandler.queueFunction = queueHandler.queueFunction, partial(_hack_queueHandler_queueFunction, queueHandler.queueFunction, IME_state_item)
+            old_func, queueHandler.queueFunction = queueHandler.queueFunction, partial(_hack_queueHandler_queueFunction, queueHandler.queueFunction, focus)
             result = handleInputConversionModeUpdate(*args, **kwargs)
             queueHandler.queueFunction = old_func
             return result
-        func = lambda *args, **kwargs: hack_handleInputConversionModeUpdate(IME_state_item, *args, **kwargs)
+        func = lambda *args, **kwargs: hack_handleInputConversionModeUpdate(focus, *args, **kwargs)
     return hacked_func(queue, func, *args, **kwargs)
 
 # Note: Monkeying handleInputConversionModeUpdate does not work.
@@ -93,16 +93,17 @@ from NVDAHelper import nvdaControllerInternal_inputConversionModeUpdate
 def hack_nvdaControllerInternal_inputConversionModeUpdate(oldFlags, newFlags, lcid):
     global thread_states
     log.debug("IME conversion mode update: oldFlags={0}, newFlags={1}, lcid={2}".format(oldFlags, newFlags, lcid))
+    focus = api.getFocusObject()
     try:
-        item = thread_states.update_foreground(lcid=lcid, mode=newFlags)
+        item = thread_states.update_foreground(source=focus, lcid=lcid, mode=newFlags)
         log.debug("IME status: {0}".format(item))
     except:
         log.error("IME conversion mode update failure", exc_info=True)
         item = None
-    old_func, queueHandler.queueFunction = queueHandler.queueFunction, partial(hack_queueHandler_queueFunction, queueHandler.queueFunction, item)
+    old_func, queueHandler.queueFunction = queueHandler.queueFunction, partial(hack_queueHandler_queueFunction, queueHandler.queueFunction, focus)
     result = nvdaControllerInternal_inputConversionModeUpdate(c_long(oldFlags), c_long(newFlags), c_ulong(lcid))
     queueHandler.queueFunction = old_func
-    queueEvent("interruptBRLcomposition", api.getFocusObject())
+    queueEvent("interruptBRLcomposition", focus)
     return result
 
 from NVDAHelper import nvdaControllerInternal_inputLangChangeNotify

@@ -270,10 +270,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             beep_typo()
         nextHandler()
 
-    def event_showInputConversionMode(self, obj, nextHandler, ui_message=ui.message, IME_state_item=None, args=(), kwargs={}):
+    def event_showInputConversionMode(self, obj, nextHandler, ui_message=ui.message, args=(), kwargs={}):
         log.debug("Running event_showInputConversionMode")
-        if len(args) > 0 and IME_state_item is not None and self.kbh is not None and not self.kbh.disabled():
-            IME_state = IME_state=IME_State(mode=IME_state_item["mode"] or TF_CONVERSIONMODE_ALPHANUMERIC, name="", real=IME_state_item)
+        if len(args) > 0 and self.kbh is not None and not self.kbh.disabled():
+            try:
+                IME_state = keyboard.infer_IME_state(obj.windowHandle)
+            except ValueError as e:
+                IME_state = e.args[0]
             args = ("{0} {1}".format(args[0], keyboard_hook.input_mode_name(IME_state, self.config_r["kbbrl_ASCII_mode"])),) + args[1:]
         ui_message(*args, **kwargs)
         nextHandler()
