@@ -112,7 +112,7 @@ def hack_nvdaControllerInternal_inputLangChangeNotify(threadID, hkl, layoutStrin
     global thread_states
     log.debug("IME language change: thread={0}, hkl={1}, layoutString={2}".format(threadID, hkl, layoutString))
     try:
-        item = thread_states.update_foreground(thread=threadID, layout=layoutString)
+        item = thread_states.update_foreground(source=threadID, layout=layoutString)
         log.debug("IME status: {0}".format(item))
     except:
         log.error("IME language change failure", exc_info=True)

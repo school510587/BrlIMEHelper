@@ -13,6 +13,7 @@ from time import sleep
 import os
 
 from NVDAHelper import _lookupKeyboardLayoutNameWithHexString
+from NVDAObjects import NVDAObject
 from NVDAObjects.behaviors import CandidateItem
 from eventHandler import queueEvent
 from logHandler import log
@@ -134,15 +135,21 @@ class _Runtime_States(defaultdict):
             self.scanning = False
             self.scanner.join()
             self.scanner = None
-    def update_foreground(self, thread=None, **kwargs):
-        if thread is None:
+    def update_foreground(self, source=None, **kwargs):
+        if source is None:
             fg = self.foreground
-        else:
-            pid = patch.getProcessIdOfThread(thread)
-            if not pid: raise RunTimeError("Failed to get the process ID from thread ID {0}.".format(thread))
-            log.debug("Update the state for pid={0}, tid={1}".format(pid, thread))
+        elif isinstance(source, NVDAObject):
+            try:
+                fg = self[source.processID]
+                log.debug("Update the state for pid={0}, tid={1}".format(source.processID, source.windowThreadID))
+            except AttributeError:
+                fg = self.foreground
+        else: # The source defaults to a thread ID.
+            pid = patch.getProcessIdOfThread(source)
+            if not pid: raise RunTimeError("Failed to get the process ID from thread ID {0}.".format(source))
+            log.debug("Update the state for pid={0}, tid={1}".format(pid, source))
             fg = self[pid]
-        log.debug("Update entry {0} for the pid".format(kwargs))
+        log.debug("Update entry {0} for the item".format(kwargs))
         fg.update(kwargs)
         return fg
 
