@@ -14,22 +14,24 @@ def _(arg):
 # Add-on information variables
 addon_info = {
     # add-on Name/identifier, internal for NVDA
-    "addon_name" : "BrlIMEHelper",
+    "addon_name": "BrlIMEHelper",
     # Add-on summary, usually the user visible name of the addon.
     # Translators: Summary for this add-on
     # to be shown on installation and add-on information found in Add-ons Manager.
-    "addon_summary" : _("Braille IME Helper"),
+    "addon_summary": _("Braille IME Helper"),
     # Add-on description
     # Translators: Long description to be shown for this add-on on add-on information from add-ons manager.
-    "addon_description" : _("""Converts braille input into IME operations."""),
+    "addon_description": _("""Converts braille input into IME operations."""),
     # Version
-    "addon_version" : "2.7",
+    "addon_version": "2.7",
     # Author(s)
-    "addon_author" : u"Bo-Cheng Jhan <school510587@yahoo.com.tw>",
+    "addon_author": u"Bo-Cheng Jhan <school510587@yahoo.com.tw>",
     # URL for the add-on documentation support
-    "addon_url" : "https://github.com/school510587/BrlIMEHelper",
+    "addon_url": "https://github.com/school510587/BrlIMEHelper",
+    # URL for the add-on repository where the source code can be found
+    "addon_sourceURL": "https://github.com/school510587/BrlIMEHelper",
     # Documentation file name
-    "addon_docFileName" : "readme.html",
+    "addon_docFileName": "readme.html",
     # Minimum NVDA version supported (e.g. "2018.3.0", minor version is optional)
     "addon_minimumNVDAVersion" : "2017.3",
     # Last NVDA version supported/tested (e.g. "2018.4.0", ideally more recent than minimum version)
@@ -37,7 +39,11 @@ addon_info = {
     # Add-on update channel (default is None, denoting stable releases,
     # and for development releases, use "dev".)
     # Do not change unless you know what you are doing!
-    "addon_updateChannel" : None,
+    "addon_updateChannel": None,
+    # Add-on license such as GPL 2
+    "addon_license": "GPL 3.0",
+    # URL for the license document the ad-on is licensed under
+    "addon_licenseURL": "https://github.com/school510587/BrlIMEHelper/blob/master/LICENSE",
 }
 
 # Construct the final version string.
