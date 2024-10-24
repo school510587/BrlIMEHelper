@@ -97,7 +97,7 @@ def _make_bk_gesture_set(dots, main, var1="kb:control+", var2="kb:alt+", var3="k
     return result
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
-    SCRCAT_BrlIMEHelper = _("Braille IME Helper")
+    SCRCAT_BrlIMEHelper = addonHandler.getCodeAddon().manifest["summary"]
 
     def __init__(self):
         super(GlobalPlugin, self).__init__()
