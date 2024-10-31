@@ -195,8 +195,9 @@ def initialize():
                 MICROSOFT_BOPOMOFO["processor"] = _name2clsid[MICROSOFT_BOPOMOFO["description"]]
             except:
                 log.warning("Exception occurred on searching the default bopomofo IME by KL.", exc_info=True)
-    if not MICROSOFT_BOPOMOFO["description"]:
-        raise RuntimeError("Failed to find a supported default bopomofo IME.")
+    if not MICROSOFT_BOPOMOFO["processor"] or not MICROSOFT_BOPOMOFO["description"]:
+        MICROSOFT_BOPOMOFO.update({"processor": GUID_null, "keyboard-layout": 0, "description": ""})
+        log.warning("Failed to find a supported default bopomofo IME. BrlIMEHelper will provide only 9-key NVDA braille keyboard features.")
 
 def guess_IME_name(langid):
     if configure.get("ONE_CBRLKB_TOGGLE_STATE"):
