@@ -6,6 +6,7 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 from collections import OrderedDict
+from collections import defaultdict
 from comtypes import COMError
 from comtypes import CLSCTX_ALL
 from comtypes import GUID
@@ -61,7 +62,7 @@ except NameError: # NVDA-independent execution.
     gettext.install("") # Install _() into builtins namespace.
 
 # The default keyboard profiles of all languages (LANGID -> (CLSID, GUID)).
-DEFAULT_PROFILE = {}
+DEFAULT_PROFILE = defaultdict(lambda: (GUID_null, GUID_null))
 
 # The profile ID of the Microsoft Bopomofo IME.
 MICROSOFT_BOPOMOFO = {
