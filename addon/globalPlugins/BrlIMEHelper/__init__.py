@@ -101,6 +101,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def __init__(self):
         super(GlobalPlugin, self).__init__()
+        keyboard.initialize()
         self.brl_state = brl_buf_state(os.path.join(os.path.dirname(__file__), str("bopomofo.json")), lambda m: log.error(m, exc_info=True))
         self.last_foreground = INVALID_HANDLE_VALUE
         thread_states.start_scan()

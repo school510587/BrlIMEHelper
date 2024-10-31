@@ -79,6 +79,8 @@ mapping = configure.profile["KEYBOARD_MAPPING"].allowed_values
 kl2name = {}
 lookup_IME = {}
 _name2clsid = OrderedDict()
+oIPP = CreateObject(CLSID_TF_InputProcessorProfiles, CLSCTX_ALL, interface=ITfInputProcessorProfiles)
+
 def symbol2gesture(index):
     try:
         IME_data = lookup_IME[thread_states.foreground["layout"]]
@@ -107,94 +109,94 @@ def symbol2gesture(index):
         pass
     return index
 
-with codecs.open(os.path.join(os.path.dirname(__file__), "{0}.json".format(MICROSOFT_BOPOMOFO["profile"])), encoding="UTF-8") as json_file:
-    IME_json = json_file.read()
-    IME_data = dict((GUID(g), d) for g, d in JSONDecoder(object_pairs_hook=OrderedDict).decode(IME_json).items())
-    default_dict = IME_data[GUID_null]
-    try:
-        oIPP = CreateObject(CLSID_TF_InputProcessorProfiles, CLSCTX_ALL, interface=ITfInputProcessorProfiles)
-        gtr = oIPP.EnumLanguageProfiles(MICROSOFT_BOPOMOFO["language"])
-        while 1:
-            profile = gtr.Next()
-            if profile is None:
-                break
-            log.debug("IME: clsid={0.clsid}, langid={0.langid}, guidProfile={0.guidProfile}".format(profile))
-            if profile.guidProfile != MICROSOFT_BOPOMOFO["profile"]:
-                log.debug("Skipped.")
-                continue
-            IME_name = oIPP.GetLanguageProfileDescription(profile.clsid, profile.langid, profile.guidProfile)
-            log.debug("IME name: {0}".format(IME_name))
-            lookup_IME[IME_name] = deepcopy(default_dict)
-            _name2clsid[IME_name] = profile.clsid
-            if profile.clsid not in IME_data:
-                continue
-            for k, v in IME_data[profile.clsid].items():
-                if k in lookup_IME[IME_name]:
-                    if v is None:
-                        del lookup_IME[IME_name][k]
-                    else:
-                        try:
-                            lookup_IME[IME_name][k].update(v)
-                        except:
-                            lookup_IME[IME_name][k] = v
-                elif v is not None:
-                    lookup_IME[IME_name][k] = v
-            if not oIPP.IsEnabledLanguageProfile(profile.clsid, MICROSOFT_BOPOMOFO["language"], MICROSOFT_BOPOMOFO["profile"]):
-                log.warning("Microsoft Bopomofo IME is not enabled now.")
-    except COMError:
-        log.error("Some COM error occurred.", exc_info=True)
-for name, data in lookup_IME.items():
-    try:
-        p = "(?P<NC>^({NATIVE})+$)|(?P<SH>^(({SYMBOL_HEAD})({SYMBOL_BODY})*)$)|(?P<SB>^({SYMBOL_BODY})+$)|".format(**data["WRDCMPS_DISPLAY"])
-    except:
-        data["WRDCMPS_DISPLAY"] = re.compile("|(?P<NC>)|(?P<SH>)|(?P<SB>)")
-        log.error("Incomplete WRDCMPS_DISPLAY: {0}".format(name))
-        continue
-    try:
-        data["WRDCMPS_DISPLAY"] = re.compile(p)
-    except:
-        data["WRDCMPS_DISPLAY"] = re.compile("|(?P<NC>)|(?P<SH>)|(?P<SB>)")
-        log.error("Bad WRDCMPS_DISPLAY: {0} => {1}".format(name, p))
-    m = data["WRDCMPS_DISPLAY"].match("")
-    if m.group("NC") is not None:
-        data["WRDCMPS_DISPLAY"] = re.compile("|(?P<NC>)|(?P<SH>)|(?P<SB>)")
-        log.error("Bad WRDCMPS_DISPLAY: <NC> group accepts '': {0} => {1}".format(name, p))
-    if m.group("SH") is not None:
-        data["WRDCMPS_DISPLAY"] = re.compile("|(?P<NC>)|(?P<SH>)|(?P<SB>)")
-        log.error("Bad WRDCMPS_DISPLAY: <SH> group accepts '': {0} => {1}".format(name, p))
-    if m.group("SB") is not None:
-        data["WRDCMPS_DISPLAY"] = re.compile("|(?P<NC>)|(?P<SH>)|(?P<SB>)")
-        log.error("Bad WRDCMPS_DISPLAY: <SB> group accepts '': {0} => {1}".format(name, p))
-for n, cls in _name2clsid.items():
-    try:
-        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\CTF\TIP\{clsid}\LanguageProfile\0x0000{langid:04X}\{guidProfile}".format(clsid=cls, langid=MICROSOFT_BOPOMOFO["language"], guidProfile=MICROSOFT_BOPOMOFO["profile"])) as IME_i:
-            hKLstr, _type = winreg.QueryValueEx(IME_i, "SubstituteLayout")
-            if _type == winreg.REG_SZ:
-                kl = int(hKLstr, 16)
-                kl2name[kl] = n
-    except WindowsError as w: # The newer Python raises FileNotFoundError, i.e. w.winerror == 2.
-        if w.winerror not in (2, 259): raise
-for l in oIPP.GetLanguageList():
-    DEFAULT_PROFILE[l] = oIPP.GetDefaultLanguageProfile(l, GUID_TFCAT_TIP_KEYBOARD)
-MICROSOFT_BOPOMOFO["processor"], profile = DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]]
-if profile == MICROSOFT_BOPOMOFO["profile"]:
-    try:
-        MICROSOFT_BOPOMOFO["description"] = next(name for name, cls in _name2clsid.items() if cls == MICROSOFT_BOPOMOFO["processor"])
-    except:
-        log.warning("Exception occurred on searching the default bopomofo IME.", exc_info=True)
-        profile = GUID_null # The value will pass the following condition.
-if profile != MICROSOFT_BOPOMOFO["profile"]: # The default bopomofo IME is not supported.
-    try: # Select a (new version) supported bopomofo IME as the default.
-        MICROSOFT_BOPOMOFO["description"], MICROSOFT_BOPOMOFO["processor"] = next((name, cls) for name, cls in _name2clsid.items() if name not in kl2name.values())
-    except StopIteration: # Each bopomofo IME has a corresponding keyboard layout.
+def initialize():
+    with codecs.open(os.path.join(os.path.dirname(__file__), "{0}.json".format(MICROSOFT_BOPOMOFO["profile"])), encoding="UTF-8") as json_file:
+        IME_json = json_file.read()
+        IME_data = dict((GUID(g), d) for g, d in JSONDecoder(object_pairs_hook=OrderedDict).decode(IME_json).items())
+        default_dict = IME_data[GUID_null]
         try:
-            MICROSOFT_BOPOMOFO["keyboard-layout"] = max(kl2name.keys())
-            MICROSOFT_BOPOMOFO["description"] = kl2name[MICROSOFT_BOPOMOFO["keyboard-layout"]]
-            MICROSOFT_BOPOMOFO["processor"] = _name2clsid[MICROSOFT_BOPOMOFO["description"]]
+            gtr = oIPP.EnumLanguageProfiles(MICROSOFT_BOPOMOFO["language"])
+            while 1:
+                profile = gtr.Next()
+                if profile is None:
+                    break
+                log.debug("IME: clsid={0.clsid}, langid={0.langid}, guidProfile={0.guidProfile}".format(profile))
+                if profile.guidProfile != MICROSOFT_BOPOMOFO["profile"]:
+                    log.debug("Skipped.")
+                    continue
+                IME_name = oIPP.GetLanguageProfileDescription(profile.clsid, profile.langid, profile.guidProfile)
+                log.debug("IME name: {0}".format(IME_name))
+                lookup_IME[IME_name] = deepcopy(default_dict)
+                _name2clsid[IME_name] = profile.clsid
+                if profile.clsid not in IME_data:
+                    continue
+                for k, v in IME_data[profile.clsid].items():
+                    if k in lookup_IME[IME_name]:
+                        if v is None:
+                            del lookup_IME[IME_name][k]
+                        else:
+                            try:
+                                lookup_IME[IME_name][k].update(v)
+                            except:
+                                lookup_IME[IME_name][k] = v
+                    elif v is not None:
+                        lookup_IME[IME_name][k] = v
+                if not oIPP.IsEnabledLanguageProfile(profile.clsid, MICROSOFT_BOPOMOFO["language"], MICROSOFT_BOPOMOFO["profile"]):
+                    log.warning("Microsoft Bopomofo IME is not enabled now.")
+        except COMError:
+            log.error("Some COM error occurred.", exc_info=True)
+    for name, data in lookup_IME.items():
+        try:
+            p = "(?P<NC>^({NATIVE})+$)|(?P<SH>^(({SYMBOL_HEAD})({SYMBOL_BODY})*)$)|(?P<SB>^({SYMBOL_BODY})+$)|".format(**data["WRDCMPS_DISPLAY"])
         except:
-            log.warning("Exception occurred on searching the default bopomofo IME by KL.", exc_info=True)
-if not MICROSOFT_BOPOMOFO["description"]:
-    raise RuntimeError("Failed to find a supported default bopomofo IME.")
+            data["WRDCMPS_DISPLAY"] = re.compile("|(?P<NC>)|(?P<SH>)|(?P<SB>)")
+            log.error("Incomplete WRDCMPS_DISPLAY: {0}".format(name))
+            continue
+        try:
+            data["WRDCMPS_DISPLAY"] = re.compile(p)
+        except:
+            data["WRDCMPS_DISPLAY"] = re.compile("|(?P<NC>)|(?P<SH>)|(?P<SB>)")
+            log.error("Bad WRDCMPS_DISPLAY: {0} => {1}".format(name, p))
+        m = data["WRDCMPS_DISPLAY"].match("")
+        if m.group("NC") is not None:
+            data["WRDCMPS_DISPLAY"] = re.compile("|(?P<NC>)|(?P<SH>)|(?P<SB>)")
+            log.error("Bad WRDCMPS_DISPLAY: <NC> group accepts '': {0} => {1}".format(name, p))
+        if m.group("SH") is not None:
+            data["WRDCMPS_DISPLAY"] = re.compile("|(?P<NC>)|(?P<SH>)|(?P<SB>)")
+            log.error("Bad WRDCMPS_DISPLAY: <SH> group accepts '': {0} => {1}".format(name, p))
+        if m.group("SB") is not None:
+            data["WRDCMPS_DISPLAY"] = re.compile("|(?P<NC>)|(?P<SH>)|(?P<SB>)")
+            log.error("Bad WRDCMPS_DISPLAY: <SB> group accepts '': {0} => {1}".format(name, p))
+    for n, cls in _name2clsid.items():
+        try:
+            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\CTF\TIP\{clsid}\LanguageProfile\0x0000{langid:04X}\{guidProfile}".format(clsid=cls, langid=MICROSOFT_BOPOMOFO["language"], guidProfile=MICROSOFT_BOPOMOFO["profile"])) as IME_i:
+                hKLstr, _type = winreg.QueryValueEx(IME_i, "SubstituteLayout")
+                if _type == winreg.REG_SZ:
+                    kl = int(hKLstr, 16)
+                    kl2name[kl] = n
+        except WindowsError as w: # The newer Python raises FileNotFoundError, i.e. w.winerror == 2.
+            if w.winerror not in (2, 259): raise
+    for l in oIPP.GetLanguageList():
+        DEFAULT_PROFILE[l] = oIPP.GetDefaultLanguageProfile(l, GUID_TFCAT_TIP_KEYBOARD)
+    MICROSOFT_BOPOMOFO["processor"], profile = DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]]
+    if profile == MICROSOFT_BOPOMOFO["profile"]:
+        try:
+            MICROSOFT_BOPOMOFO["description"] = next(name for name, cls in _name2clsid.items() if cls == MICROSOFT_BOPOMOFO["processor"])
+        except:
+            log.warning("Exception occurred on searching the default bopomofo IME.", exc_info=True)
+            profile = GUID_null # The value will pass the following condition.
+    if profile != MICROSOFT_BOPOMOFO["profile"]: # The default bopomofo IME is not supported.
+        try: # Select a (new version) supported bopomofo IME as the default.
+            MICROSOFT_BOPOMOFO["description"], MICROSOFT_BOPOMOFO["processor"] = next((name, cls) for name, cls in _name2clsid.items() if name not in kl2name.values())
+        except StopIteration: # Each bopomofo IME has a corresponding keyboard layout.
+            try:
+                MICROSOFT_BOPOMOFO["keyboard-layout"] = max(kl2name.keys())
+                MICROSOFT_BOPOMOFO["description"] = kl2name[MICROSOFT_BOPOMOFO["keyboard-layout"]]
+                MICROSOFT_BOPOMOFO["processor"] = _name2clsid[MICROSOFT_BOPOMOFO["description"]]
+            except:
+                log.warning("Exception occurred on searching the default bopomofo IME by KL.", exc_info=True)
+    if not MICROSOFT_BOPOMOFO["description"]:
+        raise RuntimeError("Failed to find a supported default bopomofo IME.")
 
 def guess_IME_name(langid):
     if configure.get("ONE_CBRLKB_TOGGLE_STATE"):
