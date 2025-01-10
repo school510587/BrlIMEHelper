@@ -131,6 +131,13 @@ class KeyboardHook(object):
     def __init__(self, addon):
         self.addon = addon
         self.config_r = addon.config_r
+        self.default_input_hkl = 0x00000404 # Zh
+        try:
+            hkl = wintypes.HANDLE()
+            if user32.SystemParametersInfoW(0x0059, 0, byref(hkl), 0): # SPI_GETDEFAULTINPUTLANG
+                self.default_input_hkl = hkl.value
+        except:
+            pass
         self._current_modifiers = set()
         self._ignored_keys = None
         self._kbq = []
@@ -243,7 +250,11 @@ class KeyboardHook(object):
             result.add((vkCode, scanCode, extended))
             self._trapped_modifiers[(vkCode, extended)] = len(self._kbq)
             return False
-        charCode = user32.MapVirtualKeyExW(vkCode, MAPVK_VK_TO_CHAR, getInputHkl())
+        try:
+            input_hkl = getInputHkl()
+        except:
+            input_hkl = self.default_input_hkl
+        charCode = user32.MapVirtualKeyExW(vkCode, MAPVK_VK_TO_CHAR, input_hkl)
         log.debug("MapVirtualKeyExW() returns 0x%08X (%d_10)." % (charCode, charCode))
         if HIWORD(charCode) != 0:
             log.debug("Invalid character code with nonzero high word.")
