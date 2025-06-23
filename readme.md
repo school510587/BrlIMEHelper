@@ -515,3 +515,11 @@ The computer keyboard can emulate braille input from both the current working br
 * Perform the original NVDA braille input during IME candidate selection.
 * Add the internal code braille feature.
 * Enable full-shape character input via the IME.
+
+### Version 2.7
+* Support NVDA version 2025.1.
+* Rename/Rewrite the manners of braille input: "9-key" and "full-keyboard" input manners.
+* The feature of 9-key NVDA braille input is preserved even if no recognized bopomofo IME is found during the load time.
+* Add the input mode information into the input conversion mode update message.
+* Solve the issue that the keyboard layout cannot be lookuped in the secure desktop.
+* Other code refactoring and documentation adjustment.
