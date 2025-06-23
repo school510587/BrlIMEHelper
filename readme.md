@@ -2,7 +2,7 @@
 Version 2.7
 
 ## Introduction
-Braille IME Helper (BrlIMEHelper) enables users to input Chinese characters directly through the braille keyboard on a braille display. When no braille keyboard is available, the addon can also simulate it using a computer keyboard. With conversion from braille input to IME operations by the addon, users familiar to braille rules can input Chinese characters without learning the keyboard mappings of the input methods. So far, the addon is an implementation based on [bopomofo braille](https://en.wikipedia.org/wiki/Taiwanese_Braille) and Microsoft Phonetic IME (微軟注音) commonly used in Taiwan, and its concept can be extended to other braille systems and IMEs in the future.
+Braille IME Helper (BrlIMEHelper) enables users to input Chinese characters directly through the braille keyboard on a braille display. When no braille keyboard is available, the addon can also simulate it using a computer keyboard (i.e. QWERTY keyboard). With conversion from braille input to IME operations by the addon, users familiar to braille rules can input Chinese characters without learning the keyboard mappings of the input methods. So far, the addon is an implementation based on [bopomofo braille](https://en.wikipedia.org/wiki/Taiwanese_Braille) and Microsoft Phonetic IME (微軟注音) commonly used in Taiwan, and its concept can be extended to other braille systems and IMEs in the future.
 
 ## Features
 1. Chinese input (including punctuations and math symbols) through the braille keyboard.
