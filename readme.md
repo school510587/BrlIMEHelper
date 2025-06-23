@@ -395,6 +395,7 @@ The computer keyboard can emulate braille input from both the current working br
     * NVDA braille does not reflect immediately as user input in "Braille Keys" and "Ignored Keys" edit controls.
     * Under some circumstances, the addon cannot successfully update the user configuration.
     * Using the Microsoft Japanese IME and Full-keyboard input manner, the key-up message of Caps Lock disappears from the sequence: Caps Lock down, Shift down, Caps Lock up, Shift up.
+    * [Braille Extender](https://github.com/aaclause/brailleExtender) is currently incompatible with the addon.
 - Possible improvements in the future:
     * Allow users to customize the default state of the addon.
     * Allow users to customize dot patterns of symbols, and/or to load dot patterns from braille translation tables.
