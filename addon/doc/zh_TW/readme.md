@@ -20,7 +20,7 @@
 - 如果您想要用電腦鍵盤來模擬點字鍵盤，必須先確認它支援 NKRO (N-key rollover)。（譯註：許多遊戲的操作也需要此特性來配合，因此選擇鍵盤時請留意它是否能用來「打遊戲」。）參見： [What PC keyboards allow for 6-key braille data entry?](https://www.duxburysystems.com/faq2.asp?faq=32&fbclid=IwAR0zdRHClvT5gikN_RqAEX_phxEp51HZX9dtDGUkWU5gTprmvBUPyBs5cFk)
 - 請避免同時執行「點字輸入法助手」與其他關於點字輸入的程式或附加元件，如附加元件 [PC Keyboard Braille Input for NVDA](https://addons.nvda-project.org/addons/pcKeyboardBrailleInput.en.html) 及[點字酷音](https://github.com/EasyIME/PIME "PIME 輸入法")輸入法等。
 - 建議停用 NVDA 設定中「輸入法組字」的「讀出輸入的組字字元」，以享受迅速流暢的打字體驗。
-- 建議將「輸入轉譯表」設為「英文（美國）八點（電腦）」，使 NVDA 行為比較符合台灣使用者的操作習慣。
+- 建議將「輸入轉譯表」設為「英文 (美國) 八點 (電腦)」，使 NVDA 行為比較符合台灣使用者的操作習慣。
 
 本附加元件假設使用者對微軟注音有如下的設定，但是使用者也可以調整本附加元件的相關設定選項來配合實際狀況。
 
@@ -194,7 +194,7 @@
 
 第 2 4 5 點加點字空白有另一個作用。它讓 NVDA 在不改動任何控制項內容的情況下撤除點字訊息
 
-按下第 1 3 6 點 + 點字空白之後，點字的輸入轉譯表會變成「Unicode」（譯註：之前的 NVDA 版本翻譯為「Unicode 點字」）。再按一次會讓它變回使用者先前設定的輸入轉譯表。不過，如果輸入轉譯表一開始就是「Unicode」，則它會變成「英文（美國）八點（電腦）」。
+按下第 1 3 6 點 + 點字空白之後，點字的輸入轉譯表會變成「Unicode」（譯註：之前的 NVDA 版本翻譯為「Unicode 點字」）。再按一次會讓它變回使用者先前設定的輸入轉譯表。不過，如果輸入轉譯表一開始就是「Unicode」，則它會變成「英文 (美國) 八點 (電腦)」。
 
 <b>文件編輯類</b>
 
