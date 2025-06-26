@@ -239,31 +239,34 @@ def infer_IME_state(hwnd=None):
     if hwnd is None:
         hwnd = getForegroundWindow()
     pid, tid = getWindowThreadProcessID(hwnd)
+    log.debug("Infer the IME state for pid={0}, tid={1}, hwnd={2}.".format(pid, tid, hwnd))
     kl = DWORD(getKeyboardLayout(tid)).value
     fg = thread_states[pid]
     mode = [TF_CONVERSIONMODE_ALPHANUMERIC, TF_CONVERSIONMODE_NATIVE, (0 if fg["mode"] is None else fg["mode"])]
-    if on_browse_mode():
+    if on_browse_mode(): # No conversion should be done in browse mode.
         for i in range(len(mode)):
             mode[i] |= TF_CONVERSIONMODE_NOCONVERSION
     IME_name = "%08X" % (kl,)
     if kl in kl2name:
-        log.debug("Recognized keyboard layout.")
+        log.debug("Recognized keyboard layout {0}.".format(IME_name))
         IME_name = kl2name[kl]
         if fg["mode"] is None:
             raise ValueError(IME_State(mode=mode[_name2clsid[IME_name] != DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0]], name=IME_name, real=fg), True, False)
         return IME_State(mode=mode[2], name=IME_name, real=fg)
+    log.debug("Keyboard layout {0} is not recognized.".format(IME_name))
     if DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null and not fg["layout"]:
         log.debug("The default language profile is not an IME.")
         raise ValueError(IME_State(mode=mode[0], name=IME_name, real=fg), True, False)
     else:
         IME_name = fg["layout"] if fg["layout"] else guess_IME_name(LOWORD(kl))
         if IME_name in lookup_IME:
-            log.debug("Recognized IME description.")
+            log.debug("Known IME description: {0}".format(IME_name))
             if fg["mode"] is None:
                 raise ValueError(IME_State(mode=mode[DEFAULT_PROFILE[MICROSOFT_BOPOMOFO["language"]][0] == GUID_null], name=IME_name, real=fg), True, not bool(fg["layout"]))
             elif fg["layout"]:
                 return IME_State(mode=mode[2], name=IME_name, real=fg)
             raise ValueError(IME_State(mode=mode[2], name=IME_name, real=fg), False, True)
+        log.debug("Unknown IME description: {0}".format(IME_name))
     log.debug("Guess the alphanumeric input mode.")
     return IME_State(mode=mode[0], name=IME_name, real=fg) # TF_CONVERSIONMODE_ALPHANUMERIC
 
