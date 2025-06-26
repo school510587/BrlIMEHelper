@@ -76,10 +76,10 @@ MICROSOFT_BOPOMOFO = {
 # Display names of keyboard mappings.
 mapping = configure.profile["KEYBOARD_MAPPING"].allowed_values
 
-kl2name = {}
-lookup_IME = {}
-_name2clsid = OrderedDict()
-oIPP = CreateObject(CLSID_TF_InputProcessorProfiles, CLSCTX_ALL, interface=ITfInputProcessorProfiles)
+kl2name = None # Keyboard layout handle -> IME description.
+lookup_IME = None # IME description -> IME data in detail.
+_name2clsid = None # IME description -> TIP identifier.
+oIPP = None # A CLSID_TF_InputProcessorProfiles object with ITfInputProcessorProfiles interface.
 
 def symbol2gesture(index):
     try:
@@ -110,6 +110,22 @@ def symbol2gesture(index):
     return index
 
 def initialize():
+    global kl2name, lookup_IME, _name2clsid, oIPP
+    DEFAULT_PROFILE.clear()
+    MICROSOFT_BOPOMOFO["processor"] = GUID_null
+    MICROSOFT_BOPOMOFO["description"] = ""
+    if kl2name is not None:
+        del kl2name
+    kl2name = {}
+    if lookup_IME is not None:
+        del lookup_IME
+    lookup_IME = {}
+    if _name2clsid is not None:
+        del _name2clsid
+    _name2clsid = OrderedDict()
+    if oIPP is not None:
+        del oIPP
+    oIPP = CreateObject(CLSID_TF_InputProcessorProfiles, CLSCTX_ALL, interface=ITfInputProcessorProfiles)
     with codecs.open(os.path.join(os.path.dirname(__file__), "{0}.json".format(MICROSOFT_BOPOMOFO["profile"])), encoding="UTF-8") as json_file:
         IME_json = json_file.read()
         IME_data = dict((GUID(g), d) for g, d in JSONDecoder(object_pairs_hook=OrderedDict).decode(IME_json).items())
