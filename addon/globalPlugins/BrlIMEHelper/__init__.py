@@ -124,6 +124,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         # Translators: Menu item of BrlIMEHelper settings.
         self.menuitem4Settings = self.menu.Append(wx.ID_ANY, _("&Settings..."))
         gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.onSettings, self.menuitem4Settings)
+        # Translators: Menu item to reload the IME data.
+        self.menuitem4ReloadIME = self.menu.Append(wx.ID_ANY, _("Re&load the IME data"))
+        gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.onReloadIME, self.menuitem4ReloadIME)
         # Translators: Menu item to show the About window.
         self.menuitem4About = self.menu.Append(wx.ID_ANY, _("&About..."))
         gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.onAbout, self.menuitem4About)
@@ -334,6 +337,17 @@ BrlIMEHelper is currently sponsored by "Taiwan Visually Impaired People Associat
 If you feel this add-on is helpful, please don't hesitate to give support to "Taiwan Visually Impaired People Association" and authors."""),
             # Translators: Title of the About window.
             _("About BrlIMEHelper"), wx.OK)
+
+    def onReloadIME(self, evt):
+        log.info("Try to reload the IME data...")
+        try:
+            keyboard.initialize()
+        except:
+            log.error("Failed to reload the IME data.", exc_info=True)
+            play_NVDA_sound("error")
+        else:
+            log.info("The IME data is successfully reloaded.")
+            ui.message("The IME data reloaded.")
 
     def onSettings(self, evt):
         from .dialogs import BrlIMEHelperSettingsDialog
