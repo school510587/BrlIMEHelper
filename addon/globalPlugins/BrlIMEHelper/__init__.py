@@ -353,7 +353,11 @@ If you feel this add-on is helpful, please don't hesitate to give support to "Ta
         from .dialogs import BrlIMEHelperSettingsDialog
         def set_deactivate_flag(b):
             self.config_r["kbbrl_deactivated"] = b
-        gui.mainFrame._popupSettingsDialog(BrlIMEHelperSettingsDialog, set_deactivate_flag, self.applyConfig)
+        try: gui.mainFrame.popupSettingsDialog
+        except AttributeError: # The old NVDA versions do not implement this method.
+            gui.mainFrame._popupSettingsDialog(BrlIMEHelperSettingsDialog, set_deactivate_flag, self.applyConfig)
+        else: # However, the new NVDA versions declare _popupSettingsDialog() as deprecated.
+            gui.mainFrame.popupSettingsDialog(BrlIMEHelperSettingsDialog, set_deactivate_flag, self.applyConfig)
 
     def script_toggleBRLsimulation(self, gesture):
         thread_states.cbrlkb = not thread_states.cbrlkb
