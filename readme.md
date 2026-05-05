@@ -329,6 +329,12 @@ The two functions are variants of "Copy the braille patterns on the braille disp
 ##### Translate the clipboard content into braille in NABCC format
 Translate the textual clipboard content into the specified format, and write it back into the clipboard. If the clipboard contains data in the other format, e.g. moving or copying a file, then these functions do not work.
 
+### Menu Items
+
+#### Reload the IME data
+
+Sometimes, BrlIMEHelper fails to load all input method data from the registry when NVDA starts. This causes it to believe that the supported Chinese IMEs are not installed on the computer, thus preventing the provision of Chinese Braille input functionality. The issue can be addressed by requesting BrlIMEHelper to reload the IME data via this item, without requiring NVDA to reload all add-ons.
+
 ### Options
 
 #### Automatically enable braille keyboard simulation when NVDA starts
