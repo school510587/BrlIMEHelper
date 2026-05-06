@@ -121,15 +121,18 @@ def hack_nvdaControllerInternal_inputLangChangeNotify(threadID, hkl, layoutStrin
     queueEvent("interruptBRLcomposition", api.getFocusObject())
     return result
 
-from NVDAHelper import localLib
+try: # NVDA 2026.1 and later.
+    from NVDAHelper.localLib import dll as localLib_dll
+except:
+    from NVDAHelper import localLib as localLib_dll
 from NVDAHelper import _setDllFuncPointer
 
 def install():
     NVDAHelper.handleInputCompositionEnd = hack_handleInputCompositionEnd
-    _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputConversionModeUpdate", hack_nvdaControllerInternal_inputConversionModeUpdate)
-    _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputLangChangeNotify", hack_nvdaControllerInternal_inputLangChangeNotify)
+    _setDllFuncPointer(localLib_dll, "_nvdaControllerInternal_inputConversionModeUpdate", hack_nvdaControllerInternal_inputConversionModeUpdate)
+    _setDllFuncPointer(localLib_dll, "_nvdaControllerInternal_inputLangChangeNotify", hack_nvdaControllerInternal_inputLangChangeNotify)
 
 def uninstall():
     NVDAHelper.handleInputCompositionEnd = old_handleInputCompositionEnd
-    _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputConversionModeUpdate", nvdaControllerInternal_inputConversionModeUpdate)
-    _setDllFuncPointer(localLib, "_nvdaControllerInternal_inputLangChangeNotify", nvdaControllerInternal_inputLangChangeNotify)
+    _setDllFuncPointer(localLib_dll, "_nvdaControllerInternal_inputConversionModeUpdate", nvdaControllerInternal_inputConversionModeUpdate)
+    _setDllFuncPointer(localLib_dll, "_nvdaControllerInternal_inputLangChangeNotify", nvdaControllerInternal_inputLangChangeNotify)
