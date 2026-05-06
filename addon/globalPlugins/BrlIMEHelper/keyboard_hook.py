@@ -17,6 +17,10 @@ except NameError: unichr = chr
 from brailleDisplayDrivers.noBraille import BrailleDisplayDriver as NoBrailleDisplayDriver
 from keyboardHandler import KeyboardInputGesture, getInputHkl, isNVDAModifierKey, currentModifiers
 from logHandler import log
+try: # NVDA 2026.1 and later.
+    from winBindings.user32 import dll as user32
+except:
+    from winUser import user32 as user32
 from winUser import *
 import addonHandler
 import braille

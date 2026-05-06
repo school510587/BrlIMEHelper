@@ -34,6 +34,10 @@ from eventHandler import queueEvent
 from keyboardHandler import getInputHkl
 from languageHandler import localeNameToWindowsLCID
 from logHandler import log
+try: # NVDA 2026.1 and later.
+    from winBindings.user32 import dll as user32
+except:
+    from winUser import user32 as user32
 from winUser import *
 import addonHandler
 import api
