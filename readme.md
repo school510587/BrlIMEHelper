@@ -530,3 +530,8 @@ The computer keyboard can emulate braille input from both the current working br
 * Add the input mode information into the input conversion mode update message.
 * Solve the issue that the keyboard layout cannot be lookuped in the secure desktop.
 * Other code refactoring and documentation adjustment.
+
+### Version 2.8
+* Support NVDA version 2026.1.
+* Add the "Reload the IME data" menu item.
+* Fix the bug that BrlIMEHelper does not work with Notepad on Windows 11 and console applications.
