@@ -5,18 +5,18 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 'BrlIMEHelper' '2.7'\n"
-"Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
-"POT-Creation-Date: 2024-05-11 06:26+0800\n"
-"PO-Revision-Date: 2024-05-11 06:33+0800\n"
+"Project-Id-Version: 'BrlIMEHelper' '2.8'\n"
+"Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
+"POT-Creation-Date: 2026-05-06 01:38+0800\n"
+"PO-Revision-Date: 2026-05-06 01:52+0800\n"
 "Last-Translator: Bo-Cheng Jhan <school510587@yahoo.com.tw>\n"
 "Language-Team: NVDA-Taiwan Volunteers Team\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.13\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.9\n"
 
 #. Translators: Dialog text shown to ask whether to change the braille input translation table.
 #: addon\installTasks.py:29
@@ -46,42 +46,46 @@ msgstr ""
 msgid "Save the user configuration"
 msgstr "儲存使用者設定"
 
+#. Translators: Menu item of BrlIMEHelper settings.
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:125
+msgid "&Settings..."
+msgstr "設定(&S)..."
+
+#. Translators: Menu item to reload the IME data.
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:128
+msgid "Re&load the IME data"
+msgstr "重新載入輸入法資料(&L)"
+
+#. Translators: Menu item to show the About window.
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:131
+msgid "&About..."
+msgstr "關於(&A)..."
+
 #. Translators: Item of BrlIMEHelper configuration in NVDA tools menu.
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on
 #. to be shown on installation and add-on information found in Add-ons Manager.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:100
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:131 buildVars.py:21
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:135 buildVars.py:21
 msgid "Braille IME Helper"
 msgstr "點字輸入法助手"
 
-#. Translators: Menu item of BrlIMEHelper settings.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:124
-msgid "&Settings..."
-msgstr "設定(&S)..."
-
-#. Translators: Menu item to show the About window.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:127
-msgid "&About..."
-msgstr "關於(&A)..."
-
 #. Translators: Tooltip of BrlIMEHelper configuration item in NVDA tools menu.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:133
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:137
 msgid "Configure Braille IME Helper"
 msgstr "設定點字輸入法助手"
 
 #. Translators: Reported when braille input from the PC keyboard is enabled.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:290
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:297
 msgid "Enabled: Simulating braille keyboard by a computer keyboard."
 msgstr "啟用：電腦鍵盤模擬點字鍵盤。"
 
 #. Translators: Reported when braille input from the PC keyboard is disabled.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:298
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:305
 msgid "Disabled: Simulating braille keyboard by a computer keyboard."
 msgstr "停用：電腦鍵盤模擬點字鍵盤。"
 
 #. Translators: The About message.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:326
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:333
 msgid ""
 "Braille IME Helper (BrlIMEHelper)\n"
 "Copyright (C) 2019 Bo-Cheng Jhan and other contributors\n"
@@ -106,117 +110,117 @@ msgstr ""
 "若您覺得此項附加元件有所助益，請不吝給予我們與臺灣視障協會支持。"
 
 #. Translators: Title of the About window.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:332
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:339
 msgid "About BrlIMEHelper"
 msgstr "關於點字輸入法助手"
 
 #. Translators: Name of a command to toggle braille input from a computer keyboard.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:344
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:366
 msgid "Toggles braille input from a computer keyboard."
 msgstr "開啟或關閉來自電腦鍵盤的點字輸入。"
 
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:349
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:371
 msgid "Failed to change the input manner of the main keyboard."
 msgstr "不能改變主鍵盤的輸入方式。"
 
 #. Translators: Name of a command to switch the input manner of the main keyboard.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:358
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:380
 msgid "Switch the input manner of the main keyboard."
 msgstr "切換主鍵盤的輸入方式。"
 
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:375
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:397
 #, python-brace-format
 msgid "The braille input translation table has been changed to \"{0}\""
 msgstr "點字輸入轉譯表已經改成「{0}」"
 
 #. Translators: Name of a command to switch between unicode-braille.utb and any other braille input translation table.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:380
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:402
 msgid ""
 "Switches between the Unicode braille input translation table and any other "
 "input translation table."
 msgstr "在 Unicode 點字輸入轉譯表與其他輸入轉譯表之間切換。"
 
 #. Translators: Name of a command to perform braille composition.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:442
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:464
 msgid "Handles braille composition."
 msgstr "點字輸入法組字。"
 
 #. Translators: Name of a command to clear braille buffer and/or dismiss NVDA braille message.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:450
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:472
 msgid "Clear braille buffer and/or dismiss NVDA braille message."
 msgstr "清除點字緩衝區內容以及撤除 NVDA 的點字訊息。"
 
 #. Translators: Name of a command to copy the raw text content of the braille display to the clipboard.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:477
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:499
 msgid "Copy the raw text content of the braille display to the clipboard."
 msgstr "複製點字顯示器所顯示的純文字內容到剪貼簿。"
 
 #. Translators: Name of a command to copy the braille patterns on the braille display to the clipboard.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:505
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:527
 msgid "Copy the braille patterns on the braille display to the clipboard."
 msgstr "複製點字顯示器上呈現的點字內容到剪貼簿。"
 
 #. Translators: Name of a command to copy the braille patterns on the braille display to the clipboard in BRF format.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:510
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:532
 msgid ""
 "Copy the braille patterns on the braille display to the clipboard in BRF "
 "format."
 msgstr "用 BRF 格式複製點字顯示器上呈現的點字內容到剪貼簿。"
 
 #. Translators: Name of a command to copy the braille patterns on the braille display to the clipboard in NABCC format.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:515
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:537
 msgid ""
 "Copy the braille patterns on the braille display to the clipboard in NABCC "
 "format."
 msgstr "用 NABCC 格式複製點字顯示器上呈現的點字內容到剪貼簿。"
 
 #. Translators: Name of a command to switch between IME alphanumeric and native input conversion modes.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:521
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:543
 msgid "Switch between IME alphanumeric and native input conversion modes."
 msgstr "在輸入法的中文輸入及英數輸入轉換模式之間切換。"
 
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:541
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:563
 msgid "unknown input method"
 msgstr "未知的輸入法"
 
 #. Translators: Name of a command to view the state of the addon.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:552
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:574
 msgid "View the state of BrlIMEHelper."
 msgstr "檢視點字輸入法助手的狀態。"
 
 #. Translators: Name of a command to switch the display of the internal code in braille.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:587
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:609
 msgid "Turn on/off the display of the internal code in braille."
 msgstr "打開／關閉內碼點字。"
 
 #. SW_NORMAL
 #. Translators: Name of a command to open the control panel.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:596
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:618
 msgid "Open the control panel."
 msgstr "開啟控制台。"
 
 #. Translators: Name of a command to force NVDA to show the current braille message indefinitely.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:604
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:626
 msgid "Force NVDA to show the current braille message indefinitely."
 msgstr "強迫 NVDA 持續顯示當前的點字訊息。"
 
 #. Translators: Reported when reading the clipboard has failed.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:612
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:634
 msgid "Failed to read the clipboard."
 msgstr "讀取剪貼簿失敗。"
 
 #. Translators: Name of a command to translate the clipboard content into Unicode braille patterns.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:635
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:657
 msgid "Translate the clipboard content into Unicode braille patterns."
 msgstr "將剪貼簿內容轉譯成 Unicode 點字圖案。"
 
 #. Translators: Name of a command to translate the clipboard content into braille in BRF format.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:640
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:662
 msgid "Translate the clipboard content into braille in BRF format."
 msgstr "將剪貼簿內容轉譯成 BRF 格式的點字。"
 
 #. Translators: Name of a command to translate the clipboard content into braille in NABCC format.
-#: addon\globalPlugins\BrlIMEHelper\__init__.py:645
+#: addon\globalPlugins\BrlIMEHelper\__init__.py:667
 msgid "Translate the clipboard content into braille in NABCC format."
 msgstr "將剪貼簿內容轉譯成 NABCC 格式的點字。"
 
@@ -348,32 +352,32 @@ msgid "Braille IME Helper Settings"
 msgstr "點字輸入法助手設定"
 
 #. Translators: The input mode, NVDA braille input handler with the 9-key input manner.
-#: addon\globalPlugins\BrlIMEHelper\keyboard_hook.py:94
+#: addon\globalPlugins\BrlIMEHelper\keyboard_hook.py:100
 msgid "9-key NVDA Braille Input"
 msgstr "九鍵 NVDA 點字輸入"
 
 #. Translators: The input mode, BrlIMEHelper input handler with the 9-key input manner.
-#: addon\globalPlugins\BrlIMEHelper\keyboard_hook.py:96
+#: addon\globalPlugins\BrlIMEHelper\keyboard_hook.py:102
 msgid "9-key Braille IME"
 msgstr "九鍵點字輸入法"
 
 #. Translators: The input mode, NVDA braille input handler with the full-keyboard input manner.
-#: addon\globalPlugins\BrlIMEHelper\keyboard_hook.py:98
+#: addon\globalPlugins\BrlIMEHelper\keyboard_hook.py:104
 msgid "Full-keyboard NVDA Braille Input"
 msgstr "全鍵盤 NVDA 點字輸入"
 
 #. Translators: The input mode, BrlIMEHelper input handler with the full-keyboard input manner.
-#: addon\globalPlugins\BrlIMEHelper\keyboard_hook.py:100
+#: addon\globalPlugins\BrlIMEHelper\keyboard_hook.py:106
 msgid "Full-keyboard Braille IME"
 msgstr "全鍵盤點字輸入法"
 
 #. Translators: The input mode, NVDA braille input handler without braille keyboard emulation.
-#: addon\globalPlugins\BrlIMEHelper\keyboard_hook.py:102
+#: addon\globalPlugins\BrlIMEHelper\keyboard_hook.py:108
 msgid "NVDA Braille Input"
 msgstr "NVDA 點字輸入"
 
 #. Translators: The input mode, BrlIMEHelper input handler without braille keyboard emulation.
-#: addon\globalPlugins\BrlIMEHelper\keyboard_hook.py:104
+#: addon\globalPlugins\BrlIMEHelper\keyboard_hook.py:110
 msgid "Braille IME"
 msgstr "點字輸入法"
 
