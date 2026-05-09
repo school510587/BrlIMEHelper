@@ -244,7 +244,10 @@ def infer_IME_state(hwnd=None):
         hwnd = getForegroundWindow()
     pid, tid = getWindowThreadProcessID(hwnd)
     log.debug("Infer the IME state for pid={0}, tid={1}, hwnd={2}.".format(pid, tid, hwnd))
-    kl = DWORD(getKeyboardLayout(tid)).value
+    kl = getKeyboardLayout(tid)
+    if not kl: # kl may be None or 0 (NVDA < 2026.1).
+        kl = getKeyboardLayout(0)
+    kl = DWORD(kl).value
     fg = thread_states[pid]
     mode = [TF_CONVERSIONMODE_ALPHANUMERIC, TF_CONVERSIONMODE_NATIVE, (0 if fg["mode"] is None else fg["mode"])]
     if on_browse_mode(): # No conversion should be done in browse mode.
