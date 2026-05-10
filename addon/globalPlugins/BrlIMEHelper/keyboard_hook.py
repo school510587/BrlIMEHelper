@@ -18,9 +18,12 @@ from brailleDisplayDrivers.noBraille import BrailleDisplayDriver as NoBrailleDis
 from keyboardHandler import KeyboardInputGesture, getInputHkl, isNVDAModifierKey, currentModifiers
 from logHandler import log
 try: # NVDA 2026.1 and later.
-    from winBindings.user32 import dll as user32
+    from winBindings.user32 import MapVirtualKeyEx
+    from winBindings.user32 import SystemParametersInfo
 except:
-    from winUser import user32 as user32
+    from winUser import user32
+    MapVirtualKeyEx = user32.MapVirtualKeyExW
+    SystemParametersInfo = user32.SystemParametersInfoW
 from winUser import *
 import addonHandler
 import braille
@@ -138,7 +141,7 @@ class KeyboardHook(object):
         self.default_input_hkl = 0x00000404 # Zh
         try:
             hkl = wintypes.HANDLE()
-            if user32.SystemParametersInfoW(0x0059, 0, byref(hkl), 0): # SPI_GETDEFAULTINPUTLANG
+            if SystemParametersInfo(0x0059, 0, byref(hkl), 0): # SPI_GETDEFAULTINPUTLANG
                 self.default_input_hkl = hkl.value
         except:
             pass
@@ -258,8 +261,8 @@ class KeyboardHook(object):
             input_hkl = getInputHkl()
         except:
             input_hkl = self.default_input_hkl
-        charCode = user32.MapVirtualKeyExW(vkCode, MAPVK_VK_TO_CHAR, input_hkl)
-        log.debug("MapVirtualKeyExW() returns 0x%08X (%d_10)." % (charCode, charCode))
+        charCode = MapVirtualKeyEx(vkCode, MAPVK_VK_TO_CHAR, input_hkl)
+        log.debug("MapVirtualKeyEx() returns 0x%08X (%d_10)." % (charCode, charCode))
         if HIWORD(charCode) != 0:
             log.debug("Invalid character code with nonzero high word.")
             self.clear_pending_keys(passed_key=(vkCode, scanCode, extended))

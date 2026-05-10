@@ -10,15 +10,15 @@ try:
 except:
     from collections import Callable
 from collections import OrderedDict
-from ctypes import windll
 from sys import getwindowsversion as getWinVer
 
 from keyboardHandler import KeyboardInputGesture, getInputHkl
 from logHandler import log
 try: # NVDA 2026.1 and later.
-    from winBindings.user32 import dll as user32
+    from winBindings.user32 import MapVirtualKeyEx
 except:
-    from winUser import user32 as user32
+    from winUser import user32
+    MapVirtualKeyEx = user32.MapVirtualKeyExW
 from winUser import *
 import addonHandler
 import config
@@ -74,13 +74,13 @@ profile["BRAILLE_KEYS"] = ItemSpec(
     label = _("Braille Keys:"),
     default_value = " FDSJKLA;",
     allowed_values = lambda bk: len(bk) == len(set(bk)) == NUM_BRAILLE_KEYS and
-        all(ord(k) == user32.MapVirtualKeyExW(VkKeyScanEx(k, getInputHkl())[1], MAPVK_VK_TO_CHAR, getInputHkl()) for k in bk),
+        all(ord(k) == MapVirtualKeyEx(VkKeyScanEx(k, getInputHkl())[1], MAPVK_VK_TO_CHAR, getInputHkl()) for k in bk),
 )
 profile["IGNORED_KEYS"] = ItemSpec(
     label = _("Ignored Keys:"),
     default_value = "0123456789",
     allowed_values = lambda ik: len(ik) == len(set(ik)) and
-        all(ord(k) == user32.MapVirtualKeyExW(VkKeyScanEx(k, getInputHkl())[1], MAPVK_VK_TO_CHAR, getInputHkl()) for k in ik),
+        all(ord(k) == MapVirtualKeyEx(VkKeyScanEx(k, getInputHkl())[1], MAPVK_VK_TO_CHAR, getInputHkl()) for k in ik),
 )
 profile["FREE_ALL_NON_BRL_KEYS_IN_ALPHANUMERIC_MODE"] = ItemSpec(
     label = _("Free all non-braille keys during braille keyboard simulation in IME alphanumeric input mode."),

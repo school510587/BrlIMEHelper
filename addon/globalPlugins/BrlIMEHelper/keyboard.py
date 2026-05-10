@@ -35,9 +35,10 @@ from keyboardHandler import getInputHkl
 from languageHandler import localeNameToWindowsLCID
 from logHandler import log
 try: # NVDA 2026.1 and later.
-    from winBindings.user32 import dll as user32
+    from winBindings.user32 import ToUnicodeEx
 except:
-    from winUser import user32 as user32
+    from winUser import user32
+    ToUnicodeEx = user32.ToUnicodeEx
 from winUser import *
 import addonHandler
 import api
@@ -365,7 +366,7 @@ def vk2str(vkCode, scanCode, actual_key_state=None): # GetKeyboardState does not
         kst = [getKeyState(i) for i in range(256)]
     kst = (c_byte * 256)(*kst)
     b = create_unicode_buffer(5)
-    r = user32.ToUnicodeEx(vkCode, scanCode, kst, b, len(b), 0x4, getInputHkl())
+    r = ToUnicodeEx(vkCode, scanCode, kst, b, len(b), 0x4, getInputHkl())
     return b.value if r > 0 else u""
 
 def vkdbgmsg(vkCode, extended=None, injected=False):
