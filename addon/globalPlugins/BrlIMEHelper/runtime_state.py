@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 from collections import defaultdict
 from collections import namedtuple
 from ctypes import windll
+from ctypes.wintypes import HWND
 from functools import partial
 from threading import Thread
 from time import sleep
@@ -138,6 +139,11 @@ class _Runtime_States(defaultdict):
     def update_foreground(self, source=None, **kwargs):
         if source is None:
             fg = self.foreground
+        elif isinstance(source, HWND): # Explicit type casting is required to trigger this case in the old NVDA versions.
+            pid = getWindowThreadProcessID(source)[0]
+            if not pid: raise RunTimeError("Failed to get the process ID from HWND {0}.".format(source))
+            log.debug("Update the state for pid={0}, HWND={1}".format(pid, source))
+            fg = self[pid]
         elif isinstance(source, NVDAObject):
             try:
                 fg = self[source.processID]
