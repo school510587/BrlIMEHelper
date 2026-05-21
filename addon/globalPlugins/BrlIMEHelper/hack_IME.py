@@ -5,10 +5,12 @@
 
 from __future__ import unicode_literals
 from ctypes import *
+from ctypes.wintypes import HWND
 from functools import partial
 
 from eventHandler import queueEvent
 from logHandler import log
+from winUser import getForegroundWindow
 import NVDAHelper
 import api
 import braille
@@ -93,9 +95,12 @@ from NVDAHelper import nvdaControllerInternal_inputConversionModeUpdate
 def hack_nvdaControllerInternal_inputConversionModeUpdate(oldFlags, newFlags, lcid):
     global thread_states
     log.debug("IME conversion mode update: oldFlags={0}, newFlags={1}, lcid={2}".format(oldFlags, newFlags, lcid))
-    focus = api.getFocusObject()
+    focus = api.getFocusObject() # FIXME: It is an old NVDA internal state.
     try:
-        item = thread_states.update_foreground(source=focus, lcid=lcid, mode=newFlags)
+        fg = getForegroundWindow()
+        if fg and not isinstance(fg, HWND):
+            fg = HWND(fg)
+        item = thread_states.update_foreground(source=fg, lcid=lcid, mode=newFlags)
         log.debug("IME status: {0}".format(item))
     except:
         log.error("IME conversion mode update failure", exc_info=True)
