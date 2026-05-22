@@ -274,11 +274,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             beep_typo()
         nextHandler()
 
-    def event_showInputConversionMode(self, obj, nextHandler, ui_message=ui.message, args=(), kwargs={}):
+    def event_showInputConversionMode(self, obj, nextHandler, foreground=HWND(None), ui_message=ui.message, args=(), kwargs={}):
         log.debug("Running event_showInputConversionMode")
+        if not foreground or not isinstance(foreground, HWND):
+            foreground = obj.windowHandle
         if len(args) > 0 and self.kbh is not None and not self.kbh.disabled():
             try:
-                IME_state = keyboard.infer_IME_state(obj.windowHandle)
+                IME_state = keyboard.infer_IME_state(foreground)
             except ValueError as e:
                 IME_state = e.args[0]
             args = ("{0} {1}".format(args[0], keyboard_hook.input_mode_name(IME_state, self.config_r["kbbrl_ASCII_mode"])),) + args[1:]
