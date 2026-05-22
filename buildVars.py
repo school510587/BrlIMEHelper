@@ -41,9 +41,9 @@ addon_info = {
     # Do not change unless you know what you are doing!
     "addon_updateChannel": None,
     # Add-on license such as GPL 2
-    "addon_license": "GPL 3.0",
+    "addon_license": "GPL v3",
     # URL for the license document the ad-on is licensed under
-    "addon_licenseURL": "https://github.com/school510587/BrlIMEHelper/blob/master/LICENSE",
+    "addon_licenseURL": "https://www.gnu.org/licenses/gpl-3.0.html",
 }
 
 # Construct the final version string.
